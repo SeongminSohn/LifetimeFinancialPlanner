@@ -1,0 +1,72 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: white;
+    justify-content: center;
+  }
+  
+  .financial-planner {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 5rem;
+    background-color: black;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    justify-content: center;
+  }
+  
+  .financial-planner h1,
+  .financial-planner h2 {
+    text-align: center;
+    color: white;
+  }
+  
+  .planner-form .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .planner-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+  
+  .planner-form input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .planner-form button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .planner-form button:hover {
+    background-color: #0056b3;
+  }
+  
+  .result table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  .result th,
+  .result td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  
+  .result th {
+    background-color: black;
+  }
+  
