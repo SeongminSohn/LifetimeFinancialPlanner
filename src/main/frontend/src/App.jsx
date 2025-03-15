@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Sample from "./pages/homepage.jsx";
+import Homepage from "./pages/homepage.jsx";
+import Profset from "./pages/profileSetting.jsx"
 import "./App.css";
 
 
@@ -8,8 +9,9 @@ function App() {
         <>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<Sample />} />
-                    <Route path="/sample" element={<Sample />} />
+                    <Route path="/" element={<Homepage />} />
+                    <Route path="/Homepage" element={<Homepage />} />
+                    <Route path="/Profset" element={<Profset />} />
                 </Routes>
             </BrowserRouter>
         </>
