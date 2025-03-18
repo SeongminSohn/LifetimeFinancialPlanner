@@ -21,7 +21,7 @@ function homePage(){
 
   const [openSide, setSide] = useState(false);
   const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
-  const navigate = useNavigate();
+  const navPage = useNavigate();
 
   const popupMenu = () => {
     setSide(prevState => !prevState);
@@ -30,13 +30,34 @@ function homePage(){
   function sideElements(){
     return openSide && (
         <aside className="sidebar">
-          <button>current Balance</button>
-          <button>Budget Management</button>
-          <button>Run simulation</button>
-          <button>view simulation result</button>
-          <button>setting</button>
+          <button onClick={toTax}>Tax Management</button>
+          <button onClick={toFin}>Financial Planning</button>
+          <button onClick={toEve}>Event Management</button>
+          <button onClick={toSim}>Scenario Simulation</button>
+          <button>Reports & Logs</button>
+          <button>Import & Export Date</button>
         </aside>
     )
+  }
+
+  // function toDash(){
+  //   navPage('/Homepage');
+  // }
+
+  function toFin(){
+    navPage('/FinP');
+  }
+
+  function toTax(){
+    navPage('/Taxm')
+  }
+
+  function toEve(){
+    navPage('/EveM')
+  }
+
+  function toSim(){
+    navPage('/Imex')
   }
 
   function defineProfile(){
@@ -53,14 +74,18 @@ function homePage(){
   }
 
   function toProfile(){
-    navigate('/Profset');
+    navPage('/Profset');
+  }
+
+  function toLogin(){
+    navPage('/Loginpage');
   }
 
   return (<div>
     <nav className="navBarTop">
       <img src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
       <p className= "logoLetter">Life Time Financial Planner</p>
-      <button className="commonButton">About us</button>
+      <button className="commonButton" onClick={toLogin}>Sign-In</button>
     </nav>
     <nav className= "navBarSub">
       <button className="commonButton" onClick={popupMenu}>Menu</button>
