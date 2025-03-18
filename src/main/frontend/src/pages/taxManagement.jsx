@@ -22,6 +22,14 @@ function homePage(){
     const [openSide, setSide] = useState(false);
     const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
+    const [formData, setFormData] = useState({
+        id: '',
+        initialAmount: '0', // annual income
+        annualChange: '0', // inflation growth rate
+        inflation_adjustment: 'false', // apply growth rate or not
+        isSocialSecurity: 'false', // is income social security or not
+        marrried: 'false', // for tax bracket
+    });
 
     const popupMenu = () => {
         setSide(prevState => !prevState);
@@ -87,7 +95,9 @@ function homePage(){
 
     function taxManage(){
         //get User's region
-        return(<div className="loginBox"><div></div></div>)
+        return(<div className="loginBox"><div>
+
+        </div></div>)
     }
 
     return (<div className="total">
