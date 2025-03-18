@@ -36,6 +36,9 @@ dependencies {
     // Database
     runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
 
+    // SpringDoc OpenAPI (Swagger UI)
+    implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
