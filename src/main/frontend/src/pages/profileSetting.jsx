@@ -81,6 +81,10 @@ function profileSetting(){
         e.target.src = profileImage;
     }
 
+    function toHome(){
+        navPage('/Homepage')
+    }
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -203,7 +207,7 @@ function profileSetting(){
 
     return (<div className="total">
         <nav className="navBarTop">
-            <img src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
+            <img onClick={toHome} src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
             <button className="commonButton">About us</button>
         </nav>

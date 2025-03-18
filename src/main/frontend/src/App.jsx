@@ -6,6 +6,7 @@ import Taxm from "./pages/taxManagement.jsx"
 import Imex from "./pages/imexData.jsx"
 import EveM from "./pages/eventManagement.jsx"
 import FinP from "./pages/financialPlanning.jsx"
+import Signup from "./pages/signup.jsx"
 import "./App.css";
 
 
@@ -22,6 +23,7 @@ function App() {
                     <Route path="/Imex" element={<Imex />} />
                     <Route path="/EveM" element={<EveM />} />
                     <Route path="/FinP" element={<FinP />} />
+                    <Route path="/Signup" element={<Signup />} />
                 </Routes>
             </BrowserRouter>
         </>

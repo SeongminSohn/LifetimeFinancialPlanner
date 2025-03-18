@@ -81,7 +81,13 @@ function homePage(){
     navPage('/Loginpage');
   }
 
-  return (<div>
+  function taxManager(){
+    return(<div className="loginBox">
+
+    </div>)
+  }
+
+  return (<div className="total">
     <nav className="navBarTop">
       <img src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
       <p className= "logoLetter">Life Time Financial Planner</p>
@@ -94,6 +100,7 @@ function homePage(){
         <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
       </button>
     </nav>
+    {taxManager()}
   </div>);
 }
 export default homePage;
