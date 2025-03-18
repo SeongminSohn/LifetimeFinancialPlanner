@@ -18,7 +18,7 @@ function homePage(){
         };
 
         fetchData();}, []);
-
+    // get user's region data and income data (Income, Social Security benefit, Pension, Add income category, Income Growth Rate)
     const [openSide, setSide] = useState(false);
     const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
@@ -85,7 +85,12 @@ function homePage(){
         navPage('/Loginpage');
     }
 
-    return (<div>
+    function taxManage(){
+        //get User's region
+        return(<div className="loginBox"><div></div></div>)
+    }
+
+    return (<div className="total">
         <nav className="navBarTop">
             <img onClick={toHome} src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
@@ -98,6 +103,7 @@ function homePage(){
                 <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
             </button>
         </nav>
+        {taxManage()}
     </div>);
 }
 export default homePage;

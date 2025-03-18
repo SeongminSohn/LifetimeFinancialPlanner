@@ -100,29 +100,17 @@ function loginPage(){
         return (<form onSubmit={handleSubmit} className="loginBox">
             <div className="logoLetter" style={{fontSize: '50px'}} >Sign in</div>
             <div className="login"><label htmlFor="id">ID: </label>
-                <input
-                    type="text"
-                    id="id"
-                    name="id"
-                    value={formData.id}
-                    onChange={handleChange}
-                /></div>
+                <input type="text" id="id" name="id" value={formData.id} onChange={handleChange}/></div>
             <div className="login"><label htmlFor="password">Password: </label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                /></div>
-            <div><button className="commonButton" type="submit" >Sign in</button>
-                <button className="commonButton" type="button" >Sign up</button></div>
+                <input type="password" id="password" name="password" value={formData.password} onChange={handleChange}/></div>
+            <div><button className="submitButton" type="submit" >Sign in</button>
+                <button className="submitButton" type="button" onClick={toSignUp}>Sign up</button></div>
 
         </form>);
     }
 
     function toSignUp(){
-        navPage("/SigunUp")
+        navPage("/Signup")
     }
 
     return (<div className="total">

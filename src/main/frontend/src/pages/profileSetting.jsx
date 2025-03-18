@@ -25,12 +25,12 @@ function profileSetting(){
     const [formData, setFormData] = useState({
         uprofile: '',
         uname: '',
-        ugender: '',
+        ugender: 'Male',
         uemail: '',
         uphonenum: '',
         uaddress1: '',
         uaddress2: '',
-        ustate: ''
+        ustate: 'AL'
     });
 
     const popupMenu = () => {
@@ -104,65 +104,66 @@ function profileSetting(){
     function stateSelection() {
         return (<div className="login">
                 <label htmlFor="ustate"></label>
-                <input
-                    list="ustate"
-                    placeholder="Select your state"
-                    name="ustate"
-                    value={formData.ustate}
-                    onChange={handleChange}
-                />
-                <datalist id="ustate">
-                    <option value="AL"/>
-                    <option value="AK"/>
-                    <option value="AZ"/>
-                    <option value="AR"/>
-                    <option value="CA"/>
-                    <option value="CO"/>
-                    <option value="CT"/>
-                    <option value="DE"/>
-                    <option value="FL"/>
-                    <option value="GA"/>
-                    <option value="HI"/>
-                    <option value="ID"/>
-                    <option value="IL"/>
-                    <option value="IN"/>
-                    <option value="IA"/>
-                    <option value="KS"/>
-                    <option value="KY"/>
-                    <option value="LA"/>
-                    <option value="ME"/>
-                    <option value="MD"/>
-                    <option value="MA"/>
-                    <option value="MI"/>
-                    <option value="MN"/>
-                    <option value="MS"/>
-                    <option value="MO"/>
-                    <option value="MT"/>
-                    <option value="NE"/>
-                    <option value="NV"/>
-                    <option value="NH"/>
-                    <option value="NJ"/>
-                    <option value="NM"/>
-                    <option value="NY"/>
-                    <option value="NC"/>
-                    <option value="ND"/>
-                    <option value="OH"/>
-                    <option value="OK"/>
-                    <option value="OR"/>
-                    <option value="PA"/>
-                    <option value="RI"/>
-                    <option value="SC"/>
-                    <option value="SD"/>
-                    <option value="TN"/>
-                    <option value="TX"/>
-                    <option value="UT"/>
-                    <option value="VT"/>
-                    <option value="VA"/>
-                    <option value="WA"/>
-                    <option value="WV"/>
-                    <option value="WI"/>
-                    <option value="WY"/>
-                </datalist>
+                {/*<input*/}
+                {/*    list="ustate"*/}
+                {/*    placeholder="Select your state"*/}
+                {/*    name="ustate"*/}
+                {/*    value={formData.ustate}*/}
+                {/*    onChange={handleChange}*/}
+                {/*/>*/}
+                <select name="ustate" id="ustate" value={formData.ustate} onChange={handleChange}>
+                    <option value="AL">AL</option>
+                    <option value="AK">AK</option>
+                    <option value="AZ">AZ</option>
+                    <option value="AR">AR</option>
+                    <option value="CA">CA</option>
+                    <option value="CO">CO</option>
+                    <option value="CT">CT</option>
+                    <option value="DE">DE</option>
+                    <option value="FL">FL</option>
+                    <option value="GA">GA</option>
+                    <option value="HI">HI</option>
+                    <option value="ID">ID</option>
+                    <option value="IL">IL</option>
+                    <option value="IN">IN</option>
+                    <option value="IA">IA</option>
+                    <option value="KS">KS</option>
+                    <option value="KY">KY</option>
+                    <option value="LA">LA</option>
+                    <option value="ME">ME</option>
+                    <option value="MD">MD</option>
+                    <option value="MA">MA</option>
+                    <option value="MI">MI</option>
+                    <option value="MN">MN</option>
+                    <option value="MS">MS</option>
+                    <option value="MO">MO</option>
+                    <option value="MT">MT</option>
+                    <option value="NE">NE</option>
+                    <option value="NV">NV</option>
+                    <option value="NH">NH</option>
+                    <option value="NJ">NJ</option>
+                    <option value="NM">NM</option>
+                    <option value="NY">NY</option>
+                    <option value="NC">NC</option>
+                    <option value="ND">ND</option>
+                    <option value="OH">OH</option>
+                    <option value="OK">OK</option>
+                    <option value="OR">OR</option>
+                    <option value="PA">PA</option>
+                    <option value="RI">RI</option>
+                    <option value="SC">SC</option>
+                    <option value="SD">SD</option>
+                    <option value="TN">TN</option>
+                    <option value="TX">TX</option>
+                    <option value="UT">UT</option>
+                    <option value="VT">VT</option>
+                    <option value="VA">VA</option>
+                    <option value="WA">WA</option>
+                    <option value="WV">WV</option>
+                    <option value="WI">WI</option>
+                    <option value="WY">WY</option>
+
+                </select>
             </div>
         );
     }
@@ -178,18 +179,20 @@ function profileSetting(){
                 <input placeholder="User Name" type="text" id="uname" name="uname" value={formData.uname} onChange={handleChange}/></div>
             <div className="login">
                 <label htmlFor="ugender"></label>
-                <input
-                    list="ugender"
-                    placeholder="Gender"
-                    name="ugender"
-                    value={formData.ugender}
-                    onChange={handleChange}
-                />
-                <datalist id="ugender">
-                    <option value="Male" />
-                    <option value="female" />
-                    <option value="not want to say" />
-                </datalist>
+                {/*<input*/}
+                {/*    list="ugender"*/}
+                {/*    placeholder="Gender"*/}
+                {/*    name="ugender"*/}
+                {/*    value={formData.ugender}*/}
+                {/*    onChange={handleChange}*/}
+                {/*/>*/}
+                <select name="ugender"
+                          value={formData.ugender}
+                          onChange={handleChange} id="ugender">
+                    <option value="Male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="not want to say">Not want to say</option>
+                </select>
             </div>
             <div className="login"><label htmlFor="uemail"></label>
                 <input placeholder="Email" type="text" id="uemail" name="uemail" value={formData.uemail} onChange={handleChange}/></div>
@@ -201,7 +204,7 @@ function profileSetting(){
                 <input placeholder="Address (Optional)" type="text" id="uaddress2" name="uaddress2" value={formData.uaddress2} onChange={handleChange}/></div>
             <div className="login"><label htmlFor="ustate"></label>
                 {stateSelection()}</div>
-            <button className="" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
+            <button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
         </form>);
     }
 

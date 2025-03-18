@@ -4,6 +4,7 @@ import {useEffect} from "react";
 import axios from "axios";
 import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
+import Axios from "axios"
 
 function homePage(){
   useEffect(() => {
@@ -22,6 +23,7 @@ function homePage(){
   const [openSide, setSide] = useState(false);
   const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
   const navPage = useNavigate();
+  const [loggedIn, setLoggedIn] = useState(false)
 
   const popupMenu = () => {
     setSide(prevState => !prevState);
@@ -81,17 +83,28 @@ function homePage(){
     navPage('/Loginpage');
   }
 
-  function taxManager(){
+  function homeManage(){
     return(<div className="loginBox">
-
+      <></>
     </div>)
+  }
+
+  function statusCheck(){
+    //if DB got the data, then
+    setLoggedIn(true)
+    //else
+    //setLoggedIn(false)
   }
 
   return (<div className="total">
     <nav className="navBarTop">
       <img src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
       <p className= "logoLetter">Life Time Financial Planner</p>
-      <button className="commonButton" onClick={toLogin}>Sign-In</button>
+      {!loggedIn && (
+          <button className="commonButton" onClick={toLogin}>
+            Sign-In
+          </button>
+      )}
     </nav>
     <nav className= "navBarSub">
       <button className="commonButton" onClick={popupMenu}>Menu</button>
@@ -100,7 +113,7 @@ function homePage(){
         <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
       </button>
     </nav>
-    {taxManager()}
+    {homeManage()}
   </div>);
 }
 export default homePage;
