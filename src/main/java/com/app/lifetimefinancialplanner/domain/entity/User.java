@@ -1,15 +1,13 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
+import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity @Table(name = "TBL_USER")
 @SequenceGenerator(name = "SEQ_USER_GENERATOR", sequenceName = "SEQ_USER", allocationSize = 1)
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor @Builder
 public class User {
     @Id
     @GeneratedValue(generator = "SEQ_USER_GENERATOR")

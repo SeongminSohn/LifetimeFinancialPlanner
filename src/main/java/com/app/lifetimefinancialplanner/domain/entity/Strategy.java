@@ -26,7 +26,7 @@ public class Strategy {
     private String description;
 
     @Column(name = "STRATEGY_TYPE", length = 50, nullable = false)
-    private String strategyType; // 'SPENDING', 'EXPENSE_WITHDRAWAL', 'ROTH_OPTIMIZER', 'RMD', 'ROTH_CONVERSION'
+    private String strategyType; // 'SPENDING', 'EXPENSE_WITHDRAWAL'
 
     @Column(name = "START_YEAR")
     private Integer startYear;
