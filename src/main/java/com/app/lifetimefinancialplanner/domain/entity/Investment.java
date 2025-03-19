@@ -1,0 +1,34 @@
+package com.app.lifetimefinancialplanner.domain.entity;
+
+import lombok.Getter;
+import lombok.ToString;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity @Table(name = "TBL_INVESTMENT")
+@SequenceGenerator(name = "SEQ_INVESTMENT_GENERATOR", sequenceName = "SEQ_INVESTMENT", allocationSize = 1)
+@Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Investment {
+    @Id
+    @GeneratedValue(generator = "SEQ_INVESTMENT_GENERATOR")
+    private Long id;
+
+    @Column(nullable = false)
+    private Double value;
+
+    @Column(name = "TAX_STATUS", length = 20, nullable = false)
+    private String taxStatus; // 'NonRetirement', 'PreTax', 'AfterTax'
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "INVESTMENT_TYPE_ID", nullable = false)
+    private InvestmentType investmentType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SCENARIO_ID", nullable = false)
+    private Scenario scenario;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+}
