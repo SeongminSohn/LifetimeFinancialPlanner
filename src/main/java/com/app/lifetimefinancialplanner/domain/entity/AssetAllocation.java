@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -15,6 +17,7 @@ public class AssetAllocation {
     @GeneratedValue(generator = "SEQ_ASSET_ALLOCATION_GENERATOR")
     private Long id;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(name = "ins_date")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -16,7 +18,7 @@ public class InvestmentType {
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String name;
+    private String name; // 'S&P 500' or 'municipal bonds'
 
     @Column(length = 500)
     private String description;
@@ -33,6 +35,7 @@ public class InvestmentType {
     @Column(name = "TAXABILITY", length = 20, nullable = false)
     private String taxability; // 'Taxable' or 'TaxExempt'
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(name = "ins_date")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -1,6 +1,9 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -22,6 +25,7 @@ public class User {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(name = "ins_date")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

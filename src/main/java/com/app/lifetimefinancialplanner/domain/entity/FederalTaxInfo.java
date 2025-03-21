@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -27,6 +29,7 @@ public class FederalTaxInfo {
     @Column(name = "SOCIAL_SECURITY_TAXABLE_PERCENTAGES", columnDefinition = "CLOB", nullable = false)
     private String socialSecurityTaxablePercentages;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(name = "ins_date")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

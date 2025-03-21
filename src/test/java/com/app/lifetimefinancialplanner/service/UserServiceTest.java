@@ -1,82 +1,76 @@
 package com.app.lifetimefinancialplanner.service;
 
+import com.app.lifetimefinancialplanner.domain.dto.UserDTO;
 import com.app.lifetimefinancialplanner.domain.entity.User;
-import com.app.lifetimefinancialplanner.repository.UserRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+@SpringBootTest
+@Transactional
+public class UserServiceTest {
 
-@Slf4j
-class UserServiceTest {
+    @Autowired
+    private UserService userService;
 
-    @Mock
-    private UserRepository userRepository;
+    // Test for registering a new user and then finding the user by email.
+    @Test
+    public void testRegisterAndFindUser() {
+        // Create a new UserDTO
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail("testuser@example.com");
+        userDTO.setPassword("testpassword");
+        userDTO.setName("Test User");
 
-    @InjectMocks
-    private UserServiceImpl userService;
+        // Call register method to create a new user.
+        User registeredUser = userService.register(userDTO);
+        // Assert that the registered user is not null and has an assigned ID.
+        assertThat(registeredUser).isNotNull();
+        assertThat(registeredUser.getId()).isNotNull();
+        assertThat(registeredUser.getEmail()).isEqualTo("testuser@example.com");
+        assertThat(registeredUser.getName()).isEqualTo("Test User");
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // Retrieve the user by email
+        User foundUser = userService.findByEmail("testuser@example.com");
+        // Assert that the user is correctly retrieved.
+        assertThat(foundUser).isNotNull();
+        assertThat(foundUser.getId()).isEqualTo(registeredUser.getId());
     }
 
+    // Test for successful login with valid credentials.
     @Test
-    void testRegister() {
-        // given
-        User user = User.builder()
-                .email("test@example.com")
-                .password("password123")
-                .name("Test User")
-                .build();
-        when(userRepository.save(any(User.class))).thenReturn(user);
+    public void testLoginWithValidCredentials() {
+        // Create and register a new user.
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail("loginuser@example.com");
+        userDTO.setPassword("loginpassword");
+        userDTO.setName("Login User");
 
-        // when
-        log.info("[testRegister] Before calling userService.register()");
-        User savedUser = userService.register(user);
+        userService.register(userDTO);
 
-        // then
-        log.info("[testRegister] After calling userService.register(), savedUser: {}", savedUser);
-        assertNotNull(savedUser);
-        assertEquals("test@example.com", savedUser.getEmail());
-        verify(userRepository, times(1)).save(user);
+        // Attempt to login with the correct email and password.
+        User loggedInUser = userService.login("loginuser@example.com", "loginpassword");
+        // Assert that login returns a valid user.
+        assertThat(loggedInUser).isNotNull();
+        assertThat(loggedInUser.getEmail()).isEqualTo("loginuser@example.com");
     }
 
+    // Test for login failure with invalid credentials.
     @Test
-    void testLoginSuccess() {
-        // given
-        User user = User.builder()
-                .email("login@example.com")
-                .password("password123")
-                .name("Login User")
-                .build();
-        when(userRepository.findByEmail("login@example.com")).thenReturn(user);
+    public void testLoginWithInvalidCredentials() {
+        // Create and register a new user.
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail("invaliduser@example.com");
+        userDTO.setPassword("correctpassword");
+        userDTO.setName("Invalid User");
 
-        // when
-        log.info("[testLoginSuccess] Trying to login with email: login@example.com");
-        User result = userService.login("login@example.com", "password123");
+        userService.register(userDTO);
 
-        // then
-        log.info("[testLoginSuccess] Result user: {}", result);
-        assertNotNull(result);
-        assertEquals("login@example.com", result.getEmail());
-    }
-
-    @Test
-    void testLoginFailure() {
-        // given
-        when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(null);
-
-        // when
-        log.info("[testLoginFailure] Trying to login with nonexistent email");
-        User result = userService.login("nonexistent@example.com", "wrongPassword");
-
-        // then
-        log.info("[testLoginFailure] Result user: {}", result);
-        assertNull(result);
+        // Attempt to login with an incorrect password.
+        User loggedInUser = userService.login("invaliduser@example.com", "wrongpassword");
+        // Assert that login fails and returns null.
+        assertThat(loggedInUser).isNull();
     }
 }

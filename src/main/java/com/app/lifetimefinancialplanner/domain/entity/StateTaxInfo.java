@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -21,6 +23,7 @@ public class StateTaxInfo {
     @Column(name = "STATE_TAX_RATES", columnDefinition = "CLOB", nullable = false)
     private String stateTaxRates;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(name = "ins_date")
     private LocalDateTime createdAt = LocalDateTime.now();
 }
