@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -26,7 +28,7 @@ public class Strategy {
     private String description;
 
     @Column(name = "STRATEGY_TYPE", length = 50, nullable = false)
-    private String strategyType; // 'SPENDING', 'EXPENSE_WITHDRAWAL', 'ROTH_OPTIMIZER', 'RMD', 'ROTH_CONVERSION'
+    private String strategyType; // 'SPENDING', 'EXPENSE_WITHDRAWAL'
 
     @Column(name = "START_YEAR")
     private Integer startYear;
@@ -34,6 +36,7 @@ public class Strategy {
     @Column(name = "END_YEAR")
     private Integer endYear;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(name = "ins_date")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

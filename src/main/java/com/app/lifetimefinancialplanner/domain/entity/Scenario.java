@@ -1,15 +1,15 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity @Table(name = "TBL_SCENARIO")
 @SequenceGenerator(name = "SEQ_SCENARIO_GENERATOR", sequenceName = "SEQ_SCENARIO", allocationSize = 1)
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
 public class Scenario {
     @Id
     @GeneratedValue(generator = "SEQ_SCENARIO_GENERATOR")
@@ -22,8 +22,8 @@ public class Scenario {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "IS_MARRIED", nullable = false, length = 1)
-    private String isMarried; // 'Y' or 'N'
+    @Column(name = "MARITAL_STATUS", nullable = false, length = 1)
+    private String maritalStatus;
 
     @Column(name = "BIRTH_YEAR_USER", nullable = false)
     private Integer birthYearUser;
@@ -58,7 +58,8 @@ public class Scenario {
     @JoinColumn(name = "INFLATION_ASSUMPTION_ID", nullable = false)
     private InflationAssumption inflationAssumption;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(name = "ins_date")
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "STATE_OF_RESIDENCE", nullable = false, length = 2)
