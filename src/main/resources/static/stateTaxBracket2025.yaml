@@ -1,0 +1,54 @@
+stateBrackets:
+  NY:
+    SINGLE:
+      - rate: 0.04
+      - rate: 0.045
+      - rate: 0.0525
+      - rate: 0.06
+    MARRIED_JOINT:
+      - rate: 0.04
+      - rate: 0.045
+      - rate: 0.0525
+      - rate: 0.06
+    StandardDeduction:
+      SINGLE: 8000
+      MARRIED_JOINT: 16000
+    PersonalExemption:
+      SINGLE: "n.a."
+      MARRIED_JOINT: "n.a."
+
+  NJ:
+    SINGLE:
+      - rate: 0.014
+      - rate: 0.0175
+      - rate: 0.035
+      - rate: 0.05525
+    MARRIED_JOINT:
+      - rate: 0.014
+      - rate: 0.0175
+      - rate: 0.0245
+      - rate: 0.035
+    StandardDeduction:
+      SINGLE: "n.a."
+      MARRIED_JOINT: "n.a."
+    PersonalExemption:
+      SINGLE: 1000
+      MARRIED_JOINT: 1000
+
+  CT:
+    SINGLE:
+      - rate: 0.03
+      - rate: 0.05
+      - rate: 0.055
+      - rate: 0.06
+    MARRIED_JOINT:
+      - rate: 0.03
+      - rate: 0.05
+      - rate: 0.055
+      - rate: 0.06
+    StandardDeduction:
+      SINGLE: 0
+      MARRIED_JOINT: 0
+    PersonalExemption:
+      SINGLE: 15000
+      MARRIED_JOINT: 15000
