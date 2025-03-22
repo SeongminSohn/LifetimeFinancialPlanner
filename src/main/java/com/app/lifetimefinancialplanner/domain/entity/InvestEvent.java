@@ -1,14 +1,12 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
+import lombok.*;
 import javax.persistence.*;
 
 @Entity @Table(name = "TBL_INVEST_EVENT")
 @Getter @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
 public class InvestEvent {
     @Id
     @Column(name = "EVENT_SERIES_ID")

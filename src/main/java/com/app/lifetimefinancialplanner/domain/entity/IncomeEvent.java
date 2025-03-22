@@ -1,13 +1,11 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
+import lombok.*;
 import javax.persistence.*;
 
 @Entity @Table(name = "TBL_INCOME_EVENT")
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
 public class IncomeEvent {
     @Id
     @Column(name = "EVENT_SERIES_ID")
@@ -35,4 +33,11 @@ public class IncomeEvent {
     @MapsId
     @JoinColumn(name = "EVENT_SERIES_ID")
     private EventSeries eventSeries;
+
+    @PrePersist
+    private void onPrePersist() {
+        if (this.eventSeries != null) {
+            this.eventSeriesId = this.eventSeries.getId();
+        }
+    }
 }
