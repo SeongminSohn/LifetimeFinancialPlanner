@@ -3,7 +3,5 @@
 <configuration>
     <typeAliases>
 <!--        <typeAlias type="com.app.onestepback.domain.vo.ArtistPostVO" alias="artistPostVO"/>-->
-<!--        <typeAlias type="com.app.onestepback.domain.dto.artist.post.ArtistPostRegisterDTO"-->
-<!--                   alias="artistPostRegisterDTO"/>-->
     </typeAliases>
 </configuration>

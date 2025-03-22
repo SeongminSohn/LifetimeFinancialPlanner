@@ -8,8 +8,8 @@ group = 'com.app'
 version = '1.0.0'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 configurations {
@@ -29,12 +29,19 @@ dependencies {
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // Spring Security
+//    implementation 'org.springframework.boot:spring-boot-starter-security'
+//    implementation 'org.springframework.security:spring-security-crypto'
+
     // Utility Libraries
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'net.coobird:thumbnailator:0.4.8'
 
     // Database
     runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+
+    // SpringDoc OpenAPI (Swagger UI)
+    implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
