@@ -1,72 +1,145 @@
-body {
+/*#root {*/
+/*    margin: 0 !important;*/
+/*    padding: 0 !important;*/
+/*}*/
+html, body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: white;
-    justify-content: center;
-  }
-  
-  .financial-planner {
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 5rem;
-    background-color: black;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    justify-content: center;
-  }
-  
-  .financial-planner h1,
-  .financial-planner h2 {
-    text-align: center;
-    color: white;
-  }
-  
-  .planner-form .form-group {
-    margin-bottom: 1rem;
-  }
-  
-  .planner-form label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-  }
-  
-  .planner-form input {
+    padding: 0;
+    height: 100%;
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .planner-form button {
+}
+.navBarTop {
     width: 100%;
-    padding: 0.75rem;
-    background-color: #007bff;
-    color: white;
+    height: 70px;
+    min-width: 50vw;
+    min-height: 5vh;
+    background-color: #333;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+}
+.navBarSub{
+    width: 100%;
+    height: 50px;
+    min-width: 50vw;
+    min-height: 5vh;
+    background-color: #888888;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 70px;
+}
+.commonButton{
+    width: 40px;
+    height: 30px;
+    font-size: 10px;
+    margin: 10px;
+}
+
+.noShape{
+    background: none;
     border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  
-  .planner-form button:hover {
-    background-color: #0056b3;
-  }
-  
-  .result table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-  }
-  
-  .result th,
-  .result td {
-    border: 1px solid #ddd;
-    padding: 0.75rem;
-    text-align: center;
-  }
-  
-  .result th {
-    background-color: black;
-  }
-  
+}
+
+.profile{
+    border-radius: 50px;
+    width: 2vw;
+    height: 2vw;
+}
+.total{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30vh;
+    margin-bottom: 0;
+}
+.sidebar {
+    position: fixed;
+    left: 0;
+    width: 250px;
+    height: 50%;
+    background-color: #888888;
+    box-shadow: -1px 0 2px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    top:120px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    gap: 50px
+}
+
+.IMAGEBUTTON {
+    background-color: white;
+    font-size: medium;
+    padding: 10px 10px;
+    border-radius: 10px;
+    border: 0px;
+}
+
+.submitButton{
+    width: 100px;
+    height: 50px;
+    background-color: #333333;
+    color: white;
+    font-weight: bold;
+    border-radius: 15px;
+    border: none;
+    margin: 30px;
+}
+
+.profileImageSet{
+    border-radius: 50px;
+    width: 100px;
+    height: 100px;
+}
+
+.loginBox{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    width: 60vw;
+    margin: 0;
+    padding: 0;
+    background: lightgrey;
+    border-radius: 30px;
+    flex-direction: column;
+    gap: 5vh;
+}
+.profileSetting{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70%;
+    width: 60vw;
+    margin: 0;
+    padding: 0;
+    background: lightgrey;
+    border-radius: 30px;
+    flex-direction: column;
+    gap: 5vh;
+}
+
+.login{
+    margin: 0;
+}
+.logoSize {
+    width: 2vw;
+    height: 2vw;
+    /*min-width: 50px;*/
+    /*min-height: 50px;*/
+    margin-left: 10px;
+    border-radius: 15px;
+}
+.logoLetter{
+    color: white;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
