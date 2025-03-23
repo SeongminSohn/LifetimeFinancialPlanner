@@ -33,7 +33,7 @@ public class ScenarioRepositoryTest {
         Scenario scenario = Scenario.builder()
                 .user(savedUser)
                 .name("Test Scenario")
-                .isMarried("N")
+                .maritalStatus("N")
                 .birthYearUser(1990)
                 .lifeExpectancyUser(85)
                 .financialGoal(100000.0)

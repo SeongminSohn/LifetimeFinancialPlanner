@@ -19,9 +19,6 @@ public class EventSeries {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 500)
-    private String description;
-
     @Column(name = "START_YEAR", nullable = false)
     private Integer startYear;
 
@@ -29,5 +26,5 @@ public class EventSeries {
     private Integer duration;
 
     @Column(name = "EVENT_TYPE", length = 20, nullable = false)
-    private String eventType; // 'Income', 'Expense', 'Invest'
+    private String eventType; // 'INCOME', 'EXPENSE', 'INVEST'
 }

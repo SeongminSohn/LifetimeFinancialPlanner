@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
+import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -31,11 +32,28 @@ public class Scenario {
     @Column(name = "BIRTH_YEAR_SPOUSE")
     private Integer birthYearSpouse;
 
-    @Column(name = "LIFE_EXPECTANCY_USER", nullable = false)
-    private Integer lifeExpectancyUser;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "LIFE_EXPECTANCY_USER_AMOUNT_OR_PERCENT", nullable = false)),
+            @AttributeOverride(name = "distributionType", column = @Column(name = "LIFE_EXPECTANCY_USER_DISTRIBUTION_TYPE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "LIFE_EXPECTANCY_USER_VALUE", nullable = false)),
+            @AttributeOverride(name = "lower", column = @Column(name = "LIFE_EXPECTANCY_USER_LOWER")),
+            @AttributeOverride(name = "upper", column = @Column(name = "LIFE_EXPECTANCY_USER_UPPER")),
+            @AttributeOverride(name = "mean", column = @Column(name = "LIFE_EXPECTANCY_USER_MEAN")),
+            @AttributeOverride(name = "stDev", column = @Column(name = "LIFE_EXPECTANCY_USER_STDDEV"))
+    })
+    private DistributionEmbeddable lifeExpectancyUser;
 
-    @Column(name = "LIFE_EXPECTANCY_SPOUSE")
-    private Integer lifeExpectancySpouse;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_AMOUNT_OR_PERCENT")),
+            @AttributeOverride(name = "value", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_VALUE")),
+            @AttributeOverride(name = "lower", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_LOWER")),
+            @AttributeOverride(name = "upper", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_UPPER")),
+            @AttributeOverride(name = "mean", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_MEAN")),
+            @AttributeOverride(name = "stDev", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_STDDEV"))
+    })
+    private DistributionEmbeddable lifeExpectancySpouse;
 
     @Column(name = "FINANCIAL_GOAL", nullable = false)
     private Double financialGoal;
@@ -46,22 +64,22 @@ public class Scenario {
     @Column(name = "AFTER_TAX_CONTRIBUTION_LIMIT", nullable = false)
     private Double afterTaxContributionLimit;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "FEDERAL_TAX_INFO_ID", nullable = false)
-    private FederalTaxInfo federalTaxInfo;
+    @Column(name = "STATE_OF_RESIDENCE", nullable = false, length = 2)
+    private String stateOfResidence;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "STATE_TAX_INFO_ID", nullable = false)
-    private StateTaxInfo stateTaxInfo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "INFLATION_ASSUMPTION_ID", nullable = false)
-    private InflationAssumption inflationAssumption;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "INFLATION_AMOUNT_OR_PERCENT", nullable = false)),
+            @AttributeOverride(name = "distributionType", column = @Column(name = "INFLATION_DISTRIBUTION_TYPE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "INFLATION_VALUE", nullable = false)),
+            @AttributeOverride(name = "lower", column = @Column(name = "INFLATION_LOWER")),
+            @AttributeOverride(name = "upper", column = @Column(name = "INFLATION_UPPER")),
+            @AttributeOverride(name = "mean", column = @Column(name = "INFLATION_MEAN")),
+            @AttributeOverride(name = "stDev", column = @Column(name = "INFLATION_STDEV"))
+    })
+    private DistributionEmbeddable inflationAssumption;
 
     @CreationTimestamp
     @Column(name = "ins_date")
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "STATE_OF_RESIDENCE", nullable = false, length = 2)
-    private String stateOfResidence;
 }
