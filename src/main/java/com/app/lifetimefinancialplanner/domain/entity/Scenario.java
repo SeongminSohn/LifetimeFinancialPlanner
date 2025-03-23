@@ -47,6 +47,7 @@ public class Scenario {
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "amountOrPercent", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_AMOUNT_OR_PERCENT")),
+            @AttributeOverride(name = "distributionType", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_DISTRIBUTION_TYPE")),
             @AttributeOverride(name = "value", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_VALUE")),
             @AttributeOverride(name = "lower", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_LOWER")),
             @AttributeOverride(name = "upper", column = @Column(name = "LIFE_EXPECTANCY_SPOUSE_UPPER")),
