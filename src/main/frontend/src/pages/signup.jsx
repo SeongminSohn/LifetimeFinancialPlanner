@@ -6,35 +6,29 @@ import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
 
 
-function loginPage(){
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const planResp = await axios.get("http://localhost:10000/test");
-                console.log(planResp.data);
-            } catch (err) {
-                console.log("inital error");
-                console.log(err);
-            }
-        };
-
-        fetchData();}, []);
+function signupPage(){
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const planResp = await axios.get("http://localhost:10000/");
+    //             console.log(planResp.data);
+    //         } catch (err) {
+    //             console.log("inital error");
+    //             console.log(err);
+    //         }
+    //     };
+    //
+    //     fetchData();}, []);
 
     const [openSide, setSide] = useState(false);
     const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
     const [status,setStatus] = useState()
     const [formData, setFormData] = useState({
-        id: '',
+        name: '',
+        email: '',
         password1: '',
-        password2: '',
-        uname: '',
-        ugender: 'Male',
-        uemail: '',
-        uphonenum: '',
-        uaddress1: '',
-        uaddress2: '',
-        ustate: 'AL'
+        password2: ''
     });
 
     const popupMenu = () => {
@@ -100,91 +94,97 @@ function loginPage(){
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if(formData.password1 !== formData.password2){
-            alert("Password has to be same")
-            return;
-        }
+
     };
 
-    function stateSelection() {
-        return (<div className="login">
-                <label htmlFor="ustate"></label>
-                {/*<input*/}
-                {/*    list="ustate"*/}
-                {/*    placeholder="Select your state"*/}
-                {/*    name="ustate"*/}
-                {/*    value={formData.ustate}*/}
-                {/*    onChange={handleChange}*/}
-                {/*/>*/}
-                <select name="ustate" id="ustate" value={formData.ustate} onChange={handleChange}>
-                    <option value="AL">AL</option>
-                    <option value="AK">AK</option>
-                    <option value="AZ">AZ</option>
-                    <option value="AR">AR</option>
-                    <option value="CA">CA</option>
-                    <option value="CO">CO</option>
-                    <option value="CT">CT</option>
-                    <option value="DE">DE</option>
-                    <option value="FL">FL</option>
-                    <option value="GA">GA</option>
-                    <option value="HI">HI</option>
-                    <option value="ID">ID</option>
-                    <option value="IL">IL</option>
-                    <option value="IN">IN</option>
-                    <option value="IA">IA</option>
-                    <option value="KS">KS</option>
-                    <option value="KY">KY</option>
-                    <option value="LA">LA</option>
-                    <option value="ME">ME</option>
-                    <option value="MD">MD</option>
-                    <option value="MA">MA</option>
-                    <option value="MI">MI</option>
-                    <option value="MN">MN</option>
-                    <option value="MS">MS</option>
-                    <option value="MO">MO</option>
-                    <option value="MT">MT</option>
-                    <option value="NE">NE</option>
-                    <option value="NV">NV</option>
-                    <option value="NH">NH</option>
-                    <option value="NJ">NJ</option>
-                    <option value="NM">NM</option>
-                    <option value="NY">NY</option>
-                    <option value="NC">NC</option>
-                    <option value="ND">ND</option>
-                    <option value="OH">OH</option>
-                    <option value="OK">OK</option>
-                    <option value="OR">OR</option>
-                    <option value="PA">PA</option>
-                    <option value="RI">RI</option>
-                    <option value="SC">SC</option>
-                    <option value="SD">SD</option>
-                    <option value="TN">TN</option>
-                    <option value="TX">TX</option>
-                    <option value="UT">UT</option>
-                    <option value="VT">VT</option>
-                    <option value="VA">VA</option>
-                    <option value="WA">WA</option>
-                    <option value="WV">WV</option>
-                    <option value="WI">WI</option>
-                    <option value="WY">WY</option>
-
-                </select>
-            </div>
-        );
-    }
+    // function stateSelection() {
+    //     return (<div className="login">
+    //             <label htmlFor="ustate"></label>
+    //             {/*<input*/}
+    //             {/*    list="ustate"*/}
+    //             {/*    placeholder="Select your state"*/}
+    //             {/*    name="ustate"*/}
+    //             {/*    value={formData.ustate}*/}
+    //             {/*    onChange={handleChange}*/}
+    //             {/*/>*/}
+    //             <select name="ustate" id="ustate" value={formData.ustate} onChange={handleChange}>
+    //                 <option value="AL">AL</option>
+    //                 <option value="AK">AK</option>
+    //                 <option value="AZ">AZ</option>
+    //                 <option value="AR">AR</option>
+    //                 <option value="CA">CA</option>
+    //                 <option value="CO">CO</option>
+    //                 <option value="CT">CT</option>
+    //                 <option value="DE">DE</option>
+    //                 <option value="FL">FL</option>
+    //                 <option value="GA">GA</option>
+    //                 <option value="HI">HI</option>
+    //                 <option value="ID">ID</option>
+    //                 <option value="IL">IL</option>
+    //                 <option value="IN">IN</option>
+    //                 <option value="IA">IA</option>
+    //                 <option value="KS">KS</option>
+    //                 <option value="KY">KY</option>
+    //                 <option value="LA">LA</option>
+    //                 <option value="ME">ME</option>
+    //                 <option value="MD">MD</option>
+    //                 <option value="MA">MA</option>
+    //                 <option value="MI">MI</option>
+    //                 <option value="MN">MN</option>
+    //                 <option value="MS">MS</option>
+    //                 <option value="MO">MO</option>
+    //                 <option value="MT">MT</option>
+    //                 <option value="NE">NE</option>
+    //                 <option value="NV">NV</option>
+    //                 <option value="NH">NH</option>
+    //                 <option value="NJ">NJ</option>
+    //                 <option value="NM">NM</option>
+    //                 <option value="NY">NY</option>
+    //                 <option value="NC">NC</option>
+    //                 <option value="ND">ND</option>
+    //                 <option value="OH">OH</option>
+    //                 <option value="OK">OK</option>
+    //                 <option value="OR">OR</option>
+    //                 <option value="PA">PA</option>
+    //                 <option value="RI">RI</option>
+    //                 <option value="SC">SC</option>
+    //                 <option value="SD">SD</option>
+    //                 <option value="TN">TN</option>
+    //                 <option value="TX">TX</option>
+    //                 <option value="UT">UT</option>
+    //                 <option value="VT">VT</option>
+    //                 <option value="VA">VA</option>
+    //                 <option value="WA">WA</option>
+    //                 <option value="WV">WV</option>
+    //                 <option value="WI">WI</option>
+    //                 <option value="WY">WY</option>
+    //
+    //             </select>
+    //         </div>
+    //     );
+    // }
 
     function signinBox(){
         return (<form onSubmit={handleSubmit} className="profileSetting">
 
             <div className="logoLetter" style={{fontSize: '50px', marginTop: "30px"}} >Create an account</div>
-            <div className="login"><label htmlFor="id"></label>
+            <div className="login"><label htmlFor="name"></label>
                 <input
                     type="text"
-                    id="id"
-                    name="id"
-                    value={formData.id}
+                    id="name"
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
-                    placeholder="Enter your ID"
+                    placeholder="Enter your Name"
+                /></div>
+            <div className="login"><label htmlFor="email"></label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter your Email"
                 /></div>
                 <div className="login"><label htmlFor="password"></label>
                 <input
@@ -204,39 +204,29 @@ function loginPage(){
                 onChange={handleChange}
                 placeholder="password again"
             /></div>
-            <div className="login"><label htmlFor="uname"></label>
-                <input placeholder="User Name" type="text" id="uname" name="uname" value={formData.uname} onChange={handleChange}/></div>
-            <div className="login">
-                <label htmlFor="ugender"></label>
-                <select name = "ugender" id="ugender" value={formData.ugender} onChange={handleChange}>
-                    <option value="Male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="not want to say">Not want to say</option>
-                </select>
-            </div>
-            <div className="login"><label htmlFor="uemail"></label>
-                <input placeholder="Email" type="text" id="uemail" name="uemail" value={formData.uemail} onChange={handleChange}/></div>
-            <div className="login"><label htmlFor="uphonenum"></label>
-                <input type="tel" name="uphonenum"  id="uphonenum"  placeholder="Enter your phone number" value={formData.uphonenum} onChange={handleChange}/></div>
-            <div className="login"><label htmlFor="uaddress1"></label>
-                <input placeholder="Address" type="text" id="uaddress1" name="uaddress1" value={formData.uaddress1} onChange={handleChange}/></div>
-            <div className="login"><label htmlFor="uaddress2"></label>
-                <input placeholder="Address (Optional)" type="text" id="uaddress2" name="uaddress2" value={formData.uaddress2} onChange={handleChange}/></div>
-            <div className="login"><label htmlFor="ustate"></label>
-                {stateSelection()}</div>
-            <div><button className="submitButton" type="submit" onClick={createAccount}>Create An Account</button></div>
+            <div>
+                <button className="submitButton" type="submit" onClick={createAccount}>Create An Account</button></div>
         </form>);
     }
 
-    function setIDandPassword(){
-        //check ID exists or not through checking DB
-        return (<div></div>);
-    }
-
-    function createAccount(){
+    async function createAccount(){
         //Check the DB first and if ID already exists, then alert else
         //If account already exists, and check user's budget information. If user has budget info, then navigate to Homepage else
-        navPage("/Homepage");
+        if (formData.password1 !== formData.password2) {
+            alert("Password has to be same");
+            return;
+        }
+        try {
+            const response = await axios.post("http://localhost:10000/api/users/register", {
+                email: formData.email,
+                password: formData.password1,
+                name: formData.name
+            });
+            toHome()
+        } catch (error) {
+            console.error("error:", error);
+            alert("Try again");
+        }
         //else
         //navigate to put the user info page
     }
@@ -257,4 +247,4 @@ function loginPage(){
         {signinBox()}
     </div>);
 }
-export default loginPage;
+export default signupPage;

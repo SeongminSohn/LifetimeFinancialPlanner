@@ -7,24 +7,23 @@ import { useNavigate } from 'react-router-dom';
 
 
 function profileSetting(){
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const planResp = await axios.get("http://localhost:10000/test");
-                console.log(planResp.data);
-            } catch (err) {
-                console.log("inital error");
-                console.log(err);
-            }
-        };
-
-        fetchData();}, []);
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const planResp = await axios.get("http://localhost:10000/test");
+    //             console.log(planResp.data);
+    //         } catch (err) {
+    //             console.log("inital error");
+    //             console.log(err);
+    //         }
+    //     };
+    //
+    //     fetchData();}, []);
 
     const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
     const [formData, setFormData] = useState({
-        uprofile: '',
-        uname: '',
+        name: '',
         ugender: 'Male',
         uemail: '',
         uphonenum: '',
@@ -40,18 +39,30 @@ function profileSetting(){
     function sideElements(){
         return openSide && (
             <aside className="sidebar">
-                <button onClick={toDash}>Tax Management</button>
-                <button>Financial Planning</button>
-                <button>Event Management</button>
-                <button>Scenario Simulation</button>
+                <button onClick={toIncome}>Income Edit</button>
+                <button onClick={toExpense}>Expense Edit</button>
+                <button onClick={toInvest}>Invest Edit</button>
+                <button onClick={toSim}>Scenario Simulation</button>
                 <button>Reports & Logs</button>
                 <button>Import & Export Date</button>
             </aside>
         )
     }
 
-    function toDash(){
-        navPage('/Homepage');
+    function toIncome(){
+        navPage('/IncomePage')
+    }
+
+    function toExpense(){
+        navPage('/ExpenseEdit');
+    }
+
+    function toInvest(){
+        navPage('/InvestEdit')
+    }
+
+    function toSim(){
+        navPage('/Imex')
     }
 
     const [selectedImage, setSelectedImage] = useState(null);
@@ -69,8 +80,6 @@ function profileSetting(){
         }
         return profileImage;
     }
-
-
 
     function removeImage(){
         setSelectedImage(null);
@@ -104,13 +113,6 @@ function profileSetting(){
     function stateSelection() {
         return (<div className="login">
                 <label htmlFor="ustate"></label>
-                {/*<input*/}
-                {/*    list="ustate"*/}
-                {/*    placeholder="Select your state"*/}
-                {/*    name="ustate"*/}
-                {/*    value={formData.ustate}*/}
-                {/*    onChange={handleChange}*/}
-                {/*/>*/}
                 <select name="ustate" id="ustate" value={formData.ustate} onChange={handleChange}>
                     <option value="AL">AL</option>
                     <option value="AK">AK</option>
@@ -170,32 +172,20 @@ function profileSetting(){
 
     function profileSetup(){
         return (<form onSubmit={handleSubmit} className="profileSetting">
-            <div className="logoLetter" style={{fontSize: '50px', marginTop: "30px"}} >Profile Setting</div>
-            <img className="profileImageSet" src={defineProfile()} onError={handleImage} alt="profile"></img>
-            <label htmlFor="fileButton" className='IMAGEBUTTON'>Choose new image</label>
-            <input type="file" id = "fileButton" style = {{display: 'none'}} onChange={handleFileChange}/>
-            <button type = 'button' className='REMOVEIMAGE' onClick={removeImage}>Remove image</button>
-            <div className="login"><label htmlFor="uname"></label>
-                <input placeholder="User Name" type="text" id="uname" name="uname" value={formData.uname} onChange={handleChange}/></div>
-            <div className="login">
-                <label htmlFor="ugender"></label>
-                {/*<input*/}
-                {/*    list="ugender"*/}
-                {/*    placeholder="Gender"*/}
-                {/*    name="ugender"*/}
-                {/*    value={formData.ugender}*/}
-                {/*    onChange={handleChange}*/}
-                {/*/>*/}
-                <select name="ugender"
-                          value={formData.ugender}
-                          onChange={handleChange} id="ugender">
-                    <option value="Male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="not want to say">Not want to say</option>
-                </select>
-            </div>
-            <div className="login"><label htmlFor="uemail"></label>
-                <input placeholder="Email" type="text" id="uemail" name="uemail" value={formData.uemail} onChange={handleChange}/></div>
+            <div className="login"><label htmlFor="name"></label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Edit your Name"
+                /></div>
+            <div className="login"><label htmlFor="maritalStatus"></label>
+                <select name="ustate" id="ustate" value={formData.ustate} onChange={handleChange}>
+                    <option value = "Y">I am married</option>
+                    <option value = "N">No, I am not</option>
+                </select></div>
             <div className="login"><label htmlFor="uphonenum"></label>
                 <input type="tel" name="uphonenum"  id="uphonenum"  placeholder="Enter your phone number" value={formData.uphonenum} onChange={handleChange}/></div>
             <div className="login"><label htmlFor="uaddress1"></label>
@@ -217,9 +207,6 @@ function profileSetting(){
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
             {sideElements()}
-            <button className="noShape">
-                <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
-            </button>
         </nav>
         {profileSetup()}
     </div>);

@@ -8,17 +8,11 @@ import Axios from "axios"
 
 function homePage(){
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const planResp = await axios.get("http://localhost:10000/test");
-        console.log(planResp.data);
-      } catch (err) {
-        console.log("inital error");
-        console.log(err);
-      }
-    };
-
-    fetchData();}, []);
+    const token = localStorage.getItem("token");
+    if (token) {
+      setLoggedIn(true);
+    }
+  }, []);
 
   const [openSide, setSide] = useState(false);
   const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
@@ -32,9 +26,9 @@ function homePage(){
   function sideElements(){
     return openSide && (
         <aside className="sidebar">
-          <button onClick={toTax}>Tax Management</button>
-          <button onClick={toFin}>Financial Planning</button>
-          <button onClick={toEve}>Event Management</button>
+          <button onClick={toIncome}>Income Edit</button>
+          <button onClick={toExpense}>Expense Edit</button>
+          <button onClick={toInvest}>Invest Edit</button>
           <button onClick={toSim}>Scenario Simulation</button>
           <button>Reports & Logs</button>
           <button>Import & Export Date</button>
@@ -42,20 +36,16 @@ function homePage(){
     )
   }
 
-  // function toDash(){
-  //   navPage('/Homepage');
-  // }
-
-  function toFin(){
-    navPage('/FinP');
+  function toIncome(){
+    navPage('/IncomePage')
   }
 
-  function toTax(){
-    navPage('/Taxm')
+  function toExpense(){
+    navPage('/ExpenseEdit');
   }
 
-  function toEve(){
-    navPage('/EveM')
+  function toInvest(){
+    navPage('/InvestEdit')
   }
 
   function toSim(){
@@ -89,31 +79,29 @@ function homePage(){
     </div>)
   }
 
-  function statusCheck(){
-    //if DB got the data, then
-    setLoggedIn(true)
-    //else
-    //setLoggedIn(false)
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    setLoggedIn(false);
+    navPage("/Homepage");
   }
 
   return (<div className="total">
-    <nav className="navBarTop">
-      <img src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
-      <p className= "logoLetter">Life Time Financial Planner</p>
-      {!loggedIn && (
-          <button className="commonButton" onClick={toLogin}>
-            Sign-In
+        <nav className="navBarTop">
+          <img src="/public/caffeineOverloadLogo.png" className="logoSize" alt="logo" />
+          <p className="logoLetter">Life Time Financial Planner</p>
+          { !loggedIn ? (
+              <button className="commonButton" onClick={toLogin}>Sign-In</button>) : (<button className="commonButton" onClick={handleLogout}>Log Out</button>)
+          }
+        </nav>
+        <nav className="navBarSub">
+          <button className="commonButton" onClick={popupMenu}>Menu</button>
+          {sideElements()}
+          <button className="commonButton" onClick={toProfile}>
+           profile Setting
           </button>
-      )}
-    </nav>
-    <nav className= "navBarSub">
-      <button className="commonButton" onClick={popupMenu}>Menu</button>
-      {sideElements()}
-      <button className="noShape" onClick={toProfile}>
-        <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
-      </button>
-    </nav>
-    {homeManage()}
-  </div>);
+        </nav>
+        {homeManage()}
+      </div>);
 }
 export default homePage;

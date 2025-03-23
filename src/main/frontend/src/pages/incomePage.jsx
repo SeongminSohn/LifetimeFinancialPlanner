@@ -30,9 +30,9 @@ function homePage(){
     function sideElements(){
         return openSide && (
             <aside className="sidebar">
-                <button onClick={toTax}>Tax Management</button>
-                <button onClick={toFin}>Financial Planning</button>
-                <button onClick={toEve}>Event Management</button>
+                <button onClick={toIncome}>Income Edit</button>
+                <button onClick={toExpense}>Expense Edit</button>
+                <button onClick={toInvest}>Invest Edit</button>
                 <button onClick={toSim}>Scenario Simulation</button>
                 <button>Reports & Logs</button>
                 <button>Import & Export Date</button>
@@ -44,24 +44,24 @@ function homePage(){
     //   navPage('/Homepage');
     // }
 
-    function toFin(){
-        navPage('/FinP');
+    function toHome(){
+        navPage('/Homepage')
     }
 
-    function toTax(){
-        navPage('/Taxm')
+    function toIncome(){
+        navPage('/IncomePage')
     }
 
-    function toEve(){
-        navPage('/EveM')
+    function toExpense(){
+        navPage('/ExpenseEdit');
+    }
+
+    function toInvest(){
+        navPage('/InvestEdit')
     }
 
     function toSim(){
         navPage('/Imex')
-    }
-
-    function toHome(){
-        navPage('/Homepage')
     }
 
     function defineProfile(){

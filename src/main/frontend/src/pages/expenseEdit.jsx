@@ -5,18 +5,23 @@ import axios from "axios";
 import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
 
+function homePage(){
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const planResp = await axios.get("http://localhost:10000/test");
+                console.log(planResp.data);
+            } catch (err) {
+                console.log("inital error");
+                console.log(err);
+            }
+        };
 
-function loginPage(){
-    
+        fetchData();}, []);
 
     const [openSide, setSide] = useState(false);
     const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
-    const [formData, setFormData] = useState({
-        id: '',
-        password: ''
-    });
-
 
     const popupMenu = () => {
         setSide(prevState => !prevState);
@@ -35,8 +40,12 @@ function loginPage(){
         )
     }
 
+    // function toDash(){
+    //   navPage('/Homepage');
+    // }
+
     function toHome(){
-        navPage('/HomePage')
+        navPage('/Homepage')
     }
 
     function toIncome(){
@@ -55,7 +64,6 @@ function loginPage(){
         navPage('/Imex')
     }
 
-
     function defineProfile(){
         if(pro[0].profile === null || pro[0].profile === undefined){
             return profileImage;
@@ -69,61 +77,34 @@ function loginPage(){
         e.target.src = profileImage;
     }
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('ID:', formData.id);
-        console.log('Password:', formData.password);
-    };
-
-    function signinBox(){
-        return (<form onSubmit={handleSubmit} className="loginBox">
-            <div className="logoLetter" style={{fontSize: '50px'}} >Sign in</div>
-            <div className="login"><label htmlFor="id">ID: </label>
-                <input type="text" id="id" name="id" value={formData.id} onChange={handleChange}/></div>
-            <div className="login"><label htmlFor="password">Password: </label>
-                <input type="password" id="password" name="password" value={formData.password} onChange={handleChange}/></div>
-            <div><button className="submitButton" type="submit" onClick={toSignin}>Sign in</button>
-                <button className="submitButton" type="button" onClick={toSignUp}>Sign up</button></div>
-        </form>);
+    function toProfile(){
+        navPage('/Profset');
     }
 
-    function toSignUp(){
-        navPage("/Signup")
+    function toLogin(){
+        navPage('/Loginpage');
     }
 
-    async function toSignin(){
-        try {
-            const response = await axios.post("http://localhost:10000/api/users/login", {
-                email: formData.id,
-                password: formData.password
-            });
-            localStorage.setItem("token", response.data.token);
-            navPage("/Homepage");
-        } catch (error) {
-            console.error("log in Error:", error);
-            alert("Fail to log in. Please check your email or password");
-        }
+    function finanacialPlanning(){
+        return(<div className="loginBox">
+
+        </div>)
     }
 
     return (<div className="total">
         <nav className="navBarTop">
             <img onClick={toHome} src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            <button className="commonButton">About us</button>
+            <button className="commonButton" onClick={toLogin}>Sign-In</button>
         </nav>
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
             {sideElements()}
-            <button className="noShape">
+            <button className="noShape" onClick={toProfile}>
                 <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
             </button>
         </nav>
-        {signinBox()}
+        {finanacialPlanning()}
     </div>);
 }
-export default loginPage;
+export default homePage;
