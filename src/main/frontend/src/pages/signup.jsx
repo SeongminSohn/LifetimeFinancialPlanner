@@ -7,18 +7,6 @@ import { useNavigate } from 'react-router-dom';
 
 
 function signupPage(){
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const planResp = await axios.get("http://localhost:10000/");
-    //             console.log(planResp.data);
-    //         } catch (err) {
-    //             console.log("inital error");
-    //             console.log(err);
-    //         }
-    //     };
-    //
-    //     fetchData();}, []);
 
     const [openSide, setSide] = useState(false);
     const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);

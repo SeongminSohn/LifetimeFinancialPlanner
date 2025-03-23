@@ -14,7 +14,7 @@ function profileSetting(){
         name: '',
         maritalStatus: 'N',
         birthYearUser: '',
-        birthYearSpouse: 'null',
+        birthYearSpouse: '',
         lifeExpectancyUser: {
             amountOrPercent: "AMOUNT",
             distributionType: "FIXED",
@@ -37,7 +37,7 @@ function profileSetting(){
         preTaxContributionLimit: '',
         afterTaxContributionLimit: '',
         stateOfResidence: 'AL',
-        inflationAssumptionId: {
+        inflationAssumption: {
             amountOrPercent: "PERCENT",
             distributionType: "FIXED",
             value: null,
@@ -105,23 +105,27 @@ function profileSetting(){
     }
 
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Name:', formData.name);
-        console.log('Gender:', formData.maritalStatus);
-        console.log('Email:', formData.birthYearUser);
-        console.log('phone Number:', formData.birthYearSpouse);
-    };
-
-    async function saveChanges(){
+    async function handleSubmit(event) {
+        event.preventDefault();
+        console.log(formData)
         try {
             const response = await axios.post("http://localhost:10000/api/scenarios", formData);
-            console.log("Scenario 생성 성공:", response.data);
+            console.log("Scenario success:", response.data);
         } catch (error) {
             console.error("Scenario Error:", error);
-            alert("Try Again. Error.");
+            alert("Try again");
         }
     }
+
+    // async function saveChanges(){
+    //     try {
+    //         const response = await axios.post("http://localhost:10000/api/scenarios", formData);
+    //         console.log("Scenario success:", response.data);
+    //     } catch (error) {
+    //         console.error("Scenario Error:", error);
+    //         alert("Try Again. Error.");
+    //     }
+    // }
 
     function stateSelection() {
         return (<div className="login">
@@ -182,22 +186,192 @@ function profileSetting(){
             </div>
         );
     }
-
-    function chooseMone(){
-        return <div>{formData.lifeExpectancyUser.distributionType == "FIXED" && (<input type="number" name="distributionType.FIXED"  id="distributionTypeFIXED"  placeholder="value" value={formData.lifeExpectancyUser.value} onChange={handleChange} required/>)}
-            {formData.lifeExpectancyUser.distributionType == "UNIFORM" && (<div><input type="number" name="distributionType.UNIFORM"  id="distributionTypeUNIFORM"  placeholder="Lower" value={formData.lifeExpectancyUser.lower} onChange={handleChange} required/><input type="number" name="distributionType.UNIFORM"  id="distributionTypeUNIFORM"  placeholder="Upper" value={formData.lifeExpectancyUser.upper} onChange={handleChange} required/></div>)}
-            {formData.lifeExpectancyUser.distributionType == "NORMAL" && (<div><input type="number" name="distributionType.NORMAL"  id="distributionTypeNORMAL"  placeholder="mean" value={formData.lifeExpectancyUser.mean} onChange={handleChange} required/><input type="number" name="distributionType.NORMAL"  id="distributionTypeNORMAL"  placeholder="standard deviation" value={formData.lifeExpectancyUser.stDev} onChange={handleChange} required/></div>)}</div>
+    function chooseMone() {
+        return (
+            <div>
+                {formData.lifeExpectancyUser.distributionType === "FIXED" && (
+                    <input
+                        type="number"
+                        name="lifeExpectancyUser.value"
+                        id="distributionTypeFIXED"
+                        placeholder="value"
+                        value={formData.lifeExpectancyUser.value || ""}
+                        onChange={handleChange}
+                        required
+                    />
+                )}
+                {formData.lifeExpectancyUser.distributionType === "UNIFORM" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="lifeExpectancyUser.lower"
+                            id="distributionTypeUNIFORM_lower"
+                            placeholder="Lower"
+                            value={formData.lifeExpectancyUser.lower || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="lifeExpectancyUser.upper"
+                            id="distributionTypeUNIFORM_upper"
+                            placeholder="Upper"
+                            value={formData.lifeExpectancyUser.upper || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+                {formData.lifeExpectancyUser.distributionType === "NORMAL" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="lifeExpectancyUser.mean"
+                            id="distributionTypeNORMAL_mean"
+                            placeholder="mean"
+                            value={formData.lifeExpectancyUser.mean || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="lifeExpectancyUser.stDev"
+                            id="distributionTypeNORMAL_stDev"
+                            placeholder="standard deviation"
+                            value={formData.lifeExpectancyUser.stDev || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+            </div>
+        );
     }
-    function chooseFone(){
-        return <div>{formData.lifeExpectancySpouse.distributionType == "FIXED" && (<input type="number" name="distributionType.SpouseFIXED"  id="distributionTypeSpouseFIXED"  placeholder="value" value={formData.lifeExpectancySpouse.value} onChange={handleChange} required/>)}
-            {formData.lifeExpectancySpouse.distributionType == "UNIFORM" && (<div><input type="number" name="distributionType.SpouseUNIFORM"  id="distributionTypeSpouseUNIFORM"  placeholder="Lower" value={formData.lifeExpectancySpouse.lower} onChange={handleChange} required/><input type="number" name="distributionType.SpouseUNIFORM"  id="distributionTypeSpouseUNIFORM"  placeholder="Upper" value={formData.lifeExpectancySpouse.upper} onChange={handleChange} required/></div>)}
-            {formData.lifeExpectancySpouse.distributionType == "NORMAL" && (<div><input type="number" name="distributionType.SpouseNORMAL"  id="distributionTypeSpouseNORMAL"  placeholder="mean" value={formData.lifeExpectancySpouse.mean} onChange={handleChange} required/><input type="number" name="distributionType.SpouseNORMAL"  id="distributionTypeSpouseNORMAL"  placeholder="standard deviation" value={formData.lifeExpectancySpouse.stDev} onChange={handleChange} required/></div>)}</div>
+
+// lifeExpectancySpouse에 대한 입력 필드
+    function chooseFone() {
+        return (
+            <div>
+                {formData.lifeExpectancySpouse.distributionType === "FIXED" && (
+                    <input
+                        type="number"
+                        name="lifeExpectancySpouse.value"
+                        id="distributionTypeSpouseFIXED"
+                        placeholder="value"
+                        value={formData.lifeExpectancySpouse.value || ""}
+                        onChange={handleChange}
+                        required
+                    />
+                )}
+                {formData.lifeExpectancySpouse.distributionType === "UNIFORM" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="lifeExpectancySpouse.lower"
+                            id="distributionTypeSpouse_lower"
+                            placeholder="Lower"
+                            value={formData.lifeExpectancySpouse.lower || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="lifeExpectancySpouse.upper"
+                            id="distributionTypeSpouse_upper"
+                            placeholder="Upper"
+                            value={formData.lifeExpectancySpouse.upper || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+                {formData.lifeExpectancySpouse.distributionType === "NORMAL" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="lifeExpectancySpouse.mean"
+                            id="distributionTypeSpouse_mean"
+                            placeholder="mean"
+                            value={formData.lifeExpectancySpouse.mean || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="lifeExpectancySpouse.stDev"
+                            id="distributionTypeSpouse_stDev"
+                            placeholder="standard deviation"
+                            value={formData.lifeExpectancySpouse.stDev || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+            </div>
+        );
     }
 
-    function chooseKone(){
-        return <div>{formData.inflationAssumptionId.distributionType == "FIXED" && (<input type="number" name="distributionType.inflationAssumptionIdFIXED"  id="distributionTypeinflationAssumptionIdFIXED"  placeholder="value" value={formData.inflationAssumptionId.value} onChange={handleChange} required/>)}
-            {formData.inflationAssumptionId.distributionType == "UNIFORM" && (<div><input type="number" name="distributionType.inflationAssumptionIdUNIFORM"  id="distributionTypeinflationAssumptionIdUNIFORM"  placeholder="Lower" value={formData.inflationAssumptionId.lower} onChange={handleChange} required/><input type="number" name="distributionType.inflationAssumptionIdUNIFORM"  id="distributionTypeinflationAssumptionIdeUNIFORM"  placeholder="Upper" value={formData.inflationAssumptionId.upper} onChange={handleChange} required/></div>)}
-            {formData.inflationAssumptionId.distributionType == "NORMAL" && (<div><input type="number" name="distributionType.inflationAssumptionIdNORMAL"  id="distributionTypeinflationAssumptionIdNORMAL"  placeholder="mean" value={formData.inflationAssumptionId.mean} onChange={handleChange} required/><input type="number" name="distributionType.inflationAssumptionIdNORMAL"  id="distributionTypeinflationAssumptionIdNORMAL"  placeholder="standard deviation" value={formData.inflationAssumptionId.stDev} onChange={handleChange} required/></div>)}</div>
+// inflationAssumptionId에 대한 입력 필드
+    function chooseKone() {
+        return (
+            <div>
+                {formData.inflationAssumption.distributionType === "FIXED" && (
+                    <input
+                        type="number"
+                        name="inflationAssumption.value"
+                        id="distributionTypeinflationAssumptionFIXED"
+                        placeholder="value"
+                        value={formData.inflationAssumption.value || ""}
+                        onChange={handleChange}
+                        required
+                    />
+                )}
+                {formData.inflationAssumption.distributionType === "UNIFORM" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="inflationAssumption.lower"
+                            id="distributionTypeinflationAssumption_lower"
+                            placeholder="Lower"
+                            value={formData.inflationAssumption.lower || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="inflationAssumption.upper"
+                            id="distributionTypeinflationAssumption_upper"
+                            placeholder="Upper"
+                            value={formData.inflationAssumption.upper || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+                {formData.inflationAssumption.distributionType === "NORMAL" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="inflationAssumption.mean"
+                            id="distributionTypeinflationAssumption_mean"
+                            placeholder="mean"
+                            value={formData.inflationAssumption.mean || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="inflationAssumption.stDev"
+                            id="distributionTypeinflationAssumption_stDev"
+                            placeholder="standard deviation"
+                            value={formData.inflationAssumption.stDev || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+            </div>
+        );
     }
 
     function profileSetup(){
@@ -267,17 +441,17 @@ function profileSetting(){
             <div className="login"><label htmlFor="stateOfResidence"></label>
                 {stateSelection()}</div>
             <div className="login"><label htmlFor="inflationAssumptionIdamountOrPercent">inflation Assumption Id: </label>
-                <select name="inflationAssumptionId.amountOrPercent" id="inflationAssumptionIdamountOrPercent" value={formData.inflationAssumptionId.amountOrPercent} onChange={handleChange} required>
+                <select name="inflationAssumptionId.amountOrPercent" id="inflationAssumptionIdamountOrPercent" value={formData.inflationAssumption.amountOrPercent} onChange={handleChange} required>
                     <option value = "PERCENT">Percent</option>
                 </select></div>
             <div className="login"><label htmlFor="inflationAssumptionIddistributionType">Distribution Type: </label>
-                <select name="inflationAssumptionId.distributionType" id="inflationAssumptionIddistributionType" value={formData.inflationAssumptionId.distributionType} onChange={handleChange}>
+                <select name="inflationAssumptionId.distributionType" id="inflationAssumptionIddistributionType" value={formData.inflationAssumption.distributionType} onChange={handleChange}>
                     <option value = "FIXED">FIXED</option>
                     <option value = "UNIFORM">UNIFORM</option>
                     <option value = "NORMAL">NORMAL</option>
                 </select></div>
             {chooseKone()}
-            <button className="submitButton" type="submit" style={{marginBottom:"20px"}} onClick={saveChanges}>Save Changes</button>
+            <button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
         </form>);
     }
 

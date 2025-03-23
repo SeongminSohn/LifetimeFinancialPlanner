@@ -6,11 +6,13 @@ import com.app.lifetimefinancialplanner.domain.entity.User;
 import com.app.lifetimefinancialplanner.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/users")
 @Tag(name = "User API", description = "Endpoints for user registration and login")
@@ -55,6 +57,7 @@ public class UserController {
         }
         // Save user info in the Session
         session.setAttribute("loggedInUser", user);
+        log.info("User: Controller " + user);
         return ResponseEntity.ok("Login successful");
     }
 

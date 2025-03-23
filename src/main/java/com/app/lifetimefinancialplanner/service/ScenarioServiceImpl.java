@@ -5,12 +5,14 @@ import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.domain.entity.User;
 import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 public class ScenarioServiceImpl implements ScenarioService {
 
@@ -26,6 +28,7 @@ public class ScenarioServiceImpl implements ScenarioService {
     public Scenario createScenario(ScenarioDTO scenarioDTO, HttpSession session) {
         // Retrieve the currently logged-in user from HttpSession
         User user = (User) session.getAttribute("loggedInUser");
+        log.info("User: Scenario Service " + user);
         if (user == null) {
             throw new RuntimeException("User not logged in");
         }
