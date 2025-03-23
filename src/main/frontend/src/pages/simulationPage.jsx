@@ -42,9 +42,9 @@ function homePage(){
         )
     }
 
-    // function toDash(){
-    //   navPage('/Homepage');
-    // }
+    function toHome(){
+        navPage('/HomePage')
+    }
 
     function toIncome(){
         navPage('/IncomePage')
@@ -59,21 +59,9 @@ function homePage(){
     }
 
     function toSim(){
-        navPage('/Imex')
+        navPage('/SimulationPage')
     }
 
-    function defineProfile(){
-        if(pro[0].profile === null || pro[0].profile === undefined){
-            return profileImage;
-        }else{
-            return pro[0].profile;
-        }
-    }
-
-    const handleImage = (e) => {
-        e.target.onError = null;
-        e.target.src = profileImage;
-    }
 
     function toProfile(){
         navPage('/Profset');
@@ -98,7 +86,7 @@ function homePage(){
 
     return (<div className="total">
         <nav className="navBarTop">
-            <img src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
+            <img src ="/public/caffeineOverloadLogo.png" className = "logoSize" onClick={toHome}></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
             {!loggedIn && (
                 <button className="commonButton" onClick={toLogin}>
@@ -109,9 +97,9 @@ function homePage(){
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
             {sideElements()}
-            <button className="noShape" onClick={toProfile}>
-                <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
-            </button>
+            {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
+                profile Setting
+            </button>)}
         </nav>
         {homeManage()}
     </div>);

@@ -22,6 +22,7 @@ function homePage(){
     const [openSide, setSide] = useState(false);
     const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
+    const [loggedIn, setLoggedIn] = useState(false)
 
     const popupMenu = () => {
         setSide(prevState => !prevState);
@@ -57,7 +58,7 @@ function homePage(){
     }
 
     function toSim(){
-        navPage('/Imex')
+        navPage('/simulationPage')
     }
 
     function toHome(){
@@ -94,9 +95,9 @@ function homePage(){
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
             {sideElements()}
-            <button className="noShape" onClick={toProfile}>
-                <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
-            </button>
+            {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
+                profile Setting
+            </button>)}
         </nav>
     </div>);
 }

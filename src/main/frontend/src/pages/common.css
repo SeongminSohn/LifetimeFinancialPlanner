@@ -35,10 +35,14 @@ html, body {
     top: 70px;
 }
 .commonButton{
-    width: 40px;
+    width: 60px;
     height: 30px;
     font-size: 10px;
     margin: 10px;
+    border: none;
+    border-radius: 15px;
+    font-weight: bold;
+    background-color: white;
 }
 
 .noShape{
@@ -142,4 +146,10 @@ html, body {
     color: white;
     font-family: 'Courier New', monospace;
     font-weight: bold;
+}
+
+button:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }

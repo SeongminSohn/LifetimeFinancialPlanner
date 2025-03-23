@@ -78,7 +78,7 @@ function profileSetting(){
     }
 
     function toSim(){
-        navPage('/Imex')
+        navPage('/simulationPage')
     }
 
     function toHome(){
@@ -116,16 +116,6 @@ function profileSetting(){
             alert("Try again");
         }
     }
-
-    // async function saveChanges(){
-    //     try {
-    //         const response = await axios.post("http://localhost:10000/api/scenarios", formData);
-    //         console.log("Scenario success:", response.data);
-    //     } catch (error) {
-    //         console.error("Scenario Error:", error);
-    //         alert("Try Again. Error.");
-    //     }
-    // }
 
     function stateSelection() {
         return (<div className="login">
@@ -248,7 +238,6 @@ function profileSetting(){
         );
     }
 
-// lifeExpectancySpouse에 대한 입력 필드
     function chooseFone() {
         return (
             <div>
@@ -311,7 +300,6 @@ function profileSetting(){
         );
     }
 
-// inflationAssumptionId에 대한 입력 필드
     function chooseKone() {
         return (
             <div>
@@ -459,11 +447,11 @@ function profileSetting(){
         <nav className="navBarTop">
             <img onClick={toHome} src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            <button className="commonButton">About us</button>
+            <div></div>
         </nav>
         <nav className= "navBarSub">
-            <button className="commonButton" onClick={popupMenu}>Menu</button>
-            {sideElements()}
+            {/*<button className="commonButton" onClick={popupMenu}>Menu</button>*/}
+            {/*{sideElements()}*/}
         </nav>
         {profileSetup()}
     </div>);

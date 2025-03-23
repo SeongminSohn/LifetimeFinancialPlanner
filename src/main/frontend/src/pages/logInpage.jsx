@@ -52,7 +52,7 @@ function loginPage(){
     }
 
     function toSim(){
-        navPage('/Imex')
+        navPage('/simulationPage')
     }
 
 
@@ -114,14 +114,11 @@ function loginPage(){
         <nav className="navBarTop">
             <img onClick={toHome} src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            <button className="commonButton">About us</button>
+            <div></div>
         </nav>
         <nav className= "navBarSub">
-            <button className="commonButton" onClick={popupMenu}>Menu</button>
-            {sideElements()}
-            <button className="noShape">
-                <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
-            </button>
+            {/*<button className="commonButton" onClick={popupMenu}>Menu</button>*/}
+            {/*{sideElements()}*/}
         </nav>
         {signinBox()}
     </div>);
