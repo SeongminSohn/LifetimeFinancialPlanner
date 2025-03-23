@@ -18,7 +18,7 @@ public class InvestmentType {
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String name; // 'S&P 500' or 'municipal bonds'
+    private String name; // 'Cash', 'S&P 500' or 'Municipal bonds'
 
     @Column(length = 500)
     private String description;
