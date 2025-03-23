@@ -4,24 +4,26 @@ import {useEffect} from "react";
 import axios from "axios";
 import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
+import Axios from "axios"
 
 function homePage(){
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const planResp = await axios.get("http://localhost:10000/test");
-                console.log(planResp.data);
-            } catch (err) {
-                console.log("inital error");
-                console.log(err);
-            }
-        };
-
-        fetchData();}, []);
+    // useEffect(() => {
+    //   const fetchData = async () => {
+    //     try {
+    //       const planResp = await axios.get("http://localhost:10000/test");
+    //       console.log(planResp.data);
+    //     } catch (err) {
+    //       console.log("inital error");
+    //       console.log(err);
+    //     }
+    //   };
+    //
+    //   fetchData();}, []);
 
     const [openSide, setSide] = useState(false);
     const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
+    const [loggedIn, setLoggedIn] = useState(false)
 
     const popupMenu = () => {
         setSide(prevState => !prevState);
@@ -30,9 +32,9 @@ function homePage(){
     function sideElements(){
         return openSide && (
             <aside className="sidebar">
-                <button onClick={toTax}>Tax Management</button>
-                <button onClick={toFin}>Financial Planning</button>
-                <button onClick={toEve}>Event Management</button>
+                <button onClick={toIncome}>Income Edit</button>
+                <button onClick={toExpense}>Expense Edit</button>
+                <button onClick={toInvest}>Invest Edit</button>
                 <button onClick={toSim}>Scenario Simulation</button>
                 <button>Reports & Logs</button>
                 <button>Import & Export Date</button>
@@ -44,20 +46,16 @@ function homePage(){
     //   navPage('/Homepage');
     // }
 
-    function toHome(){
-        navPage('/Homepage')
+    function toIncome(){
+        navPage('/IncomePage')
     }
 
-    function toFin(){
-        navPage('/FinP');
+    function toExpense(){
+        navPage('/ExpenseEdit');
     }
 
-    function toTax(){
-        navPage('/Taxm')
-    }
-
-    function toEve(){
-        navPage('/EveM')
+    function toInvest(){
+        navPage('/InvestEdit')
     }
 
     function toSim(){
@@ -85,17 +83,28 @@ function homePage(){
         navPage('/Loginpage');
     }
 
-    function finanacialPlanning(){
+    function homeManage(){
         return(<div className="loginBox">
-
+            <></>
         </div>)
+    }
+
+    function statusCheck(){
+        //if DB got the data, then
+        setLoggedIn(true)
+        //else
+        //setLoggedIn(false)
     }
 
     return (<div className="total">
         <nav className="navBarTop">
-            <img onClick={toHome} src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
+            <img src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            <button className="commonButton" onClick={toLogin}>Sign-In</button>
+            {!loggedIn && (
+                <button className="commonButton" onClick={toLogin}>
+                    Sign-In
+                </button>
+            )}
         </nav>
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
@@ -104,7 +113,7 @@ function homePage(){
                 <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
             </button>
         </nav>
-        {finanacialPlanning()}
+        {homeManage()}
     </div>);
 }
 export default homePage;
