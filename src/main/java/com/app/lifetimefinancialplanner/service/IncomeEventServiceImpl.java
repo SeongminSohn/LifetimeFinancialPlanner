@@ -1,5 +1,7 @@
 package com.app.lifetimefinancialplanner.service;
 
+import com.app.lifetimefinancialplanner.domain.dto.DistributionDTO;
+import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.EventSeries;
 import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.dto.IncomeEventDTO;
@@ -27,14 +29,26 @@ public class IncomeEventServiceImpl implements IncomeEventService {
         EventSeries eventSeries = eventSeriesRepository.findById(incomeEventDTO.getEventSeriesId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid EventSeries ID"));
 
-        // Build the IncomeEvent entity using the Builder pattern
+        // Convert DistributionDTO for annualChange to DistributionEmbeddable
+        DistributionEmbeddable annualChangeEmb = null;
+        DistributionDTO distributionDTO = incomeEventDTO.getAnnualChange();
+        if (distributionDTO != null) {
+            annualChangeEmb = new DistributionEmbeddable();
+            annualChangeEmb.setAmountOrPercent(distributionDTO.getAmountOrPercent());
+            annualChangeEmb.setDistributionType(distributionDTO.getDistributionType());
+            annualChangeEmb.setValue(distributionDTO.getValue());
+            annualChangeEmb.setLower(distributionDTO.getLower());
+            annualChangeEmb.setUpper(distributionDTO.getUpper());
+            annualChangeEmb.setMean(distributionDTO.getMean());
+            annualChangeEmb.setStDev(distributionDTO.getStDev());
+        }
+
+        // Build the IncomeEvent entity using the builder pattern
         IncomeEvent incomeEvent = IncomeEvent.builder()
                 .initialAmount(incomeEventDTO.getInitialAmount())
-//                .annualChange(incomeEventDTO.getAnnualChange())
-                .inflationAdjustment(incomeEventDTO.getInflationAdjustment())
+                .annualChange(annualChangeEmb)
                 .isSocialSecurity(incomeEventDTO.getIsSocialSecurity())
                 .userPercentage(incomeEventDTO.getUserPercentage())
-//                .spousePercentage(incomeEventDTO.getSpousePercentage())
                 .eventSeries(eventSeries)
                 .build();
 

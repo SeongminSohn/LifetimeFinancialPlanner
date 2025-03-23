@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
+import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import lombok.*;
 import javax.persistence.*;
 
@@ -14,14 +15,17 @@ public class IncomeEvent {
     @Column(name = "INITIAL_AMOUNT", nullable = false)
     private Double initialAmount;
 
-    @Column(name = "CHANGE_AMT_OR_PCT", length = 20, nullable = false)
-    private String changeAmtOrPct; // "AMOUNT" or "PERCENT"
-
-    @Column(name = "CHANGE_DISTRIBUTION", length = 20, nullable = false)
-    private String changeDistribution; // "FIXED", "UNIFORM", "NORMAL"
-
-    @Column(name = "INFLATION_ADJUSTMENT", nullable = false, length = 1)
-    private String inflationAdjustment; // 'Y' or 'N'
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "ANNUAL_CHAGE_AMOUNT_OR_PERCENT", nullable = false)),
+            @AttributeOverride(name = "distributionType", column = @Column(name = "ANNUAL_CHAGE_DISTRIBUTION_TYPE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "ANNUAL_CHAGE_VALUE", nullable = false)),
+            @AttributeOverride(name = "lower", column = @Column(name = "ANNUAL_CHAGE_LOWER")),
+            @AttributeOverride(name = "upper", column = @Column(name = "ANNUAL_CHAGE_UPPER")),
+            @AttributeOverride(name = "mean", column = @Column(name = "ANNUAL_CHAGE_MEAN")),
+            @AttributeOverride(name = "stDev", column = @Column(name = "ANNUAL_CHAGE_STDDEV"))
+    })
+    private DistributionEmbeddable annualChange;
 
     @Column(name = "IS_SOCIAL_SECURITY", nullable = false, length = 1)
     private String isSocialSecurity; // 'Y' or 'N'
