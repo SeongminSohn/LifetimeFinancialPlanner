@@ -16,17 +16,17 @@ public class ExpenseEvent {
     @Column(name = "INITIAL_AMOUNT", nullable = false)
     private Double initialAmount;
 
-    @Column(name = "ANNUAL_CHANGE", length = 50, nullable = false)
-    private String annualChange; // 'Fixed' or 'Distribution'
+    @Column(name = "CHANGE_AMT_OR_PCT", length = 20, nullable = false)
+    private String changeAmtOrPct; // "AMOUNT" or "PERCENT"
+
+    @Column(name = "CHANGE_DISTRIBUTION", length = 20, nullable = false)
+    private String changeDistribution; // "FIXED", "UNIFORM", "NORMAL"
 
     @Column(name = "INFLATION_ADJUSTMENT", nullable = false, length = 1)
     private String inflationAdjustment; // 'Y' or 'N'
 
     @Column(name = "USER_PERCENTAGE", nullable = false)
-    private Double userPercentage;
-
-    @Column(name = "SPOUSE_PERCENTAGE")
-    private Double spousePercentage;
+    private Double userPercentage; // % <= 1
 
     @OneToOne
     @MapsId

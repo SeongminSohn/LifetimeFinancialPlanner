@@ -30,11 +30,11 @@ public class IncomeEventServiceImpl implements IncomeEventService {
         // Build the IncomeEvent entity using the Builder pattern
         IncomeEvent incomeEvent = IncomeEvent.builder()
                 .initialAmount(incomeEventDTO.getInitialAmount())
-                .annualChange(incomeEventDTO.getAnnualChange())
+//                .annualChange(incomeEventDTO.getAnnualChange())
                 .inflationAdjustment(incomeEventDTO.getInflationAdjustment())
                 .isSocialSecurity(incomeEventDTO.getIsSocialSecurity())
                 .userPercentage(incomeEventDTO.getUserPercentage())
-                .spousePercentage(incomeEventDTO.getSpousePercentage())
+//                .spousePercentage(incomeEventDTO.getSpousePercentage())
                 .eventSeries(eventSeries)
                 .build();
 
