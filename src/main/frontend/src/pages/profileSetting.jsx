@@ -81,31 +81,6 @@ function profileSetting(){
         navPage('/Imex')
     }
 
-    const [selectedImage, setSelectedImage] = useState(null);
-
-    const handleFileChange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            setSelectedImage(e.target.files[0]);
-        }
-    };
-
-    const defineProfile = () => {
-        if (selectedImage) {
-            console.log(URL.createObjectURL(selectedImage))
-            return URL.createObjectURL(selectedImage);
-        }
-        return profileImage;
-    }
-
-    function removeImage(){
-        setSelectedImage(null);
-    }
-
-    const handleImage = (e) => {
-        e.target.onError = null;
-        e.target.src = profileImage;
-    }
-
     function toHome(){
         navPage('/Homepage')
     }
@@ -137,6 +112,16 @@ function profileSetting(){
         console.log('Email:', formData.birthYearUser);
         console.log('phone Number:', formData.birthYearSpouse);
     };
+
+    async function saveChanges(){
+        try {
+            const response = await axios.post("http://localhost:10000/api/scenarios", formData);
+            console.log("Scenario 생성 성공:", response.data);
+        } catch (error) {
+            console.error("Scenario Error:", error);
+            alert("Try Again. Error.");
+        }
+    }
 
     function stateSelection() {
         return (<div className="login">
@@ -292,7 +277,7 @@ function profileSetting(){
                     <option value = "NORMAL">NORMAL</option>
                 </select></div>
             {chooseKone()}
-            <button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
+            <button className="submitButton" type="submit" style={{marginBottom:"20px"}} onClick={saveChanges}>Save Changes</button>
         </form>);
     }
 
