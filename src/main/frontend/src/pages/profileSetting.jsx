@@ -7,29 +7,45 @@ import { useNavigate } from 'react-router-dom';
 
 
 function profileSetting(){
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const planResp = await axios.get("http://localhost:10000/test");
-    //             console.log(planResp.data);
-    //         } catch (err) {
-    //             console.log("inital error");
-    //             console.log(err);
-    //         }
-    //     };
-    //
-    //     fetchData();}, []);
 
     const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
-        ugender: 'Male',
-        uemail: '',
-        uphonenum: '',
-        uaddress1: '',
-        uaddress2: '',
-        ustate: 'AL'
+        maritalStatus: 'N',
+        birthYearUser: '',
+        birthYearSpouse: 'null',
+        lifeExpectancyUser: {
+            amountOrPercent: "AMOUNT",
+            distributionType: "FIXED",
+            value: null,
+            lower: null,
+            upper: null,
+            mean: null,
+            stDev: null,
+        },
+        lifeExpectancySpouse: {
+            amountOrPercent: "AMOUNT",
+            distributionType: "FIXED",
+            value: null,
+            lower: null,
+            upper: null,
+            mean: null,
+            stDev: null,
+        },
+        financialGoal: '',
+        preTaxContributionLimit: '',
+        afterTaxContributionLimit: '',
+        stateOfResidence: 'AL',
+        inflationAssumptionId: {
+            amountOrPercent: "PERCENT",
+            distributionType: "FIXED",
+            value: null,
+            lower: null,
+            upper: null,
+            mean: null,
+            stDev: null,
+        }
     });
 
     const popupMenu = () => {
@@ -94,26 +110,38 @@ function profileSetting(){
         navPage('/Homepage')
     }
 
-    const handleChange = (e) => {
+    function handleChange(e) {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+        if (name.includes('.')) {
+            const [parentKey, childKey] = name.split('.');
+            setFormData(prevState => ({
+                ...prevState,
+                [parentKey]: {
+                    ...prevState[parentKey],
+                    [childKey]: value
+                }
+            }));
+        } else {
+            setFormData(prevState => ({
+                ...prevState,
+                [name]: value
+            }));
+        }
+    }
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Name:', formData.uname);
-        console.log('Gender:', formData.ugender);
-        console.log('Email:', formData.uemail);
-        console.log('phone Number:', formData.uphonenum);
-        console.log('address1:', formData.uaddress1);
-        console.log('address2:', formData.uaddress2);
-        console.log('state:', formData.ustate);
+        console.log('Name:', formData.name);
+        console.log('Gender:', formData.maritalStatus);
+        console.log('Email:', formData.birthYearUser);
+        console.log('phone Number:', formData.birthYearSpouse);
     };
 
     function stateSelection() {
         return (<div className="login">
-                <label htmlFor="ustate"></label>
-                <select name="ustate" id="ustate" value={formData.ustate} onChange={handleChange}>
+                <label htmlFor="stateOfResidence"></label>
+                <select name="stateOfResidence" id="stateOfResidence" value={formData.stateOfResidence} onChange={handleChange}>
                     <option value="AL">AL</option>
                     <option value="AK">AK</option>
                     <option value="AZ">AZ</option>
@@ -170,8 +198,25 @@ function profileSetting(){
         );
     }
 
+    function chooseMone(){
+        return <div>{formData.lifeExpectancyUser.distributionType == "FIXED" && (<input type="number" name="distributionType.FIXED"  id="distributionTypeFIXED"  placeholder="value" value={formData.lifeExpectancyUser.value} onChange={handleChange} required/>)}
+            {formData.lifeExpectancyUser.distributionType == "UNIFORM" && (<div><input type="number" name="distributionType.UNIFORM"  id="distributionTypeUNIFORM"  placeholder="Lower" value={formData.lifeExpectancyUser.lower} onChange={handleChange} required/><input type="number" name="distributionType.UNIFORM"  id="distributionTypeUNIFORM"  placeholder="Upper" value={formData.lifeExpectancyUser.upper} onChange={handleChange} required/></div>)}
+            {formData.lifeExpectancyUser.distributionType == "NORMAL" && (<div><input type="number" name="distributionType.NORMAL"  id="distributionTypeNORMAL"  placeholder="mean" value={formData.lifeExpectancyUser.mean} onChange={handleChange} required/><input type="number" name="distributionType.NORMAL"  id="distributionTypeNORMAL"  placeholder="standard deviation" value={formData.lifeExpectancyUser.stDev} onChange={handleChange} required/></div>)}</div>
+    }
+    function chooseFone(){
+        return <div>{formData.lifeExpectancySpouse.distributionType == "FIXED" && (<input type="number" name="distributionType.SpouseFIXED"  id="distributionTypeSpouseFIXED"  placeholder="value" value={formData.lifeExpectancySpouse.value} onChange={handleChange} required/>)}
+            {formData.lifeExpectancySpouse.distributionType == "UNIFORM" && (<div><input type="number" name="distributionType.SpouseUNIFORM"  id="distributionTypeSpouseUNIFORM"  placeholder="Lower" value={formData.lifeExpectancySpouse.lower} onChange={handleChange} required/><input type="number" name="distributionType.SpouseUNIFORM"  id="distributionTypeSpouseUNIFORM"  placeholder="Upper" value={formData.lifeExpectancySpouse.upper} onChange={handleChange} required/></div>)}
+            {formData.lifeExpectancySpouse.distributionType == "NORMAL" && (<div><input type="number" name="distributionType.SpouseNORMAL"  id="distributionTypeSpouseNORMAL"  placeholder="mean" value={formData.lifeExpectancySpouse.mean} onChange={handleChange} required/><input type="number" name="distributionType.SpouseNORMAL"  id="distributionTypeSpouseNORMAL"  placeholder="standard deviation" value={formData.lifeExpectancySpouse.stDev} onChange={handleChange} required/></div>)}</div>
+    }
+
+    function chooseKone(){
+        return <div>{formData.inflationAssumptionId.distributionType == "FIXED" && (<input type="number" name="distributionType.inflationAssumptionIdFIXED"  id="distributionTypeinflationAssumptionIdFIXED"  placeholder="value" value={formData.inflationAssumptionId.value} onChange={handleChange} required/>)}
+            {formData.inflationAssumptionId.distributionType == "UNIFORM" && (<div><input type="number" name="distributionType.inflationAssumptionIdUNIFORM"  id="distributionTypeinflationAssumptionIdUNIFORM"  placeholder="Lower" value={formData.inflationAssumptionId.lower} onChange={handleChange} required/><input type="number" name="distributionType.inflationAssumptionIdUNIFORM"  id="distributionTypeinflationAssumptionIdeUNIFORM"  placeholder="Upper" value={formData.inflationAssumptionId.upper} onChange={handleChange} required/></div>)}
+            {formData.inflationAssumptionId.distributionType == "NORMAL" && (<div><input type="number" name="distributionType.inflationAssumptionIdNORMAL"  id="distributionTypeinflationAssumptionIdNORMAL"  placeholder="mean" value={formData.inflationAssumptionId.mean} onChange={handleChange} required/><input type="number" name="distributionType.inflationAssumptionIdNORMAL"  id="distributionTypeinflationAssumptionIdNORMAL"  placeholder="standard deviation" value={formData.inflationAssumptionId.stDev} onChange={handleChange} required/></div>)}</div>
+    }
+
     function profileSetup(){
-        return (<form onSubmit={handleSubmit} className="profileSetting">
+        return (<form onSubmit={handleSubmit} className="profileSetting"> <div className="logoLetter" style={{fontSize: '50px', marginTop: "30px"}} >Scenario Setting</div>
             <div className="login"><label htmlFor="name"></label>
                 <input
                     type="text"
@@ -180,20 +225,73 @@ function profileSetting(){
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Edit your Name"
+                    required
                 /></div>
             <div className="login"><label htmlFor="maritalStatus"></label>
-                <select name="ustate" id="ustate" value={formData.ustate} onChange={handleChange}>
+                <select name="maritalStatus" id="maritalStatus" value={formData.maritalStatus} onChange={handleChange}>
                     <option value = "Y">I am married</option>
                     <option value = "N">No, I am not</option>
                 </select></div>
-            <div className="login"><label htmlFor="uphonenum"></label>
-                <input type="tel" name="uphonenum"  id="uphonenum"  placeholder="Enter your phone number" value={formData.uphonenum} onChange={handleChange}/></div>
-            <div className="login"><label htmlFor="uaddress1"></label>
-                <input placeholder="Address" type="text" id="uaddress1" name="uaddress1" value={formData.uaddress1} onChange={handleChange}/></div>
-            <div className="login"><label htmlFor="uaddress2"></label>
-                <input placeholder="Address (Optional)" type="text" id="uaddress2" name="uaddress2" value={formData.uaddress2} onChange={handleChange}/></div>
-            <div className="login"><label htmlFor="ustate"></label>
+            <div className="login"><label htmlFor="birthYearUser"></label>
+                <input type="number" name="birthYearUser"  id="birthYearUser"  placeholder="YYYY" value={formData.birthYearUser} onChange={handleChange} maxLength={4} required/></div>
+            {formData.maritalStatus === "Y" && (
+                <div className="login">
+                    <label htmlFor="birthYearSpouse"></label>
+                    <input
+                        placeholder="birthYear spouse"
+                        type="number"
+                        id="birthYearSpouse"
+                        name="birthYearSpouse"
+                        value={formData.birthYearSpouse}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+            )}
+            <div className="login"><label htmlFor="lifeExpectancyUseramountOrPercent">Life Expectancy User: </label>
+                <select name="lifeExpectancyUser.amountOrPercent" id="lifeExpectancyUseramountOrPercent" value={formData.lifeExpectancyUser.amountOrPercent} onChange={handleChange} required>
+                    <option value = "AMOUNT">Amount</option>
+                    <option value = "PERCENT">Percent</option>
+                </select></div>
+            <div className="login"><label htmlFor="lifeExpectancyUserdistributionType">Distribution Type: </label>
+                <select name="lifeExpectancyUser.distributionType" id="lifeExpectancyUserdistributionType" value={formData.lifeExpectancyUser.distributionType} onChange={handleChange}>
+                    <option value = "FIXED">FIXED</option>
+                    <option value = "UNIFORM">UNIFORM</option>
+                    <option value = "NORMAL">NORMAL</option>
+                </select></div>
+            {chooseMone()}
+            {formData.maritalStatus === "Y" && (<div className="login"><label htmlFor="lifeExpectancySpouse">Life Expectancy Spouse: </label>
+                <select name="lifeExpectancySpouse.amountOrPercent" id="lifeExpectancySpouseamountOrPercent" value={formData.lifeExpectancySpouse.amountOrPercent} onChange={handleChange} required>
+                    <option value = "AMOUNT">Amount</option>
+                    <option value = "PERCENT">Percent</option>
+                </select></div>
+            )}
+            {formData.maritalStatus === "Y" && <div className="login"><label htmlFor="lifeExpectancySpousedistributionType">Distribution Type: </label>
+                <select name="lifeExpectancySpouse.distributionType" id="lifeExpectancySpousedistributionType" value={formData.lifeExpectancySpouse.distributionType} onChange={handleChange}>
+                    <option value = "FIXED">FIXED</option>
+                    <option value = "UNIFORM">UNIFORM</option>
+                    <option value = "NORMAL">NORMAL</option>
+                </select></div>}
+            {formData.maritalStatus === "Y" && chooseFone()}
+            <div className="login"><label htmlFor="financialGoal"></label>
+                <input type="number" name="financialGoal"  id="financialGoal"  placeholder="Financial Goal" value={formData.financialGoal} onChange={handleChange} required/></div>
+            <div className="login"><label htmlFor="preTaxContributionLimit"></label>
+                <input type="number" name="preTaxContributionLimit"  id="preTaxContributionLimit"  placeholder="pre TaxContribution Limit" value={formData.preTaxContributionLimit} onChange={handleChange} required/></div>
+            <div className="login"><label htmlFor="afterTaxContributionLimit"></label>
+                <input type="number" name="afterTaxContributionLimit"  id="afterTaxContributionLimit"  placeholder="after TaxContribution Limit" value={formData.afterTaxContributionLimit} onChange={handleChange} required/></div>
+            <div className="login"><label htmlFor="stateOfResidence"></label>
                 {stateSelection()}</div>
+            <div className="login"><label htmlFor="inflationAssumptionIdamountOrPercent">inflation Assumption Id: </label>
+                <select name="inflationAssumptionId.amountOrPercent" id="inflationAssumptionIdamountOrPercent" value={formData.inflationAssumptionId.amountOrPercent} onChange={handleChange} required>
+                    <option value = "PERCENT">Percent</option>
+                </select></div>
+            <div className="login"><label htmlFor="inflationAssumptionIddistributionType">Distribution Type: </label>
+                <select name="inflationAssumptionId.distributionType" id="inflationAssumptionIddistributionType" value={formData.inflationAssumptionId.distributionType} onChange={handleChange}>
+                    <option value = "FIXED">FIXED</option>
+                    <option value = "UNIFORM">UNIFORM</option>
+                    <option value = "NORMAL">NORMAL</option>
+                </select></div>
+            {chooseKone()}
             <button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
         </form>);
     }
