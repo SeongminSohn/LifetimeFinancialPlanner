@@ -178,9 +178,6 @@ function homePage(){
                     value={formData.userPercentage}
                     onChange={handleChange}
                     placeholder="User Percentage"
-                    min="0"
-                    max="1"
-                    step="0.01"
                     style={{width: "140px"}}
                     required
                 /></div>

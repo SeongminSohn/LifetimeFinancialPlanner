@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 function loginPage(){
     
 
-    const [openSide, setSide] = useState(false);
+    // const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
     const [formData, setFormData] = useState({
         id: '',

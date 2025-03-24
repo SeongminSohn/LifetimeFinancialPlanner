@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 
 
 function profileSetting(){
-
+    //useEffect() get data from server and refect those data
+    // if there is data, then print list of scenarios settings.....
     // const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
     const [formData, setFormData] = useState({
@@ -500,8 +501,9 @@ function profileSetting(){
                     <option value = "UNIFORM">UNIFORM</option>
                     <option value = "NORMAL">NORMAL</option>
                 </select></div>
-            {chooseKone()}
-            <button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
+            {chooseKone()}<div><button onClick={toHome} className="submitButton" type="button" style={{marginBottom:"20px"}}>Back</button><button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
+                </div>
+
         </form>);
     }
 
