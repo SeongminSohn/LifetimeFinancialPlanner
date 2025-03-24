@@ -71,6 +71,7 @@ function homePage(){
 
   function handleLogout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("scenario")
     setLoggedIn(false);
     navPage("/Homepage");
   }

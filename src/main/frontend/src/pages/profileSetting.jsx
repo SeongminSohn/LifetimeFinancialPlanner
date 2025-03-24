@@ -140,7 +140,8 @@ function profileSetting(){
         console.log(formData)
         try {
             const response = await axios.post("http://localhost:10000/api/scenarios", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
-            console.log("Scenario success:", response.data);
+            console.log("Scenario ID:", response.data.scenarioId);
+            localStorage.setItem("scenario", response.data.scenarioId);
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
