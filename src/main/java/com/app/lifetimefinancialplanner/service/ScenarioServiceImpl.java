@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.service;
 
+import com.app.lifetimefinancialplanner.domain.dto.DistributionDTO;
 import com.app.lifetimefinancialplanner.domain.dto.ScenarioDTO;
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
@@ -28,6 +29,39 @@ public class ScenarioServiceImpl implements ScenarioService {
         this.userRepository = userRepository;
     }
 
+    // Helper Method to process DTO to Embeddable (Handle invalid inputs)
+    private DistributionEmbeddable convertDistribution(DistributionDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+        DistributionEmbeddable emb = new DistributionEmbeddable();
+        emb.setAmountOrPercent(dto.getAmountOrPercent());
+        emb.setDistributionType(dto.getDistributionType());
+        String type = dto.getDistributionType();
+        if ("FIXED".equalsIgnoreCase(type)) {
+            emb.setValue(dto.getValue());
+            emb.setLower(null);
+            emb.setUpper(null);
+            emb.setMean(null);
+            emb.setStDev(null);
+        } else if ("UNIFORM".equalsIgnoreCase(type)) {
+            emb.setLower(dto.getLower());
+            emb.setUpper(dto.getUpper());
+            emb.setValue(null);
+            emb.setMean(null);
+            emb.setStDev(null);
+        } else if ("NORMAL".equalsIgnoreCase(type)) {
+            emb.setMean(dto.getMean());
+            emb.setStDev(dto.getStDev());
+            emb.setValue(null);
+            emb.setLower(null);
+            emb.setUpper(null);
+        } else {
+            throw new IllegalArgumentException("Unsupported distribution type: " + type);
+        }
+        return emb;
+    }
+
     @Override
     public Scenario createScenario(ScenarioDTO scenarioDTO) {
         // Retrieve the currently logged-in user from HttpSession
@@ -41,44 +75,10 @@ public class ScenarioServiceImpl implements ScenarioService {
         Double defaultAfterTax = scenarioDTO.getAfterTaxContributionLimit() != null
                 ? scenarioDTO.getAfterTaxContributionLimit() : 7000.0;
 
-        // Convert DistributionDTO for lifeExpectancyuser to DistributionEmbeddable
-        DistributionEmbeddable lifeExpUser = null;
-        if (scenarioDTO.getLifeExpectancyUser() != null) {
-            lifeExpUser = new DistributionEmbeddable();
-            lifeExpUser.setAmountOrPercent(scenarioDTO.getLifeExpectancyUser().getAmountOrPercent());
-            lifeExpUser.setDistributionType(scenarioDTO.getLifeExpectancyUser().getDistributionType());
-            lifeExpUser.setValue(scenarioDTO.getLifeExpectancyUser().getValue());
-            lifeExpUser.setLower(scenarioDTO.getLifeExpectancyUser().getLower());
-            lifeExpUser.setUpper(scenarioDTO.getLifeExpectancyUser().getUpper());
-            lifeExpUser.setMean(scenarioDTO.getLifeExpectancyUser().getMean());
-            lifeExpUser.setStDev(scenarioDTO.getLifeExpectancyUser().getStDev());
-        }
-
-        // lifeExpectancySpouse
-        DistributionEmbeddable lifeExpSpouse = null;
-        if (scenarioDTO.getLifeExpectancySpouse() != null) {
-            lifeExpSpouse = new DistributionEmbeddable();
-            lifeExpSpouse.setAmountOrPercent(scenarioDTO.getLifeExpectancySpouse().getAmountOrPercent());
-            lifeExpSpouse.setDistributionType(scenarioDTO.getLifeExpectancySpouse().getDistributionType());
-            lifeExpSpouse.setValue(scenarioDTO.getLifeExpectancySpouse().getValue());
-            lifeExpSpouse.setLower(scenarioDTO.getLifeExpectancySpouse().getLower());
-            lifeExpSpouse.setUpper(scenarioDTO.getLifeExpectancySpouse().getUpper());
-            lifeExpSpouse.setMean(scenarioDTO.getLifeExpectancySpouse().getMean());
-            lifeExpSpouse.setStDev(scenarioDTO.getLifeExpectancySpouse().getStDev());
-        }
-
-        // InflationAssumption
-        DistributionEmbeddable inflationAssumptionEmb = null;
-        if (scenarioDTO.getInflationAssumption() != null) {
-            inflationAssumptionEmb = new DistributionEmbeddable();
-            inflationAssumptionEmb.setAmountOrPercent(scenarioDTO.getInflationAssumption().getAmountOrPercent());
-            inflationAssumptionEmb.setDistributionType(scenarioDTO.getInflationAssumption().getDistributionType());
-            inflationAssumptionEmb.setValue(scenarioDTO.getInflationAssumption().getValue());
-            inflationAssumptionEmb.setLower(scenarioDTO.getInflationAssumption().getLower());
-            inflationAssumptionEmb.setUpper(scenarioDTO.getInflationAssumption().getUpper());
-            inflationAssumptionEmb.setMean(scenarioDTO.getInflationAssumption().getMean());
-            inflationAssumptionEmb.setStDev(scenarioDTO.getInflationAssumption().getStDev());
-        }
+        // Convert DTO to Embeddable by using helper method
+        DistributionEmbeddable lifeExpUser = convertDistribution(scenarioDTO.getLifeExpectancyUser());
+        DistributionEmbeddable lifeExpSpouse = convertDistribution(scenarioDTO.getLifeExpectancySpouse());
+        DistributionEmbeddable inflationAssumptionEmb = convertDistribution(scenarioDTO.getInflationAssumption());
 
         User user = userRepository.findById(scenarioDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -118,43 +118,17 @@ public class ScenarioServiceImpl implements ScenarioService {
         // Update life expectancy for user if provided
         DistributionEmbeddable updatedLifeExpUser = scenario.getLifeExpectancyUser();
         if (scenarioDTO.getLifeExpectancyUser() != null) {
-            DistributionEmbeddable temp = new DistributionEmbeddable();
-            temp.setAmountOrPercent(scenarioDTO.getLifeExpectancyUser().getAmountOrPercent());
-            temp.setDistributionType(scenarioDTO.getLifeExpectancyUser().getDistributionType());
-            temp.setValue(scenarioDTO.getLifeExpectancyUser().getValue());
-            temp.setLower(scenarioDTO.getLifeExpectancyUser().getLower());
-            temp.setUpper(scenarioDTO.getLifeExpectancyUser().getUpper());
-            temp.setMean(scenarioDTO.getLifeExpectancyUser().getMean());
-            temp.setStDev(scenarioDTO.getLifeExpectancyUser().getStDev());
-            updatedLifeExpUser = temp;
+            updatedLifeExpUser = convertDistribution(scenarioDTO.getLifeExpectancyUser());
         }
 
-        // Update life expectancy for spouse if provided
         DistributionEmbeddable updatedLifeExpSpouse = scenario.getLifeExpectancySpouse();
         if (scenarioDTO.getLifeExpectancySpouse() != null) {
-            DistributionEmbeddable temp = new DistributionEmbeddable();
-            temp.setAmountOrPercent(scenarioDTO.getLifeExpectancySpouse().getAmountOrPercent());
-            temp.setDistributionType(scenarioDTO.getLifeExpectancySpouse().getDistributionType());
-            temp.setValue(scenarioDTO.getLifeExpectancySpouse().getValue());
-            temp.setLower(scenarioDTO.getLifeExpectancySpouse().getLower());
-            temp.setUpper(scenarioDTO.getLifeExpectancySpouse().getUpper());
-            temp.setMean(scenarioDTO.getLifeExpectancySpouse().getMean());
-            temp.setStDev(scenarioDTO.getLifeExpectancySpouse().getStDev());
-            updatedLifeExpSpouse = temp;
+            updatedLifeExpSpouse = convertDistribution(scenarioDTO.getLifeExpectancySpouse());
         }
 
-        // Update inflation assumption if provided
         DistributionEmbeddable updatedInflationAssumption = scenario.getInflationAssumption();
         if (scenarioDTO.getInflationAssumption() != null) {
-            DistributionEmbeddable temp = new DistributionEmbeddable();
-            temp.setAmountOrPercent(scenarioDTO.getInflationAssumption().getAmountOrPercent());
-            temp.setDistributionType(scenarioDTO.getInflationAssumption().getDistributionType());
-            temp.setValue(scenarioDTO.getInflationAssumption().getValue());
-            temp.setLower(scenarioDTO.getInflationAssumption().getLower());
-            temp.setUpper(scenarioDTO.getInflationAssumption().getUpper());
-            temp.setMean(scenarioDTO.getInflationAssumption().getMean());
-            temp.setStDev(scenarioDTO.getInflationAssumption().getStDev());
-            updatedInflationAssumption = temp;
+            updatedInflationAssumption = convertDistribution(scenarioDTO.getInflationAssumption());
         }
 
         // Update Scenario
