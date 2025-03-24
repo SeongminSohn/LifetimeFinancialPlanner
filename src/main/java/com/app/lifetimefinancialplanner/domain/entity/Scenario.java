@@ -23,13 +23,13 @@ public class Scenario {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "MARITAL_STATUS", nullable = false, length = 1)
+    @Column(name = "MARITAL_STATUS", length = 1,  nullable = false)
     private String maritalStatus;
 
-    @Column(name = "BIRTH_YEAR_USER", nullable = false)
+    @Column(name = "BIRTH_YEAR_USER", length = 4, nullable = false)
     private Integer birthYearUser;
 
-    @Column(name = "BIRTH_YEAR_SPOUSE")
+    @Column(name = "BIRTH_YEAR_SPOUSE", length = 4)
     private Integer birthYearSpouse;
 
     @Embedded
@@ -58,9 +58,6 @@ public class Scenario {
 
     @Column(name = "FINANCIAL_GOAL", nullable = false)
     private Double financialGoal;
-
-    @Column(name = "PRE_TAX_CONTRIBUTION_LIMIT", nullable = false)
-    private Double preTaxContributionLimit;
 
     @Column(name = "AFTER_TAX_CONTRIBUTION_LIMIT", nullable = false)
     private Double afterTaxContributionLimit;

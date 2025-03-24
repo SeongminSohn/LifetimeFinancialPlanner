@@ -18,13 +18,13 @@ public class ExpenseEvent {
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "ANNUAL_CHAGE_AMOUNT_OR_PERCENT", nullable = false)),
-            @AttributeOverride(name = "distributionType", column = @Column(name = "ANNUAL_CHAGE_DISTRIBUTION_TYPE", nullable = false)),
-            @AttributeOverride(name = "value", column = @Column(name = "ANNUAL_CHAGE_VALUE", nullable = false)),
-            @AttributeOverride(name = "lower", column = @Column(name = "ANNUAL_CHAGE_LOWER")),
-            @AttributeOverride(name = "upper", column = @Column(name = "ANNUAL_CHAGE_UPPER")),
-            @AttributeOverride(name = "mean", column = @Column(name = "ANNUAL_CHAGE_MEAN")),
-            @AttributeOverride(name = "stDev", column = @Column(name = "ANNUAL_CHAGE_STDDEV"))
+            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "ANNUAL_CHANGE_AMOUNT_OR_PERCENT", nullable = false)),
+            @AttributeOverride(name = "distributionType", column = @Column(name = "ANNUAL_CHANGE_DISTRIBUTION_TYPE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "ANNUAL_CHANGE_VALUE")),
+            @AttributeOverride(name = "lower", column = @Column(name = "ANNUAL_CHANGE_LOWER")),
+            @AttributeOverride(name = "upper", column = @Column(name = "ANNUAL_CHANGE_UPPER")),
+            @AttributeOverride(name = "mean", column = @Column(name = "ANNUAL_CHANGE_MEAN")),
+            @AttributeOverride(name = "stDev", column = @Column(name = "ANNUAL_CHANGE_STDDEV"))
     })
     private DistributionEmbeddable annualChange;
 

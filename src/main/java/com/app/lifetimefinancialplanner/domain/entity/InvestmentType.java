@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
+import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
@@ -17,22 +18,40 @@ public class InvestmentType {
     @GeneratedValue(generator = "SEQ_INVESTMENT_TYPE_GENERATOR")
     private Long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 20, nullable = false)
     private String name; // 'Cash', 'S&P 500' or 'Municipal bonds'
 
     @Column(length = 500)
     private String description;
 
-    @Column(name = "EXPECTED_ANNUAL_RETURN", length = 50, nullable = false)
-    private String expectedAnnualReturn; // 'Fixed' or 'Distribution'
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "EXPECTED_ANNUAL_RETURN_AMOUNT_OR_PERCENT", nullable = false)),
+            @AttributeOverride(name = "distributionType", column = @Column(name = "EXPECTED_ANNUAL_RETURN_DISTRIBUTION_TYPE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "EXPECTED_ANNUAL_RETURN_VALUE")),
+            @AttributeOverride(name = "lower", column = @Column(name = "EXPECTED_ANNUAL_RETURN_LOWER")),
+            @AttributeOverride(name = "upper", column = @Column(name = "EXPECTED_ANNUAL_RETURN_UPPER")),
+            @AttributeOverride(name = "mean", column = @Column(name = "EXPECTED_ANNUAL_RETURN_MEAN")),
+            @AttributeOverride(name = "stDev", column = @Column(name = "EXPECTED_ANNUAL_RETURN_STDDEV"))
+    })
+    private DistributionEmbeddable expectedAnnualReturn;
 
     @Column(name = "EXPENSE_RATIO", nullable = false)
     private Double expenseRatio;
 
-    @Column(name = "EXPECTED_ANNUAL_INCOME", length = 50, nullable = false)
-    private String expectedAnnualIncome; // 'Fixed' or 'Distribution'
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "EXPECTED_ANNUAL_INCOME_AMOUNT_OR_PERCENT", nullable = false)),
+            @AttributeOverride(name = "distributionType", column = @Column(name = "EXPECTED_ANNUAL_INCOME_DISTRIBUTION_TYPE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "EXPECTED_ANNUAL_INCOME_VALUE")),
+            @AttributeOverride(name = "lower", column = @Column(name = "EXPECTED_ANNUAL_INCOME_LOWER")),
+            @AttributeOverride(name = "upper", column = @Column(name = "EXPECTED_ANNUAL_INCOME_UPPER")),
+            @AttributeOverride(name = "mean", column = @Column(name = "EXPECTED_ANNUAL_INCOME_MEAN")),
+            @AttributeOverride(name = "stDev", column = @Column(name = "EXPECTED_ANNUAL_INCOME_STDDEV"))
+    })
+    private DistributionEmbeddable expectedAnnualIncome;
 
-    @Column(name = "TAXABILITY", length = 20, nullable = false)
+    @Column(name = "TAXABILITY", length = 10, nullable = false)
     private String taxability; // 'Taxable' or 'TaxExempt'
 
     @CreationTimestamp

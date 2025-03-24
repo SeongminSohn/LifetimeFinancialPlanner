@@ -19,7 +19,7 @@ public class IncomeEvent {
     @AttributeOverrides({
             @AttributeOverride(name = "amountOrPercent", column = @Column(name = "ANNUAL_CHAGE_AMOUNT_OR_PERCENT", nullable = false)),
             @AttributeOverride(name = "distributionType", column = @Column(name = "ANNUAL_CHAGE_DISTRIBUTION_TYPE", nullable = false)),
-            @AttributeOverride(name = "value", column = @Column(name = "ANNUAL_CHAGE_VALUE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "ANNUAL_CHAGE_VALUE")),
             @AttributeOverride(name = "lower", column = @Column(name = "ANNUAL_CHAGE_LOWER")),
             @AttributeOverride(name = "upper", column = @Column(name = "ANNUAL_CHAGE_UPPER")),
             @AttributeOverride(name = "mean", column = @Column(name = "ANNUAL_CHAGE_MEAN")),
