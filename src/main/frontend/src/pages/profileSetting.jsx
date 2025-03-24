@@ -11,6 +11,7 @@ function profileSetting(){
     const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
     const [formData, setFormData] = useState({
+        userId: '',
         name: '',
         maritalStatus: 'N',
         birthYearUser: '',
@@ -25,8 +26,8 @@ function profileSetting(){
             stDev: null,
         },
         lifeExpectancySpouse: {
-            amountOrPercent: "AMOUNT",
-            distributionType: "FIXED",
+            amountOrPercent: null,
+            distributionType: null,
             value: null,
             lower: null,
             upper: null,
@@ -87,6 +88,17 @@ function profileSetting(){
 
     function handleChange(e) {
         const { name, value } = e.target;
+        if (name === "birthYearUser") {
+            const currentYear = new Date().getFullYear();
+            const numericValue = parseInt(value, 10);
+            if (!isNaN(numericValue) && numericValue > currentYear) {
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: currentYear,
+                }));
+                return;
+            }
+        }
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
             setFormData(prevState => ({
@@ -107,9 +119,10 @@ function profileSetting(){
 
     async function handleSubmit(event) {
         event.preventDefault();
+        formData.userId = localStorage.getItem("token")
         console.log(formData)
         try {
-            const response = await axios.post("http://localhost:10000/api/scenarios", formData);
+            const response = await axios.post("http://localhost:10000/api/scenarios", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Scenario success:", response.data);
         } catch (error) {
             console.error("Scenario Error:", error);
@@ -371,7 +384,7 @@ function profileSetting(){
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Edit your Name"
+                    placeholder="Scenario Name"
                     required
                 /></div>
             <div className="login"><label htmlFor="maritalStatus"></label>
@@ -380,7 +393,16 @@ function profileSetting(){
                     <option value = "N">No, I am not</option>
                 </select></div>
             <div className="login"><label htmlFor="birthYearUser"></label>
-                <input type="number" name="birthYearUser"  id="birthYearUser"  placeholder="YYYY" value={formData.birthYearUser} onChange={handleChange} maxLength={4} required/></div>
+                <input
+                    type="number"
+                    name="birthYearUser"
+                    id="birthYearUser"
+                    placeholder="YYYY"
+                    value={formData.birthYearUser}
+                    onChange={handleChange}
+                    max={new Date().getFullYear()}
+                    required
+                /></div>
             {formData.maritalStatus === "Y" && (
                 <div className="login">
                     <label htmlFor="birthYearSpouse"></label>
@@ -395,12 +417,12 @@ function profileSetting(){
                     />
                 </div>
             )}
-            <div className="login"><label htmlFor="lifeExpectancyUseramountOrPercent">Life Expectancy User: </label>
+            <div className="login"><label htmlFor="lifeExpectancyUseramountOrPercent">Life Expectancy User </label>
                 <select name="lifeExpectancyUser.amountOrPercent" id="lifeExpectancyUseramountOrPercent" value={formData.lifeExpectancyUser.amountOrPercent} onChange={handleChange} required>
                     <option value = "AMOUNT">Amount</option>
                     <option value = "PERCENT">Percent</option>
                 </select></div>
-            <div className="login"><label htmlFor="lifeExpectancyUserdistributionType">Distribution Type: </label>
+            <div className="login"><label htmlFor="lifeExpectancyUserdistributionType">Distribution Type </label>
                 <select name="lifeExpectancyUser.distributionType" id="lifeExpectancyUserdistributionType" value={formData.lifeExpectancyUser.distributionType} onChange={handleChange}>
                     <option value = "FIXED">FIXED</option>
                     <option value = "UNIFORM">UNIFORM</option>
@@ -428,12 +450,12 @@ function profileSetting(){
                 <input type="number" name="afterTaxContributionLimit"  id="afterTaxContributionLimit"  placeholder="after TaxContribution Limit" value={formData.afterTaxContributionLimit} onChange={handleChange} required/></div>
             <div className="login"><label htmlFor="stateOfResidence"></label>
                 {stateSelection()}</div>
-            <div className="login"><label htmlFor="inflationAssumptionIdamountOrPercent">inflation Assumption Id: </label>
-                <select name="inflationAssumptionId.amountOrPercent" id="inflationAssumptionIdamountOrPercent" value={formData.inflationAssumption.amountOrPercent} onChange={handleChange} required>
+            <div className="login"><label htmlFor="inflationAssumptionamountOrPercent">Inflation Assumption </label>
+                <select name="inflationAssumption.amountOrPercent" id="inflationAssumptionamountOrPercent" value={formData.inflationAssumption.amountOrPercent} onChange={handleChange} required>
                     <option value = "PERCENT">Percent</option>
                 </select></div>
-            <div className="login"><label htmlFor="inflationAssumptionIddistributionType">Distribution Type: </label>
-                <select name="inflationAssumptionId.distributionType" id="inflationAssumptionIddistributionType" value={formData.inflationAssumption.distributionType} onChange={handleChange}>
+            <div className="login"><label htmlFor="inflationAssumptiondistributionType">Distribution Type </label>
+                <select name="inflationAssumption.distributionType" id="inflationAssumptiondistributionType" value={formData.inflationAssumption.distributionType} onChange={handleChange}>
                     <option value = "FIXED">FIXED</option>
                     <option value = "UNIFORM">UNIFORM</option>
                     <option value = "NORMAL">NORMAL</option>

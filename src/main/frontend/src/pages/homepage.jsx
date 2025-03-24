@@ -62,10 +62,9 @@ function homePage(){
 
   function homeManage(){
     return(<div className="loginBox">
-      <p style={{fontSize: 'xx-large'}}>Welcome to Life Financial Planner</p>
+      <p className="logoLetter" style={{fontSize: 'xx-large', color: 'black', fontWeight: 'bold'}}>Welcome to Life Financial Planner</p>
       {loggedIn === false && (<button className="submitButton" onClick={toLogin} >Sign in</button>)}
       {loggedIn === false && (<button className="submitButton">Try as a guest</button>)}
-
     </div>)
   }
 

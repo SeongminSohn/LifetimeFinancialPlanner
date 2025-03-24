@@ -6,19 +6,13 @@ import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
 import Axios from "axios"
 
-function homePage(){
-    // useEffect(() => {
-    //   const fetchData = async () => {
-    //     try {
-    //       const planResp = await axios.get("http://localhost:10000/test");
-    //       console.log(planResp.data);
-    //     } catch (err) {
-    //       console.log("inital error");
-    //       console.log(err);
-    //     }
-    //   };
-    //
-    //   fetchData();}, []);
+function simulationPage(){
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            setLoggedIn(true);
+        }
+    }, []);
 
     const [openSide, setSide] = useState(false);
     const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
@@ -77,22 +71,11 @@ function homePage(){
         </div>)
     }
 
-    function statusCheck(){
-        //if DB got the data, then
-        setLoggedIn(true)
-        //else
-        //setLoggedIn(false)
-    }
-
     return (<div className="total">
         <nav className="navBarTop">
             <img src ="/public/caffeineOverloadLogo.png" className = "logoSize" onClick={toHome}></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            {!loggedIn && (
-                <button className="commonButton" onClick={toLogin}>
-                    Sign-In
-                </button>
-            )}
+            <div></div>
         </nav>
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
@@ -104,4 +87,4 @@ function homePage(){
         {homeManage()}
     </div>);
 }
-export default homePage;
+export default simulationPage;

@@ -7,20 +7,13 @@ import { useNavigate } from 'react-router-dom';
 
 function homePage(){
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const planResp = await axios.get("http://localhost:10000/test");
-                console.log(planResp.data);
-            } catch (err) {
-                console.log("inital error");
-                console.log(err);
-            }
-        };
-
-        fetchData();}, []);
+        const token = localStorage.getItem("token");
+        if (token) {
+            setLoggedIn(true);
+        }
+    }, []);
 
     const [openSide, setSide] = useState(false);
-    const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false)
 
@@ -40,11 +33,6 @@ function homePage(){
             </aside>
         )
     }
-
-    function toHome(){
-        navPage('/Homepage')
-    }
-
     function toIncome(){
         navPage('/IncomePage')
     }
@@ -64,33 +52,19 @@ function homePage(){
     function toHome(){
         navPage('/Homepage')
     }
-
-    function defineProfile(){
-        if(pro[0].profile === null || pro[0].profile === undefined){
-            return profileImage;
-        }else{
-            return pro[0].profile;
-        }
-    }
-
-    const handleImage = (e) => {
-        e.target.onError = null;
-        e.target.src = profileImage;
-    }
-
     function toProfile(){
         navPage('/Profset');
     }
 
-    function toLogin(){
-        navPage('/Loginpage');
+    function investManage(){
+        return (<div></div>);
     }
 
-    return (<div>
+    return (<div className="total">
         <nav className="navBarTop">
             <img onClick={toHome} src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            <button className="commonButton" onClick={toLogin}>Sign-In</button>
+            <div></div>
         </nav>
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
@@ -99,6 +73,7 @@ function homePage(){
                 profile Setting
             </button>)}
         </nav>
+        {investManage()}
     </div>);
 }
 export default homePage;
