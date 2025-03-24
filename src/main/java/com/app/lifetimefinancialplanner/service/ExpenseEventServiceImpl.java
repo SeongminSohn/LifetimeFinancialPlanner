@@ -1,37 +1,37 @@
 package com.app.lifetimefinancialplanner.service;
 
 import com.app.lifetimefinancialplanner.domain.dto.DistributionDTO;
+import com.app.lifetimefinancialplanner.domain.dto.ExpenseEventDTO;
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.EventSeries;
-import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
-import com.app.lifetimefinancialplanner.domain.dto.IncomeEventDTO;
+import com.app.lifetimefinancialplanner.domain.entity.ExpenseEvent;
 import com.app.lifetimefinancialplanner.repository.EventSeriesRepository;
-import com.app.lifetimefinancialplanner.repository.IncomeEventRepository;
+import com.app.lifetimefinancialplanner.repository.ExpenseEventRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class IncomeEventServiceImpl implements IncomeEventService {
+public class ExpenseEventServiceImpl implements ExpenseEventService {
 
-    private final IncomeEventRepository incomeEventRepository;
+    private final ExpenseEventRepository expenseEventRepository;
     private final EventSeriesRepository eventSeriesRepository;
 
-    public IncomeEventServiceImpl(IncomeEventRepository incomeEventRepository,
-                                  EventSeriesRepository eventSeriesRepository) {
-        this.incomeEventRepository = incomeEventRepository;
+    public ExpenseEventServiceImpl(ExpenseEventRepository expenseEventRepository,
+                                   EventSeriesRepository eventSeriesRepository) {
+        this.expenseEventRepository = expenseEventRepository;
         this.eventSeriesRepository = eventSeriesRepository;
     }
 
     @Override
     @Transactional
-    public IncomeEvent createIncomeEvent(IncomeEventDTO incomeEventDTO) {
+    public ExpenseEvent createExpenseEvent(ExpenseEventDTO expenseEventDTO) {
         // Retrieve the associated EventSeries using the provided eventSeriesId
-        EventSeries eventSeries = eventSeriesRepository.findById(incomeEventDTO.getEventSeriesId())
+        EventSeries eventSeries = eventSeriesRepository.findById(expenseEventDTO.getEventSeriesId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid EventSeries ID"));
 
         // Convert DistributionDTO for annualChange to DistributionEmbeddable
         DistributionEmbeddable annualChangeEmb = null;
-        DistributionDTO distributionDTO = incomeEventDTO.getAnnualChange();
+        DistributionDTO distributionDTO = expenseEventDTO.getAnnualChange();
         if (distributionDTO != null) {
             annualChangeEmb = new DistributionEmbeddable();
             annualChangeEmb.setAmountOrPercent(distributionDTO.getAmountOrPercent());
@@ -43,22 +43,22 @@ public class IncomeEventServiceImpl implements IncomeEventService {
             annualChangeEmb.setStDev(distributionDTO.getStDev());
         }
 
-        // Build the IncomeEvent entity using the builder pattern
-        IncomeEvent incomeEvent = IncomeEvent.builder()
-                .initialAmount(incomeEventDTO.getInitialAmount())
+        // Build the ExpenseEvent entity using the builder pattern
+        ExpenseEvent expenseEvent = ExpenseEvent.builder()
+                .initialAmount(expenseEventDTO.getInitialAmount())
                 .annualChange(annualChangeEmb)
-                .inflationAdjustment(incomeEventDTO.getInflationAdjustment())
-                .userPercentage(incomeEventDTO.getUserPercentage())
-                .isSocialSecurity(incomeEventDTO.getIsSocialSecurity())
+                .inflationAdjustment(expenseEventDTO.getInflationAdjustment())
+                .userPercentage(expenseEventDTO.getUserPercentage())
+                .isDiscretionary(expenseEventDTO.getIsDiscretionary())
                 .eventSeries(eventSeries)
                 .build();
 
-        return incomeEventRepository.save(incomeEvent);
+        return expenseEventRepository.save(expenseEvent);
     }
 
     @Override
-    public IncomeEvent getIncomeEvent(Long eventSeriesId) {
-        return incomeEventRepository.findById(eventSeriesId)
-                .orElseThrow(() -> new IllegalArgumentException("IncomeEvent not found with id: " + eventSeriesId));
+    public ExpenseEvent getExpenseEvent(Long eventSeriesId) {
+        return expenseEventRepository.findById(eventSeriesId)
+                .orElseThrow(() -> new IllegalArgumentException("ExpenseEvent not found with id: " + eventSeriesId));
     }
 }

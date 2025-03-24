@@ -7,7 +7,7 @@ import javax.servlet.http.HttpSession;
 
 
 public interface ScenarioService {
-    Scenario createScenario(ScenarioDTO scenarioDTO, HttpSession httpSession);
+    Scenario createScenario(ScenarioDTO scenarioDTO);
     Scenario getScenario(Long scenarioId);
     Scenario updateScenario(Long scenarioId, ScenarioDTO scenarioDTO);
     void deleteScenario(Long scenarioId);

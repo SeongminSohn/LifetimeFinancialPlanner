@@ -27,11 +27,14 @@ public class IncomeEvent {
     })
     private DistributionEmbeddable annualChange;
 
-    @Column(name = "IS_SOCIAL_SECURITY", nullable = false, length = 1)
-    private String isSocialSecurity; // 'Y' or 'N'
+    @Column(name = "INFLATION_ADJUSTMENT", length = 1, nullable = false)
+    private String inflationAdjustment; // 'Y' or 'N'
 
     @Column(name = "USER_PERCENTAGE", nullable = false)
     private Double userPercentage; // % <= 1
+
+    @Column(name = "IS_SOCIAL_SECURITY", length = 1, nullable = false)
+    private String isSocialSecurity; // 'Y' or 'N'
 
     @OneToOne
     @MapsId

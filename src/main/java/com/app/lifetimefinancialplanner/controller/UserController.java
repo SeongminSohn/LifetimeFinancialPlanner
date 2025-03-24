@@ -57,31 +57,31 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    // Endpoint for user login
     @Operation(
             summary = "Login User",
             description = "Logs in a user using email and password. " +
+                    "Returns user info and sets session ID in HttpOnly cookie. " +
                     "Example request body: { \"email\": \"user@example.com\", \"password\": \"password123\" }"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login successful"),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials")
+            @ApiResponse(responseCode = "200", description = "Login successful, returns user info",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                    content = @Content(mediaType = "text/plain"))
     })
-    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO, HttpSession session, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         User user = userService.login(loginDTO.getEmail(), loginDTO.getPassword());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
-        // Save user info in the session
-        session.setAttribute("loggedInUser", user);
 
-        // Add JSESSIONID cookie to the response
-        Cookie cookie = new Cookie("JSESSIONID", session.getId());
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
-        return ResponseEntity.ok("Login successful");
+        // Convert to DTO and return in Response
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setName(user.getName());
+        return ResponseEntity.ok(userDTO);
     }
 
     @PostMapping("/logout")

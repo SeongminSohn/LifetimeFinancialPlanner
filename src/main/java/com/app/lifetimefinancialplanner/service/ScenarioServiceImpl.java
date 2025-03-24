@@ -1,17 +1,16 @@
 package com.app.lifetimefinancialplanner.service;
 
-import com.app.lifetimefinancialplanner.domain.dto.DistributionDTO;
 import com.app.lifetimefinancialplanner.domain.dto.ScenarioDTO;
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.domain.entity.User;
 import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
+import com.app.lifetimefinancialplanner.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 
 @Service
@@ -20,18 +19,19 @@ public class ScenarioServiceImpl implements ScenarioService {
     private static final Logger log = LoggerFactory.getLogger(ScenarioServiceImpl.class);
     @Autowired
     private final ScenarioRepository scenarioRepository;
+    @Autowired
+    private final UserRepository userRepository;
 
     @Autowired
-    public ScenarioServiceImpl(ScenarioRepository scenarioRepository) {
+    public ScenarioServiceImpl(ScenarioRepository scenarioRepository, UserRepository userRepository) {
         this.scenarioRepository = scenarioRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public Scenario createScenario(ScenarioDTO scenarioDTO, HttpSession session) {
+    public Scenario createScenario(ScenarioDTO scenarioDTO) {
         // Retrieve the currently logged-in user from HttpSession
-        User user = (User) session.getAttribute("loggedInUser");
-        log.info("User: " + user);
-        if (user == null) {
+        if (scenarioDTO.getUserId() == null) {
             throw new RuntimeException("User not logged in");
         }
 
@@ -79,6 +79,9 @@ public class ScenarioServiceImpl implements ScenarioService {
             inflationAssumptionEmb.setMean(scenarioDTO.getInflationAssumption().getMean());
             inflationAssumptionEmb.setStDev(scenarioDTO.getInflationAssumption().getStDev());
         }
+
+        User user = userRepository.findById(scenarioDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Build a new Scenario using builder pattern
         Scenario scenario = Scenario.builder()

@@ -45,8 +45,8 @@ public class IncomeEventController {
                     "      \"upper\": 2000\n" +
                     "  },\n" +
                     "  \"inflationAdjustment\": \"Y\",\n" +
-                    "  \"isSocialSecurity\": \"N\",\n" +
                     "  \"userPercentage\": 1.0\n" +
+                    "  \"isSocialSecurity\": \"N\",\n" +
                     "}"
     )
     @ApiResponse(responseCode = "201", description = "Income event created successfully",
