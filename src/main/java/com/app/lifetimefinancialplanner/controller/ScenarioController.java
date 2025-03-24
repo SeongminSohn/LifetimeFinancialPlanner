@@ -80,7 +80,6 @@ public class ScenarioController {
         responseDto.setBirthYearUser(scenario.getBirthYearUser());
         responseDto.setBirthYearSpouse(scenario.getBirthYearSpouse());
         responseDto.setFinancialGoal(scenario.getFinancialGoal());
-        responseDto.setPreTaxContributionLimit(scenario.getPreTaxContributionLimit());
         responseDto.setAfterTaxContributionLimit(scenario.getAfterTaxContributionLimit());
         responseDto.setStateOfResidence(scenario.getStateOfResidence());
 

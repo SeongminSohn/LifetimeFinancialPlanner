@@ -13,7 +13,6 @@ public class ScenarioDTO {
     private DistributionDTO lifeExpectancyUser;
     private DistributionDTO lifeExpectancySpouse;   // nullable
     private Double financialGoal;
-    private Double preTaxContributionLimit;
     private Double afterTaxContributionLimit;
     private String stateOfResidence;
     private DistributionDTO inflationAssumption;
