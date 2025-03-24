@@ -32,7 +32,7 @@ public class IncomeEventController {
                     "representing the change information. \n\n" +
                     "Example JSON:\n" +
                     "{\n" +
-                    "  \"eventSeriesId\": 1,\n" +
+                    "  \"scenarioId\": 1,\n" +
                     "  \"name\": \"Salary\",\n" +
                     "  \"startYear\": 2025,\n" +
                     "  \"duration\": 40,\n" +
@@ -52,6 +52,8 @@ public class IncomeEventController {
     @ApiResponse(responseCode = "201", description = "Income event created successfully",
             content = @Content(schema = @Schema(implementation = IncomeEvent.class)))
     public ResponseEntity<IncomeEvent> createIncomeEvent(@RequestBody IncomeEventDTO incomeEventDTO) {
+        // TODO: Event SeriesId를 먼저 생성하는 service를 돌리고 그 아이디 담아서 돌아가야됌
+
         IncomeEvent createdIncomeEvent = incomeEventService.createIncomeEvent(incomeEventDTO);
         return new ResponseEntity<>(createdIncomeEvent, HttpStatus.CREATED);
     }

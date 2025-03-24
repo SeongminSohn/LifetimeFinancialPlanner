@@ -30,7 +30,7 @@ public class ExpenseEventController {
             description = "Creates a new expense event for the specified scenario.\n" +
                     "Example JSON body:\n" +
                     "{\n" +
-                    "  \"eventSeriesId\": 1,\n" +
+                    "  \"scenarioId\": 1,\n" +
                     "  \"name\": \"Food\",\n" +
                     "  \"startYear\": 2025,\n" +
                     "  \"duration\": 40,\n" +
