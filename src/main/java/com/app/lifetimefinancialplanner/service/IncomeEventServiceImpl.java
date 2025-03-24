@@ -15,11 +15,13 @@ public class IncomeEventServiceImpl implements IncomeEventService {
 
     private final IncomeEventRepository incomeEventRepository;
     private final EventSeriesRepository eventSeriesRepository;
+    private final DistributionService distributionService;
 
     public IncomeEventServiceImpl(IncomeEventRepository incomeEventRepository,
-                                  EventSeriesRepository eventSeriesRepository) {
+                                  EventSeriesRepository eventSeriesRepository, DistributionService distributionService) {
         this.incomeEventRepository = incomeEventRepository;
         this.eventSeriesRepository = eventSeriesRepository;
+        this.distributionService = distributionService;
     }
 
     @Override
@@ -30,18 +32,7 @@ public class IncomeEventServiceImpl implements IncomeEventService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid EventSeries ID"));
 
         // Convert DistributionDTO for annualChange to DistributionEmbeddable
-        DistributionEmbeddable annualChangeEmb = null;
-        DistributionDTO distributionDTO = incomeEventDTO.getAnnualChange();
-        if (distributionDTO != null) {
-            annualChangeEmb = new DistributionEmbeddable();
-            annualChangeEmb.setAmountOrPercent(distributionDTO.getAmountOrPercent());
-            annualChangeEmb.setDistributionType(distributionDTO.getDistributionType());
-            annualChangeEmb.setValue(distributionDTO.getValue());
-            annualChangeEmb.setLower(distributionDTO.getLower());
-            annualChangeEmb.setUpper(distributionDTO.getUpper());
-            annualChangeEmb.setMean(distributionDTO.getMean());
-            annualChangeEmb.setStDev(distributionDTO.getStDev());
-        }
+        DistributionEmbeddable annualChangeEmb = distributionService.convertDTOToEmbeddable(incomeEventDTO.getAnnualChange());
 
         // Build the IncomeEvent entity using the builder pattern
         IncomeEvent incomeEvent = IncomeEvent.builder()

@@ -1,15 +1,11 @@
 package com.app.lifetimefinancialplanner.service;
 
-import com.app.lifetimefinancialplanner.domain.dto.DistributionDTO;
 import com.app.lifetimefinancialplanner.domain.dto.ScenarioDTO;
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.domain.entity.User;
 import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
 import com.app.lifetimefinancialplanner.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,49 +13,14 @@ import java.time.LocalDateTime;
 @Service
 public class ScenarioServiceImpl implements ScenarioService {
 
-    private static final Logger log = LoggerFactory.getLogger(ScenarioServiceImpl.class);
-    @Autowired
     private final ScenarioRepository scenarioRepository;
-    @Autowired
     private final UserRepository userRepository;
+    private final DistributionService distributionService;
 
-    @Autowired
-    public ScenarioServiceImpl(ScenarioRepository scenarioRepository, UserRepository userRepository) {
+    public ScenarioServiceImpl(ScenarioRepository scenarioRepository, UserRepository userRepository, DistributionService distributionService) {
         this.scenarioRepository = scenarioRepository;
         this.userRepository = userRepository;
-    }
-
-    // Helper Method to process DTO to Embeddable (Handle invalid inputs)
-    private DistributionEmbeddable convertDistribution(DistributionDTO dto) {
-        if (dto == null || dto.getDistributionType() == null || dto.getDistributionType().trim().isEmpty()) {
-            return null;
-        }
-        DistributionEmbeddable emb = new DistributionEmbeddable();
-        emb.setAmountOrPercent(dto.getAmountOrPercent());
-        emb.setDistributionType(dto.getDistributionType());
-        String type = dto.getDistributionType();
-        if ("FIXED".equalsIgnoreCase(type)) {
-            emb.setValue(dto.getValue());
-            emb.setLower(null);
-            emb.setUpper(null);
-            emb.setMean(null);
-            emb.setStDev(null);
-        } else if ("UNIFORM".equalsIgnoreCase(type)) {
-            emb.setLower(dto.getLower());
-            emb.setUpper(dto.getUpper());
-            emb.setValue(null);
-            emb.setMean(null);
-            emb.setStDev(null);
-        } else if ("NORMAL".equalsIgnoreCase(type)) {
-            emb.setMean(dto.getMean());
-            emb.setStDev(dto.getStDev());
-            emb.setValue(null);
-            emb.setLower(null);
-            emb.setUpper(null);
-        } else {
-            throw new IllegalArgumentException("Unsupported distribution type: " + type);
-        }
-        return emb;
+        this.distributionService = distributionService;
     }
 
     @Override
@@ -70,22 +31,20 @@ public class ScenarioServiceImpl implements ScenarioService {
         }
 
         // Use default contribution limits if null
-        Double defaultPreTax = scenarioDTO.getPreTaxContributionLimit() != null
-                ? scenarioDTO.getPreTaxContributionLimit() : 22500.0;
         Double defaultAfterTax = scenarioDTO.getAfterTaxContributionLimit() != null
                 ? scenarioDTO.getAfterTaxContributionLimit() : 7000.0;
 
         // Convert DTO to Embeddable by using helper method
-        DistributionEmbeddable lifeExpUser = convertDistribution(scenarioDTO.getLifeExpectancyUser());
+        DistributionEmbeddable lifeExpUser = distributionService.convertDTOToEmbeddable(scenarioDTO.getLifeExpectancyUser());
 
         DistributionEmbeddable lifeExpSpouse = null;
         Integer birthYearSpouse = null;
         if (!"N".equalsIgnoreCase(scenarioDTO.getMaritalStatus())) {
-            lifeExpSpouse = convertDistribution(scenarioDTO.getLifeExpectancySpouse());
+            lifeExpSpouse = distributionService.convertDTOToEmbeddable(scenarioDTO.getLifeExpectancySpouse());
             birthYearSpouse = scenarioDTO.getBirthYearSpouse();
         }
 
-        DistributionEmbeddable inflationAssumptionEmb = convertDistribution(scenarioDTO.getInflationAssumption());
+        DistributionEmbeddable inflationAssumptionEmb = distributionService.convertDTOToEmbeddable(scenarioDTO.getInflationAssumption());
 
         User user = userRepository.findById(scenarioDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -124,17 +83,17 @@ public class ScenarioServiceImpl implements ScenarioService {
         // Update life expectancy for user if provided
         DistributionEmbeddable updatedLifeExpUser = scenario.getLifeExpectancyUser();
         if (scenarioDTO.getLifeExpectancyUser() != null) {
-            updatedLifeExpUser = convertDistribution(scenarioDTO.getLifeExpectancyUser());
+            updatedLifeExpUser = distributionService.convertDTOToEmbeddable(scenarioDTO.getLifeExpectancyUser());
         }
 
         DistributionEmbeddable updatedLifeExpSpouse = scenario.getLifeExpectancySpouse();
         if (scenarioDTO.getLifeExpectancySpouse() != null) {
-            updatedLifeExpSpouse = convertDistribution(scenarioDTO.getLifeExpectancySpouse());
+            updatedLifeExpSpouse = distributionService.convertDTOToEmbeddable(scenarioDTO.getLifeExpectancySpouse());
         }
 
         DistributionEmbeddable updatedInflationAssumption = scenario.getInflationAssumption();
         if (scenarioDTO.getInflationAssumption() != null) {
-            updatedInflationAssumption = convertDistribution(scenarioDTO.getInflationAssumption());
+            updatedInflationAssumption = distributionService.convertDTOToEmbeddable(scenarioDTO.getInflationAssumption());
         }
 
         // Update Scenario

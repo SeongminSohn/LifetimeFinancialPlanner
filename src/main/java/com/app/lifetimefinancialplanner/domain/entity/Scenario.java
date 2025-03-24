@@ -57,7 +57,7 @@ public class Scenario {
     private DistributionEmbeddable lifeExpectancySpouse;
 
     @Column(name = "FINANCIAL_GOAL", nullable = false)
-    private Double financialGoal;
+    private Double financialGoal;   // value >= 0
 
     @Column(name = "AFTER_TAX_CONTRIBUTION_LIMIT", nullable = false)
     private Double afterTaxContributionLimit;

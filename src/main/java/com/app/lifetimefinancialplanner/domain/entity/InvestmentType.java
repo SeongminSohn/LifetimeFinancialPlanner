@@ -1,10 +1,7 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
-import lombok.Getter;
-import lombok.ToString;
-import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -13,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity @Table(name = "TBL_INVESTMENT_TYPE")
 @SequenceGenerator(name = "SEQ_INVESTMENT_TYPE_GENERATOR", sequenceName = "SEQ_INVESTMENT_TYPE", allocationSize = 1)
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
 public class InvestmentType {
     @Id
     @GeneratedValue(generator = "SEQ_INVESTMENT_TYPE_GENERATOR")
@@ -51,8 +49,8 @@ public class InvestmentType {
     })
     private DistributionEmbeddable expectedAnnualIncome;
 
-    @Column(name = "TAXABILITY", length = 10, nullable = false)
-    private String taxability; // 'Taxable' or 'TaxExempt'
+    @Column(name = "TAXABILITY", length = 1, nullable = false)
+    private String taxability; // 'Y' or 'N'
 
     @CreationTimestamp
     @Column(name = "ins_date")

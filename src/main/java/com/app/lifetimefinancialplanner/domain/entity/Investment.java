@@ -1,9 +1,6 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -12,6 +9,7 @@ import java.time.LocalDateTime;
 @Entity @Table(name = "TBL_INVESTMENT")
 @SequenceGenerator(name = "SEQ_INVESTMENT_GENERATOR", sequenceName = "SEQ_INVESTMENT", allocationSize = 1)
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
 public class Investment {
     @Id
     @GeneratedValue(generator = "SEQ_INVESTMENT_GENERATOR")
