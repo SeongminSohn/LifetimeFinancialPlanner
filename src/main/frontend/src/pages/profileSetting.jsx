@@ -23,7 +23,7 @@ function profileSetting(){
             lower: null,
             upper: null,
             mean: null,
-            stDev: null,
+            stDev: null
         },
         lifeExpectancySpouse: {
             amountOrPercent: null,
@@ -32,7 +32,7 @@ function profileSetting(){
             lower: null,
             upper: null,
             mean: null,
-            stDev: null,
+            stDev: null
         },
         financialGoal: '',
         preTaxContributionLimit: '',
@@ -88,7 +88,9 @@ function profileSetting(){
 
     function handleChange(e) {
         const { name, value } = e.target;
-        if (name === "birthYearUser") {
+
+        // birthYear 관련 검증
+        if (name === "birthYearUser" || name === "birthYearSpouse") {
             const currentYear = new Date().getFullYear();
             const numericValue = parseInt(value, 10);
             if (!isNaN(numericValue) && numericValue > currentYear) {
@@ -99,6 +101,8 @@ function profileSetting(){
                 return;
             }
         }
+
+        // 네임에 점(.)이 포함된 경우 (중첩 객체 업데이트)
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
             setFormData(prevState => ({
@@ -109,10 +113,23 @@ function profileSetting(){
                 }
             }));
         } else {
-            setFormData(prevState => ({
-                ...prevState,
-                [name]: value
-            }));
+            // maritalStatus 처리: "Y"일 때와 "N"일 때 분기
+            if (name === "maritalStatus") {
+                setFormData(prevState => ({
+                    ...prevState,
+                    maritalStatus: value,
+                    lifeExpectancySpouse: {
+                        ...prevState.lifeExpectancySpouse,
+                        amountOrPercent: value === "Y" ? "AMOUNT" : value === "N" ? null : prevState.lifeExpectancySpouse?.amountOrPercent,
+                        distributionType: value === "Y" ? "FIXED" : value === "N" ? null : prevState.lifeExpectancySpouse?.distributionType,
+                    }
+                }));
+            } else {
+                setFormData(prevState => ({
+                    ...prevState,
+                    [name]: value
+                }));
+            }
         }
     }
 
@@ -127,6 +144,19 @@ function profileSetting(){
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
+        }
+    }
+
+    function changerSpouse() {
+        if (formData.maritalStatus === "Y") {
+            setFormData(prev => ({
+                ...prev,
+                lifeExpectancySpouse: {
+                    ...prev.lifeExpectancySpouse,
+                    amountOrPercent: "AMOUNT",
+                    distributionType: "FIXED"
+                }
+            }));
         }
     }
 
@@ -387,12 +417,12 @@ function profileSetting(){
                     placeholder="Scenario Name"
                     required
                 /></div>
-            <div className="login"><label htmlFor="maritalStatus"></label>
+            <div className="login"><label htmlFor="maritalStatus">Are you Married? </label>
                 <select name="maritalStatus" id="maritalStatus" value={formData.maritalStatus} onChange={handleChange}>
                     <option value = "Y">I am married</option>
                     <option value = "N">No, I am not</option>
                 </select></div>
-            <div className="login"><label htmlFor="birthYearUser"></label>
+            <div className="login">Your Born Year<label htmlFor="birthYearUser"></label>
                 <input
                     type="number"
                     name="birthYearUser"
@@ -404,10 +434,10 @@ function profileSetting(){
                     required
                 /></div>
             {formData.maritalStatus === "Y" && (
-                <div className="login">
+                <div className="login">Spouse Born Year
                     <label htmlFor="birthYearSpouse"></label>
                     <input
-                        placeholder="birthYear spouse"
+                        placeholder="YYYY"
                         type="number"
                         id="birthYearSpouse"
                         name="birthYearSpouse"

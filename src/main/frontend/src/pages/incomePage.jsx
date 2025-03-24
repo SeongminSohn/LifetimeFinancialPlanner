@@ -19,6 +19,7 @@ function homePage(){
     const navPage = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false)
     const [formData, setFormData] = useState({
+        userid: '', // scenario ID
         name: '', // String name
         startYear: '', // Integer startYear
         initialAmount: '', // Double initialAmount
@@ -31,9 +32,9 @@ function homePage(){
             mean: null,
             stDev: null,
         }, // DistributionDTO annualChange
-        inflationAdjustment: '', // String inflationAdjustment      // 'Y' or 'N'
+        inflationAdjustment: 'Y', // String inflationAdjustment      // 'Y' or 'N'
         userPercentage: 0, // Double userPercentage
-        isSocialSecurity: '' // String isSocialSecurity;        // 'Y' or 'N'
+        isSocialSecurity: 'Y' // String isSocialSecurity;        // 'Y' or 'N'
     });
 
 
@@ -43,6 +44,7 @@ function homePage(){
 
     async function handleSubmit(event) {
         event.preventDefault();
+        formData.userId = localStorage.getItem("token")
         console.log(formData)
         try {
             const response = await axios.post("http://localhost:10000/api/income-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
