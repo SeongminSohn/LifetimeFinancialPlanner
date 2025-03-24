@@ -63,9 +63,14 @@ function homePage(){
   function homeManage(){
     return(<div className="loginBox">
       <p className="logoLetter" style={{fontSize: 'xx-large', color: 'black', fontWeight: 'bold'}}>Welcome to Life Financial Planner</p>
+      {loggedIn === true && (<button className="submitButton" onClick={gettingStart}>Getting Start</button>)}
       {loggedIn === false && (<button className="submitButton" onClick={toLogin} >Sign in</button>)}
       {loggedIn === false && (<button className="submitButton">Try as a guest</button>)}
     </div>)
+  }
+
+  function gettingStart(){
+      navPage("/Profset")
   }
 
 
@@ -84,11 +89,11 @@ function homePage(){
             {loggedIn === false && (<div></div>)}
         </nav>
         <nav className="navBarSub">
-          {loggedIn === true && <button className="commonButton" onClick={popupMenu}>Menu</button>}
-          {sideElements()}
-          {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
-           profile Setting
-          </button>)}
+          {/*{loggedIn === true && <button className="commonButton" onClick={popupMenu}>Menu</button>}*/}
+          {/*{sideElements()}*/}
+          {/*{loggedIn === true && (<button className="commonButton" onClick={toProfile}>*/}
+          {/* Scenario Setting*/}
+          {/*</button>)}*/}
         </nav>
         {homeManage()}
       </div>);

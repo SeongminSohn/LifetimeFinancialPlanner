@@ -9,13 +9,12 @@ import { useNavigate } from 'react-router-dom';
 function loginPage(){
     
 
-    const [openSide, setSide] = useState(false);
+    // const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
     const [formData, setFormData] = useState({
         id: '',
         password: ''
     });
-
 
     // const popupMenu = () => {
     //     setSide(prevState => !prevState);
@@ -68,7 +67,7 @@ function loginPage(){
 
     function signinBox(){
         return (<form onSubmit={handleSubmit} className="loginBox">
-            <div className="logoLetter" style={{fontSize: '50px'}} >Sign in</div>
+            <div className="logoLetter" style={{color: 'black',fontSize: '50px'}} >Sign in</div>
             <div className="login"><label htmlFor="id"></label>
                 <input type="text" id="id" name="id" value={formData.id} onChange={handleChange} placeholder="ID"/></div>
             <div className="login"><label htmlFor="password"></label>
@@ -88,9 +87,7 @@ function loginPage(){
                 email: formData.id,
                 password: formData.password
             });
-
             localStorage.setItem("token", response.data.id);
-
             navPage("/Homepage");
         } catch (error) {
             console.error("log in Error:", error);

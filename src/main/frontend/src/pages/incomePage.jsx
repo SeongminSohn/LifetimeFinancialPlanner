@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import './common.css';
 import {useEffect} from "react";
 import axios from "axios";
-import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 function homePage(){
     useEffect(() => {
@@ -12,8 +12,6 @@ function homePage(){
             setLoggedIn(true);
         }
     }, []);
-
-
 
     const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
@@ -34,7 +32,7 @@ function homePage(){
             stDev: null,
         }, // DistributionDTO annualChange
         inflationAdjustment: 'Y', // String inflationAdjustment      // 'Y' or 'N'
-        userPercentage: 0, // Double userPercentage
+        userPercentage: '', // Double userPercentage
         isSocialSecurity: 'Y' // String isSocialSecurity;        // 'Y' or 'N'
     });
 
@@ -49,8 +47,7 @@ function homePage(){
         console.log(formData)
         try {
             const response = await axios.post("http://localhost:10000/api/income-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
-            console.log("Scenario ID:", response.data.scenarioId);
-            localStorage.setItem("scenario", response.data.scenarioId);
+            console.log("Scenario ID:", response.data);
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
@@ -121,8 +118,8 @@ function homePage(){
 
     function incomeManager(){
         return (<form onSubmit={handleSubmit} className="profileSetting">
-            <div className="logoLetter" style={{fontSize: '50px', marginTop: "30px"}} >Edit Income Information</div>
-            <div className="login"><label htmlFor="name"></label>
+            <div className="logoLetter" style={{color: 'black', fontSize: '5vh', marginTop: "30px"}} >Edit Income Information</div>
+            <div className="login">Event Name<label htmlFor="name"></label>
                 <input
                     type="text"
                     id="name"
@@ -132,7 +129,7 @@ function homePage(){
                     placeholder="Event Name"
                     required
                 /></div>
-            <div className="login"><label htmlFor="startYear"></label>
+            <div className="login"><label htmlFor="startYear">Start Year</label>
                 <input
                     type="number"
                     id="startYear"
@@ -142,7 +139,7 @@ function homePage(){
                     placeholder="start Year"
                     required
                 /></div>
-            <div className="login"><label htmlFor="initialAmount"></label>
+            <div className="login">Initial Amount<label htmlFor="initialAmount"></label>
                 <input
                     type="number"
                     id="initialAmount"
@@ -173,7 +170,7 @@ function homePage(){
                     <option value = "Y">Yes</option>
                     <option value = "N">No</option>
                 </select></div>
-            <div className="login"><label htmlFor="userPercentage"></label>
+            <div className="login"><label htmlFor="userPercentage">User Percentage </label>
                 <input
                     type="number"
                     id="userPercentage"
@@ -181,6 +178,7 @@ function homePage(){
                     value={formData.userPercentage}
                     onChange={handleChange}
                     placeholder="User Percentage"
+                    style={{width: "140px"}}
                     required
                 /></div>
             <div className="login"><label htmlFor="isSocialSecurity">Is SocialSecurity</label>
@@ -189,12 +187,37 @@ function homePage(){
                     <option value = "N">No</option>
                 </select></div>
             <div>
-                <button className="submitButton" type="submit">Create An Account</button></div>
+                <button className="submitButton" type="submit">Save Changes</button></div>
         </form>);
     }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        if (name === "userPercentage") {
+            let numericValue = parseFloat(value);
+            if (isNaN(numericValue)) {
+                numericValue = 0;
+            }
+            if (numericValue < 0) numericValue = 0;
+            if (numericValue > 1) numericValue = 1;
+
+            setFormData(prev => ({
+                ...prev,
+                userPercentage: numericValue,
+            }));
+            return;
+        }
+        if (name === "startYear") {
+            const currentYear = new Date().getFullYear();
+            const numericValue = parseInt(value, 10);
+            if (!isNaN(numericValue) && numericValue > currentYear) {
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: currentYear,
+                }));
+                return;
+            }
+        }
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
             setFormData(prevState => ({
@@ -259,7 +282,7 @@ function homePage(){
             <button className="commonButton" onClick={popupMenu}>Menu</button>
             {sideElements()}
             {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
-                profile Setting
+                Scenario Setting
             </button>)}
         </nav>
         {incomeManager()}

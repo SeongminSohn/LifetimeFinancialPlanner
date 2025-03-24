@@ -7,8 +7,9 @@ import { useNavigate } from 'react-router-dom';
 
 
 function profileSetting(){
-
-    const [openSide, setSide] = useState(false);
+    //useEffect() get data from server and refect those data
+    // if there is data, then print list of scenarios settings.....
+    // const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
     const [formData, setFormData] = useState({
         userId: '',
@@ -35,7 +36,6 @@ function profileSetting(){
             stDev: null
         },
         financialGoal: '',
-        preTaxContributionLimit: '',
         afterTaxContributionLimit: '',
         stateOfResidence: 'AL',
         inflationAssumption: {
@@ -48,23 +48,23 @@ function profileSetting(){
             stDev: null,
         }
     });
-
-    const popupMenu = () => {
-        setSide(prevState => !prevState);
-    };
-
-    function sideElements(){
-        return openSide && (
-            <aside className="sidebar">
-                <button onClick={toIncome}>Income Edit</button>
-                <button onClick={toExpense}>Expense Edit</button>
-                <button onClick={toInvest}>Invest Edit</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button>Reports & Logs</button>
-                <button>Import & Export Date</button>
-            </aside>
-        )
-    }
+    //
+    // const popupMenu = () => {
+    //     setSide(prevState => !prevState);
+    // };
+    //
+    // function sideElements(){
+    //     return openSide && (
+    //         <aside className="sidebar">
+    //             <button onClick={toIncome}>Income Edit</button>
+    //             <button onClick={toExpense}>Expense Edit</button>
+    //             <button onClick={toInvest}>Invest Edit</button>
+    //             <button onClick={toSim}>Scenario Simulation</button>
+    //             <button>Reports & Logs</button>
+    //             <button>Import & Export Date</button>
+    //         </aside>
+    //     )
+    // }
 
     function toIncome(){
         navPage('/IncomePage')
@@ -89,7 +89,6 @@ function profileSetting(){
     function handleChange(e) {
         const { name, value } = e.target;
 
-        // birthYear 관련 검증
         if (name === "birthYearUser" || name === "birthYearSpouse") {
             const currentYear = new Date().getFullYear();
             const numericValue = parseInt(value, 10);
@@ -102,7 +101,18 @@ function profileSetting(){
             }
         }
 
-        // 네임에 점(.)이 포함된 경우 (중첩 객체 업데이트)
+        if (name === "financialGoal") {
+            let numericValue = parseFloat(value);
+            if (isNaN(numericValue)) numericValue = 1;
+            if (numericValue < 0) numericValue = 1;
+
+            setFormData(prev => ({
+                ...prev,
+                financialGoal: numericValue,
+            }));
+            return;
+        }
+
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
             setFormData(prevState => ({
@@ -113,7 +123,6 @@ function profileSetting(){
                 }
             }));
         } else {
-            // maritalStatus 처리: "Y"일 때와 "N"일 때 분기
             if (name === "maritalStatus") {
                 setFormData(prevState => ({
                     ...prevState,
@@ -142,6 +151,7 @@ function profileSetting(){
             const response = await axios.post("http://localhost:10000/api/scenarios", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Scenario ID:", response.data.scenarioId);
             localStorage.setItem("scenario", response.data.scenarioId);
+            navPage('/IncomePage')
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
@@ -163,7 +173,7 @@ function profileSetting(){
 
     function stateSelection() {
         return (<div className="login">
-                <label htmlFor="stateOfResidence"></label>
+                <label htmlFor="stateOfResidence">State Selection</label>
                 <select name="stateOfResidence" id="stateOfResidence" value={formData.stateOfResidence} onChange={handleChange}>
                     <option value="AL">AL</option>
                     <option value="AK">AK</option>
@@ -407,8 +417,8 @@ function profileSetting(){
     }
 
     function profileSetup(){
-        return (<form onSubmit={handleSubmit} className="profileSetting"> <div className="logoLetter" style={{fontSize: '50px', marginTop: "30px"}} >Scenario Setting</div>
-            <div className="login"><label htmlFor="name"></label>
+        return (<form onSubmit={handleSubmit} className="profileSetting"> <div className="logoLetter" style={{color: 'black',fontSize: '5vh', marginTop: "30px"}} >Scenario Setting</div>
+            <div className="login"><label htmlFor="name">Scenario Name</label>
                 <input
                     type="text"
                     id="name"
@@ -473,11 +483,11 @@ function profileSetting(){
                     <option value = "NORMAL">NORMAL</option>
                 </select></div>}
             {formData.maritalStatus === "Y" && chooseFone()}
-            <div className="login"><label htmlFor="financialGoal"></label>
+            <div className="login"><label htmlFor="financialGoal">Financial Goal</label>
                 <input type="number" name="financialGoal"  id="financialGoal"  placeholder="Financial Goal" value={formData.financialGoal} onChange={handleChange} required/></div>
-            <div className="login"><label htmlFor="preTaxContributionLimit"></label>
-                <input type="number" name="preTaxContributionLimit"  id="preTaxContributionLimit"  placeholder="pre TaxContribution Limit" value={formData.preTaxContributionLimit} onChange={handleChange} required/></div>
-            <div className="login"><label htmlFor="afterTaxContributionLimit"></label>
+            {/*<div className="login"><label htmlFor="preTaxContributionLimit"></label>*/}
+            {/*    <input type="number" name="preTaxContributionLimit"  id="preTaxContributionLimit"  placeholder="pre TaxContribution Limit" value={formData.preTaxContributionLimit} onChange={handleChange} required/></div>*/}
+            <div className="login"><label htmlFor="afterTaxContributionLimit">after TaxContribution Limit</label>
                 <input type="number" name="afterTaxContributionLimit"  id="afterTaxContributionLimit"  placeholder="after TaxContribution Limit" value={formData.afterTaxContributionLimit} onChange={handleChange} required/></div>
             <div className="login"><label htmlFor="stateOfResidence"></label>
                 {stateSelection()}</div>
@@ -491,8 +501,9 @@ function profileSetting(){
                     <option value = "UNIFORM">UNIFORM</option>
                     <option value = "NORMAL">NORMAL</option>
                 </select></div>
-            {chooseKone()}
-            <button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
+            {chooseKone()}<div><button onClick={toHome} className="submitButton" type="button" style={{marginBottom:"20px"}}>Back</button><button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
+                </div>
+
         </form>);
     }
 

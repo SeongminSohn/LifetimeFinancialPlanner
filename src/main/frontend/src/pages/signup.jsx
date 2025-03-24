@@ -55,22 +55,7 @@ function signupPage(){
     function toSim(){
         navPage('/simulationPage')
     }
-
-
-
-    function defineProfile(){
-        if(pro[0].profile === null || pro[0].profile === undefined){
-            return profileImage;
-        }else{
-            return pro[0].profile;
-        }
-    }
-
-    const handleImage = (e) => {
-        e.target.onError = null;
-        e.target.src = profileImage;
-    }
-
+    
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
