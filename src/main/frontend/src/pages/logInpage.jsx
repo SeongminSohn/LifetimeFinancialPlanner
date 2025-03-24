@@ -16,7 +16,6 @@ function loginPage(){
         password: ''
     });
 
-
     // const popupMenu = () => {
     //     setSide(prevState => !prevState);
     // };
@@ -88,9 +87,7 @@ function loginPage(){
                 email: formData.id,
                 password: formData.password
             });
-
             localStorage.setItem("token", response.data.id);
-
             navPage("/Homepage");
         } catch (error) {
             console.error("log in Error:", error);

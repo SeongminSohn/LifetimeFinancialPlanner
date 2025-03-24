@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {BrowserRouter, Routes, Route, useLocation} from "react-router-dom";
 import Homepage from "./pages/homepage.jsx";
 import Profset from "./pages/profileSetting.jsx"
 import Loginpage from "./pages/logInpage.jsx"
@@ -9,12 +9,25 @@ import ExpenseEdit from "./pages/expenseEdit.jsx"
 import Signup from "./pages/signup.jsx"
 import SimulationPage from "./pages/simulationPage.jsx";
 import "./App.css";
+import {useEffect} from "react";
 
 
 function App() {
+
+    function ScrollToTop() {
+        const { pathname } = useLocation();
+
+        useEffect(() => {
+            window.scrollTo(0, 0);
+        }, [pathname]);
+
+        return null;
+    }
+
     return (
         <>
             <BrowserRouter>
+                <ScrollToTop />
                 <Routes>
                     <Route path="/" element={<Homepage />} />
                     <Route path="/Homepage" element={<Homepage />} />

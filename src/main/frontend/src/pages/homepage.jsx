@@ -87,7 +87,7 @@ function homePage(){
           {loggedIn === true && <button className="commonButton" onClick={popupMenu}>Menu</button>}
           {sideElements()}
           {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
-           profile Setting
+           Scenario Setting
           </button>)}
         </nav>
         {homeManage()}

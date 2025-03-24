@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import './common.css';
 import {useEffect} from "react";
 import axios from "axios";
-import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 function homePage(){
     useEffect(() => {
@@ -12,8 +12,6 @@ function homePage(){
             setLoggedIn(true);
         }
     }, []);
-
-
 
     const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
@@ -34,7 +32,7 @@ function homePage(){
             stDev: null,
         }, // DistributionDTO annualChange
         inflationAdjustment: 'Y', // String inflationAdjustment      // 'Y' or 'N'
-        userPercentage: 0, // Double userPercentage
+        userPercentage: '', // Double userPercentage
         isSocialSecurity: 'Y' // String isSocialSecurity;        // 'Y' or 'N'
     });
 
@@ -49,8 +47,7 @@ function homePage(){
         console.log(formData)
         try {
             const response = await axios.post("http://localhost:10000/api/income-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
-            console.log("Scenario ID:", response.data.scenarioId);
-            localStorage.setItem("scenario", response.data.scenarioId);
+            console.log("Scenario ID:", response.data);
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
@@ -121,7 +118,7 @@ function homePage(){
 
     function incomeManager(){
         return (<form onSubmit={handleSubmit} className="profileSetting">
-            <div className="logoLetter" style={{fontSize: '50px', marginTop: "30px"}} >Edit Income Information</div>
+            <div className="logoLetter" style={{fontSize: '5vh', marginTop: "30px"}} >Edit Income Information</div>
             <div className="login"><label htmlFor="name"></label>
                 <input
                     type="text"
@@ -181,6 +178,10 @@ function homePage(){
                     value={formData.userPercentage}
                     onChange={handleChange}
                     placeholder="User Percentage"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    style={{width: "140px"}}
                     required
                 /></div>
             <div className="login"><label htmlFor="isSocialSecurity">Is SocialSecurity</label>
@@ -195,6 +196,20 @@ function homePage(){
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        if (name === "userPercentage") {
+            let numericValue = parseFloat(value);
+            if (isNaN(numericValue)) {
+                numericValue = 0;
+            }
+            if (numericValue < 0) numericValue = 0;
+            if (numericValue > 1) numericValue = 1;
+
+            setFormData(prev => ({
+                ...prev,
+                userPercentage: numericValue,
+            }));
+            return;
+        }
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
             setFormData(prevState => ({
@@ -259,7 +274,7 @@ function homePage(){
             <button className="commonButton" onClick={popupMenu}>Menu</button>
             {sideElements()}
             {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
-                profile Setting
+                Scenario Setting
             </button>)}
         </nav>
         {incomeManager()}
