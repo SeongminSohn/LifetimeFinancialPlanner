@@ -4,10 +4,11 @@ import lombok.Data;
 
 @Data
 public class IncomeEventDTO {
+    private Long scenarioId;
     private Long eventSeriesId;
     private String name;
-    private Integer startYear;
-    private Integer duration;
+    private DistributionDTO startYear;
+    private DistributionDTO duration;
     private String eventType;
     private Double initialAmount;
     private DistributionDTO annualChange;

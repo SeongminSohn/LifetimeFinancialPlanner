@@ -15,11 +15,13 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
 
     private final ExpenseEventRepository expenseEventRepository;
     private final EventSeriesRepository eventSeriesRepository;
+    private final DistributionService distributionService;
 
     public ExpenseEventServiceImpl(ExpenseEventRepository expenseEventRepository,
-                                   EventSeriesRepository eventSeriesRepository) {
+                                   EventSeriesRepository eventSeriesRepository, DistributionService distributionService) {
         this.expenseEventRepository = expenseEventRepository;
         this.eventSeriesRepository = eventSeriesRepository;
+        this.distributionService = distributionService;
     }
 
     @Override
@@ -30,18 +32,7 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid EventSeries ID"));
 
         // Convert DistributionDTO for annualChange to DistributionEmbeddable
-        DistributionEmbeddable annualChangeEmb = null;
-        DistributionDTO distributionDTO = expenseEventDTO.getAnnualChange();
-        if (distributionDTO != null) {
-            annualChangeEmb = new DistributionEmbeddable();
-            annualChangeEmb.setAmountOrPercent(distributionDTO.getAmountOrPercent());
-            annualChangeEmb.setDistributionType(distributionDTO.getDistributionType());
-            annualChangeEmb.setValue(distributionDTO.getValue());
-            annualChangeEmb.setLower(distributionDTO.getLower());
-            annualChangeEmb.setUpper(distributionDTO.getUpper());
-            annualChangeEmb.setMean(distributionDTO.getMean());
-            annualChangeEmb.setStDev(distributionDTO.getStDev());
-        }
+        DistributionEmbeddable annualChangeEmb = distributionService.convertDTOToEmbeddable(expenseEventDTO.getAnnualChange());
 
         // Build the ExpenseEvent entity using the builder pattern
         ExpenseEvent expenseEvent = ExpenseEvent.builder()

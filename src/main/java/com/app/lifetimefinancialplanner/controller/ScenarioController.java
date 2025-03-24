@@ -1,9 +1,8 @@
 package com.app.lifetimefinancialplanner.controller;
 
-import com.app.lifetimefinancialplanner.domain.dto.DistributionDTO;
 import com.app.lifetimefinancialplanner.domain.dto.ScenarioDTO;
-import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
+import com.app.lifetimefinancialplanner.service.DistributionService;
 import com.app.lifetimefinancialplanner.service.ScenarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,8 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,25 +19,13 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Scenario API", description = "Endpoints for managing scenarios.")
 public class ScenarioController {
 
-    private static final Logger log = LoggerFactory.getLogger(ScenarioController.class);
     private final ScenarioService scenarioService;
+    private final DistributionService distributionService;
 
     @Autowired
-    public ScenarioController(ScenarioService scenarioService) {
+    public ScenarioController(ScenarioService scenarioService, DistributionService distributionService) {
         this.scenarioService = scenarioService;
-    }
-
-    // Helper method: Convert Embeddable to DTO
-    private DistributionDTO convertEmbeddableToDTO (DistributionEmbeddable emb){
-        DistributionDTO dto = new DistributionDTO();
-        dto.setAmountOrPercent(emb.getAmountOrPercent());
-        dto.setDistributionType(emb.getDistributionType());
-        dto.setValue(emb.getValue());
-        dto.setLower(emb.getLower());
-        dto.setUpper(emb.getUpper());
-        dto.setMean(emb.getMean());
-        dto.setStDev(emb.getStDev());
-        return dto;
+        this.distributionService = new DistributionService();
     }
 
     @PostMapping
@@ -85,13 +70,13 @@ public class ScenarioController {
 
         // Convert Embeddable to DTO
         if (scenario.getLifeExpectancyUser() != null) {
-            responseDto.setLifeExpectancyUser(convertEmbeddableToDTO(scenario.getLifeExpectancyUser()));
+            responseDto.setLifeExpectancyUser(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancyUser()));
         }
         if (scenario.getLifeExpectancySpouse() != null) {
-            responseDto.setLifeExpectancySpouse(convertEmbeddableToDTO(scenario.getLifeExpectancySpouse()));
+            responseDto.setLifeExpectancySpouse(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancySpouse()));
         }
         if (scenario.getInflationAssumption() != null) {
-            responseDto.setInflationAssumption(convertEmbeddableToDTO(scenario.getInflationAssumption()));
+            responseDto.setInflationAssumption(distributionService.convertEmbeddableToDTO(scenario.getInflationAssumption()));
         }
 
         return ResponseEntity.ok(responseDto);
