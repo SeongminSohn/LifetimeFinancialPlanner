@@ -27,7 +27,7 @@ public class Strategy {
     @Column(length = 500)
     private String description;
 
-    @Column(name = "STRATEGY_TYPE", length = 50, nullable = false)
+    @Column(name = "STRATEGY_TYPE", length = 20, nullable = false)
     private String strategyType; // 'SPENDING', 'EXPENSE_WITHDRAWAL'
 
     @Column(name = "START_YEAR")

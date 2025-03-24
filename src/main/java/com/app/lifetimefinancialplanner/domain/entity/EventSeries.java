@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
+import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import lombok.*;
 import javax.persistence.*;
 
@@ -19,12 +20,30 @@ public class EventSeries {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "START_YEAR", nullable = false)
-    private Integer startYear;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "START_YEAR_AMOUNT_OR_PERCENT", nullable = false)),
+            @AttributeOverride(name = "distributionType", column = @Column(name = "START_YEAR_DISTRIBUTION_TYPE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "START_YEAR_VALUE")),
+            @AttributeOverride(name = "lower", column = @Column(name = "START_YEAR_LOWER")),
+            @AttributeOverride(name = "upper", column = @Column(name = "START_YEAR_UPPER")),
+            @AttributeOverride(name = "mean", column = @Column(name = "START_YEAR_MEAN")),
+            @AttributeOverride(name = "stDev", column = @Column(name = "START_YEAR_STDDEV"))
+    })
+    private DistributionEmbeddable startYear;
 
-    @Column(nullable = false)
-    private Integer duration;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "DURATION_AMOUNT_OR_PERCENT", nullable = false)),
+            @AttributeOverride(name = "distributionType", column = @Column(name = "DURATION_DISTRIBUTION_TYPE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "DURATION_VALUE")),
+            @AttributeOverride(name = "lower", column = @Column(name = "DURATION_LOWER")),
+            @AttributeOverride(name = "upper", column = @Column(name = "DURATION_UPPER")),
+            @AttributeOverride(name = "mean", column = @Column(name = "DURATION_MEAN")),
+            @AttributeOverride(name = "stDev", column = @Column(name = "DURATION_STDDEV"))
+    })
+    private DistributionEmbeddable duration;
 
-    @Column(name = "EVENT_TYPE", length = 20, nullable = false)
+    @Column(name = "EVENT_TYPE", length = 10, nullable = false)
     private String eventType; // 'INCOME', 'EXPENSE', 'INVEST'
 }
