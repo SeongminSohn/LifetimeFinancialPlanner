@@ -1,13 +1,15 @@
 package com.app.lifetimefinancialplanner.domain.dto;
 
+import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import lombok.Data;
 
 @Data
 public class ExpenseEventDTO {
+    private Long scenarioId;
     private Long eventSeriesId;
     private String name;
-    private Integer startYear;
-    private Integer duration;
+    private DistributionDTO startYear;
+    private DistributionDTO duration;
     private String eventType;
     private Double initialAmount;
     private DistributionDTO annualChange;
