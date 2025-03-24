@@ -1,6 +1,8 @@
 package com.app.lifetimefinancialplanner.controller;
 
+import com.app.lifetimefinancialplanner.domain.dto.DistributionDTO;
 import com.app.lifetimefinancialplanner.domain.dto.ScenarioDTO;
+import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.service.ScenarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
-
 @RestController
 @RequestMapping("/api/scenarios")
 @Tag(name = "Scenario API", description = "Endpoints for managing scenarios.")
@@ -30,13 +30,26 @@ public class ScenarioController {
         this.scenarioService = scenarioService;
     }
 
+    // Helper method: Convert Embeddable to DTO
+    private DistributionDTO convertEmbeddableToDTO (DistributionEmbeddable emb){
+        DistributionDTO dto = new DistributionDTO();
+        dto.setAmountOrPercent(emb.getAmountOrPercent());
+        dto.setDistributionType(emb.getDistributionType());
+        dto.setValue(emb.getValue());
+        dto.setLower(emb.getLower());
+        dto.setUpper(emb.getUpper());
+        dto.setMean(emb.getMean());
+        dto.setStDev(emb.getStDev());
+        return dto;
+    }
+
     @PostMapping
-    // Endpoint for creating a new scenario
     @Operation(
             summary = "Create Scenario",
             description = "Creates a new scenario. \n" +
                     "Example JSON body:\n" +
                     "{\n" +
+                    "  \"userId\": 1,\n" +
                     "  \"name\": \"Retirement Plan\",\n" +
                     "  \"maritalStatus\": \"couple\",\n" +
                     "  \"birthYearUser\": 1985,\n" +
@@ -52,12 +65,36 @@ public class ScenarioController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Scenario created successfully",
-                    content = @Content(schema = @Schema(implementation = Scenario.class))),
+                    content = @Content(schema = @Schema(implementation = ScenarioDTO.class))),
             @ApiResponse(responseCode = "404", description = "User not logged in")
     })
-    public ResponseEntity<Scenario> createScenario(@RequestBody ScenarioDTO scenarioDTO) {
+    public ResponseEntity<ScenarioDTO> createScenario(@RequestBody ScenarioDTO scenarioDTO) {
         Scenario scenario = scenarioService.createScenario(scenarioDTO);
-        return ResponseEntity.ok(scenario);
+
+        // Create DTO for response
+        ScenarioDTO responseDto = new ScenarioDTO();
+        responseDto.setUserId(scenario.getUser().getId());
+        responseDto.setName(scenario.getName());
+        responseDto.setMaritalStatus(scenario.getMaritalStatus());
+        responseDto.setBirthYearUser(scenario.getBirthYearUser());
+        responseDto.setBirthYearSpouse(scenario.getBirthYearSpouse());
+        responseDto.setFinancialGoal(scenario.getFinancialGoal());
+        responseDto.setPreTaxContributionLimit(scenario.getPreTaxContributionLimit());
+        responseDto.setAfterTaxContributionLimit(scenario.getAfterTaxContributionLimit());
+        responseDto.setStateOfResidence(scenario.getStateOfResidence());
+
+        // Convert Embeddable to DTO
+        if (scenario.getLifeExpectancyUser() != null) {
+            responseDto.setLifeExpectancyUser(convertEmbeddableToDTO(scenario.getLifeExpectancyUser()));
+        }
+        if (scenario.getLifeExpectancySpouse() != null) {
+            responseDto.setLifeExpectancySpouse(convertEmbeddableToDTO(scenario.getLifeExpectancySpouse()));
+        }
+        if (scenario.getInflationAssumption() != null) {
+            responseDto.setInflationAssumption(convertEmbeddableToDTO(scenario.getInflationAssumption()));
+        }
+
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/{id}")
