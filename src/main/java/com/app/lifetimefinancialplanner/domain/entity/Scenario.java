@@ -36,7 +36,7 @@ public class Scenario {
     @AttributeOverrides({
             @AttributeOverride(name = "amountOrPercent", column = @Column(name = "LIFE_EXPECTANCY_USER_AMOUNT_OR_PERCENT", nullable = false)),
             @AttributeOverride(name = "distributionType", column = @Column(name = "LIFE_EXPECTANCY_USER_DISTRIBUTION_TYPE", nullable = false)),
-            @AttributeOverride(name = "value", column = @Column(name = "LIFE_EXPECTANCY_USER_VALUE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "LIFE_EXPECTANCY_USER_VALUE")),
             @AttributeOverride(name = "lower", column = @Column(name = "LIFE_EXPECTANCY_USER_LOWER")),
             @AttributeOverride(name = "upper", column = @Column(name = "LIFE_EXPECTANCY_USER_UPPER")),
             @AttributeOverride(name = "mean", column = @Column(name = "LIFE_EXPECTANCY_USER_MEAN")),
@@ -72,7 +72,7 @@ public class Scenario {
     @AttributeOverrides({
             @AttributeOverride(name = "amountOrPercent", column = @Column(name = "INFLATION_AMOUNT_OR_PERCENT", nullable = false)),
             @AttributeOverride(name = "distributionType", column = @Column(name = "INFLATION_DISTRIBUTION_TYPE", nullable = false)),
-            @AttributeOverride(name = "value", column = @Column(name = "INFLATION_VALUE", nullable = false)),
+            @AttributeOverride(name = "value", column = @Column(name = "INFLATION_VALUE")),
             @AttributeOverride(name = "lower", column = @Column(name = "INFLATION_LOWER")),
             @AttributeOverride(name = "upper", column = @Column(name = "INFLATION_UPPER")),
             @AttributeOverride(name = "mean", column = @Column(name = "INFLATION_MEAN")),
