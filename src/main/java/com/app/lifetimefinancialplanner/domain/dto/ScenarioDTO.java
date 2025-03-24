@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class ScenarioDTO {
     private Long userId;
+    private Long scenarioId;
     private String name;                            // scenarioName
     private String maritalStatus;                   // 'Y' or 'N'
     private Integer birthYearUser;
