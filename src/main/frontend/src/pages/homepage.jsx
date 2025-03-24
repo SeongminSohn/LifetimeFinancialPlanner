@@ -49,20 +49,7 @@ function homePage(){
   }
 
   function toSim(){
-    navPage('/Imex')
-  }
-
-  function defineProfile(){
-    if(pro[0].profile === null || pro[0].profile === undefined){
-      return profileImage;
-    }else{
-      return pro[0].profile;
-    }
-  }
-
-  const handleImage = (e) => {
-    e.target.onError = null;
-    e.target.src = profileImage;
+    navPage('/SimulationPage')
   }
 
   function toProfile(){
@@ -75,7 +62,9 @@ function homePage(){
 
   function homeManage(){
     return(<div className="loginBox">
-      <></>
+      <p className="logoLetter" style={{fontSize: 'xx-large', color: 'black', fontWeight: 'bold'}}>Welcome to Life Financial Planner</p>
+      {loggedIn === false && (<button className="submitButton" onClick={toLogin} >Sign in</button>)}
+      {loggedIn === false && (<button className="submitButton">Try as a guest</button>)}
     </div>)
   }
 
@@ -90,16 +79,15 @@ function homePage(){
         <nav className="navBarTop">
           <img src="/public/caffeineOverloadLogo.png" className="logoSize" alt="logo" />
           <p className="logoLetter">Life Time Financial Planner</p>
-          { !loggedIn ? (
-              <button className="commonButton" onClick={toLogin}>Sign-In</button>) : (<button className="commonButton" onClick={handleLogout}>Log Out</button>)
-          }
+          {loggedIn === true && (<button className="commonButton" onClick={handleLogout}>Log Out</button>)}
+            {loggedIn === false && (<div></div>)}
         </nav>
         <nav className="navBarSub">
-          <button className="commonButton" onClick={popupMenu}>Menu</button>
+          {loggedIn === true && <button className="commonButton" onClick={popupMenu}>Menu</button>}
           {sideElements()}
-          <button className="commonButton" onClick={toProfile}>
+          {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
            profile Setting
-          </button>
+          </button>)}
         </nav>
         {homeManage()}
       </div>);

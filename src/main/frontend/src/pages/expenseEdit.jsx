@@ -7,21 +7,15 @@ import { useNavigate } from 'react-router-dom';
 
 function homePage(){
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const planResp = await axios.get("http://localhost:10000/test");
-                console.log(planResp.data);
-            } catch (err) {
-                console.log("inital error");
-                console.log(err);
-            }
-        };
-
-        fetchData();}, []);
+        const token = localStorage.getItem("token");
+        if (token) {
+            setLoggedIn(true);
+        }
+    }, []);
 
     const [openSide, setSide] = useState(false);
-    const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
+    const [loggedIn, setLoggedIn] = useState(false)
 
     const popupMenu = () => {
         setSide(prevState => !prevState);
@@ -39,11 +33,6 @@ function homePage(){
             </aside>
         )
     }
-
-    // function toDash(){
-    //   navPage('/Homepage');
-    // }
-
     function toHome(){
         navPage('/Homepage')
     }
@@ -61,20 +50,7 @@ function homePage(){
     }
 
     function toSim(){
-        navPage('/Imex')
-    }
-
-    function defineProfile(){
-        if(pro[0].profile === null || pro[0].profile === undefined){
-            return profileImage;
-        }else{
-            return pro[0].profile;
-        }
-    }
-
-    const handleImage = (e) => {
-        e.target.onError = null;
-        e.target.src = profileImage;
+        navPage('/SimulationPage')
     }
 
     function toProfile(){
@@ -95,14 +71,14 @@ function homePage(){
         <nav className="navBarTop">
             <img onClick={toHome} src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            <button className="commonButton" onClick={toLogin}>Sign-In</button>
+            <div></div>
         </nav>
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
             {sideElements()}
-            <button className="noShape" onClick={toProfile}>
-                <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
-            </button>
+            {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
+                profile Setting
+            </button>)}
         </nav>
         {finanacialPlanning()}
     </div>);

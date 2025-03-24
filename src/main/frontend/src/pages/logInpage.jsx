@@ -10,7 +10,6 @@ function loginPage(){
     
 
     const [openSide, setSide] = useState(false);
-    const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
     const [formData, setFormData] = useState({
         id: '',
@@ -18,56 +17,43 @@ function loginPage(){
     });
 
 
-    const popupMenu = () => {
-        setSide(prevState => !prevState);
-    };
-
-    function sideElements(){
-        return openSide && (
-            <aside className="sidebar">
-                <button onClick={toIncome}>Income Edit</button>
-                <button onClick={toExpense}>Expense Edit</button>
-                <button onClick={toInvest}>Invest Edit</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button>Reports & Logs</button>
-                <button>Import & Export Date</button>
-            </aside>
-        )
-    }
+    // const popupMenu = () => {
+    //     setSide(prevState => !prevState);
+    // };
+    //
+    // function sideElements(){
+    //     return openSide && (
+    //         <aside className="sidebar">
+    //             <button onClick={toIncome}>Income Edit</button>
+    //             <button onClick={toExpense}>Expense Edit</button>
+    //             <button onClick={toInvest}>Invest Edit</button>
+    //             <button onClick={toSim}>Scenario Simulation</button>
+    //             <button>Reports & Logs</button>
+    //             <button>Import & Export Date</button>
+    //         </aside>
+    //     )
+    // }
 
     function toHome(){
         navPage('/HomePage')
     }
 
-    function toIncome(){
-        navPage('/IncomePage')
-    }
+    // function toIncome(){
+    //     navPage('/IncomePage')
+    // }
+    //
+    // function toExpense(){
+    //     navPage('/ExpenseEdit');
+    // }
+    //
+    // function toInvest(){
+    //     navPage('/InvestEdit')
+    // }
+    //
+    // function toSim(){
+    //     navPage('/simulationPage')
+    // }
 
-    function toExpense(){
-        navPage('/ExpenseEdit');
-    }
-
-    function toInvest(){
-        navPage('/InvestEdit')
-    }
-
-    function toSim(){
-        navPage('/Imex')
-    }
-
-
-    function defineProfile(){
-        if(pro[0].profile === null || pro[0].profile === undefined){
-            return profileImage;
-        }else{
-            return pro[0].profile;
-        }
-    }
-
-    const handleImage = (e) => {
-        e.target.onError = null;
-        e.target.src = profileImage;
-    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -83,10 +69,10 @@ function loginPage(){
     function signinBox(){
         return (<form onSubmit={handleSubmit} className="loginBox">
             <div className="logoLetter" style={{fontSize: '50px'}} >Sign in</div>
-            <div className="login"><label htmlFor="id">ID: </label>
-                <input type="text" id="id" name="id" value={formData.id} onChange={handleChange}/></div>
-            <div className="login"><label htmlFor="password">Password: </label>
-                <input type="password" id="password" name="password" value={formData.password} onChange={handleChange}/></div>
+            <div className="login"><label htmlFor="id"></label>
+                <input type="text" id="id" name="id" value={formData.id} onChange={handleChange} placeholder="ID"/></div>
+            <div className="login"><label htmlFor="password"></label>
+                <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password"/></div>
             <div><button className="submitButton" type="submit" onClick={toSignin}>Sign in</button>
                 <button className="submitButton" type="button" onClick={toSignUp}>Sign up</button></div>
         </form>);
@@ -102,7 +88,9 @@ function loginPage(){
                 email: formData.id,
                 password: formData.password
             });
-            localStorage.setItem("token", response.data.token);
+
+            localStorage.setItem("token", response.data.id);
+
             navPage("/Homepage");
         } catch (error) {
             console.error("log in Error:", error);
@@ -114,14 +102,11 @@ function loginPage(){
         <nav className="navBarTop">
             <img onClick={toHome} src ="/public/caffeineOverloadLogo.png" className = "logoSize"></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            <button className="commonButton">About us</button>
+            <div></div>
         </nav>
         <nav className= "navBarSub">
-            <button className="commonButton" onClick={popupMenu}>Menu</button>
-            {sideElements()}
-            <button className="noShape">
-                <img  className="profile" src={defineProfile()} onError={handleImage} alt="profile"></img>
-            </button>
+            {/*<button className="commonButton" onClick={popupMenu}>Menu</button>*/}
+            {/*{sideElements()}*/}
         </nav>
         {signinBox()}
     </div>);
