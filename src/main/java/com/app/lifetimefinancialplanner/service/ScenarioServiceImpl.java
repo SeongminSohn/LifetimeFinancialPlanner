@@ -31,7 +31,7 @@ public class ScenarioServiceImpl implements ScenarioService {
 
     // Helper Method to process DTO to Embeddable (Handle invalid inputs)
     private DistributionEmbeddable convertDistribution(DistributionDTO dto) {
-        if (dto == null) {
+        if (dto == null || dto.getDistributionType() == null || dto.getDistributionType().trim().isEmpty()) {
             return null;
         }
         DistributionEmbeddable emb = new DistributionEmbeddable();
@@ -77,7 +77,14 @@ public class ScenarioServiceImpl implements ScenarioService {
 
         // Convert DTO to Embeddable by using helper method
         DistributionEmbeddable lifeExpUser = convertDistribution(scenarioDTO.getLifeExpectancyUser());
-        DistributionEmbeddable lifeExpSpouse = convertDistribution(scenarioDTO.getLifeExpectancySpouse());
+
+        DistributionEmbeddable lifeExpSpouse = null;
+        Integer birthYearSpouse = null;
+        if (!"N".equalsIgnoreCase(scenarioDTO.getMaritalStatus())) {
+            lifeExpSpouse = convertDistribution(scenarioDTO.getLifeExpectancySpouse());
+            birthYearSpouse = scenarioDTO.getBirthYearSpouse();
+        }
+
         DistributionEmbeddable inflationAssumptionEmb = convertDistribution(scenarioDTO.getInflationAssumption());
 
         User user = userRepository.findById(scenarioDTO.getUserId())
