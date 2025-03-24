@@ -74,6 +74,7 @@ public class ScenarioController {
         // Create DTO for response
         ScenarioDTO responseDto = new ScenarioDTO();
         responseDto.setUserId(scenario.getUser().getId());
+        responseDto.setScenarioId(scenario.getId());
         responseDto.setName(scenario.getName());
         responseDto.setMaritalStatus(scenario.getMaritalStatus());
         responseDto.setBirthYearUser(scenario.getBirthYearUser());
