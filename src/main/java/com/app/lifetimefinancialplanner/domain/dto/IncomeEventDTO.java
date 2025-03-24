@@ -12,6 +12,6 @@ public class IncomeEventDTO {
     private Double initialAmount;
     private DistributionDTO annualChange;
     private String inflationAdjustment;     // 'Y' or 'N'
-    private String isSocialSecurity;        // 'Y' or 'N'
     private Double userPercentage;          // % <= 1.0
+    private String isSocialSecurity;        // 'Y' or 'N'
 }

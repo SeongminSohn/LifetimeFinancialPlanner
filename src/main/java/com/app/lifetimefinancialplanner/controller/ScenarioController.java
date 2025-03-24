@@ -55,9 +55,8 @@ public class ScenarioController {
                     content = @Content(schema = @Schema(implementation = Scenario.class))),
             @ApiResponse(responseCode = "404", description = "User not logged in")
     })
-    public ResponseEntity<Scenario> createScenario(@RequestBody ScenarioDTO scenarioDTO, HttpSession session) {
-        log.info("sessionUser:"+ session.getAttribute("loggedInUser"));
-        Scenario scenario = scenarioService.createScenario(scenarioDTO, session);
+    public ResponseEntity<Scenario> createScenario(@RequestBody ScenarioDTO scenarioDTO) {
+        Scenario scenario = scenarioService.createScenario(scenarioDTO);
         return ResponseEntity.ok(scenario);
     }
 
