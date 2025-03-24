@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class InvestmentTypeDTO {
     private Long id;
+    private Long scenarioId;
     private String name; // 'Cash', 'S&P 500' or 'Municipal bonds'
     private String description;
     private DistributionDTO expectedAnnualReturn;

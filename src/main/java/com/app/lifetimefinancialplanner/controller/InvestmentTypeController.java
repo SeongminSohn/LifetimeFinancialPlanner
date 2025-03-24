@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -120,5 +121,22 @@ public class InvestmentTypeController {
     public ResponseEntity<Void> deleteInvestmentType(@PathVariable Long id) {
         investmentTypeService.deleteInvestmentType(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/scenario/{scenarioId}")
+    @Operation(
+            summary = "Get Investment Types for Scenario",
+            description = "Retrieves all investment types for a given scenario."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Investment types retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "No investment types found for the scenario")
+    })
+    public ResponseEntity<List<InvestmentTypeDTO>> getInvestmentTypesForScenario(@PathVariable Long scenarioId) {
+        List<InvestmentTypeDTO> list = investmentTypeService.getInvestmentTypeList(scenarioId);
+        if (list == null || list.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(list);
     }
 }

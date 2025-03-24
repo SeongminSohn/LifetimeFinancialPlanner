@@ -52,6 +52,10 @@ public class InvestmentType {
     @Column(name = "TAXABILITY", length = 1, nullable = false)
     private String taxability; // 'Y' or 'N'
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SCENARIO_ID", nullable = false)
+    private Scenario scenario;
+
     @CreationTimestamp
     @Column(name = "ins_date")
     private LocalDateTime createdAt = LocalDateTime.now();

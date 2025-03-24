@@ -2,14 +2,15 @@ package com.app.lifetimefinancialplanner.service;
 
 import com.app.lifetimefinancialplanner.domain.dto.InvestmentTypeDTO;
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
-import com.app.lifetimefinancialplanner.domain.entity.EventSeries;
 import com.app.lifetimefinancialplanner.domain.entity.InvestmentType;
 import com.app.lifetimefinancialplanner.repository.InvestmentTypeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class InvestmentTypeServiceImpl implements InvestmentTypeService {
@@ -75,5 +76,31 @@ public class InvestmentTypeServiceImpl implements InvestmentTypeService {
         InvestmentType existing = investmentTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("InvestmentType not found"));
         investmentTypeRepository.delete(existing);
+    }
+
+    @Override
+    public List<InvestmentTypeDTO> getInvestmentTypeList(Long scenarioId) {
+        List<InvestmentType> types = investmentTypeRepository.findAllByScenarioId(scenarioId);
+
+        return types.stream()
+                .map(entity -> {
+                    InvestmentTypeDTO investmentTypeDTO = new InvestmentTypeDTO();
+                    investmentTypeDTO.setId(entity.getId());
+                    investmentTypeDTO.setScenarioId(scenarioId);
+                    investmentTypeDTO.setName(entity.getName());
+                    investmentTypeDTO.setDescription(entity.getDescription());
+                    investmentTypeDTO.setExpenseRatio(entity.getExpenseRatio());
+                    investmentTypeDTO.setTaxability(entity.getTaxability());
+
+                    // DistributionEmbeddable -> DistributionDTO
+                    if (entity.getExpectedAnnualReturn() != null) {
+                        investmentTypeDTO.setExpectedAnnualReturn(distributionService.convertEmbeddableToDTO(entity.getExpectedAnnualReturn()));
+                    }
+                    if (entity.getExpectedAnnualIncome() != null) {
+                        investmentTypeDTO.setExpectedAnnualIncome(distributionService.convertEmbeddableToDTO(entity.getExpectedAnnualIncome()));
+                    }
+                    return investmentTypeDTO;
+                })
+                .collect(Collectors.toList());
     }
 }

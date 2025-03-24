@@ -28,8 +28,9 @@ public class InvestEventController {
     })
     @PostMapping
     public ResponseEntity<InvestEventDTO> createInvestEvent(@RequestBody InvestEventDTO investEventDTO) {
-//        InvestEventDTO created = investEventService.createInvestEvent(investEventDTO);
-//        return new ResponseEntity<>(created, HttpStatus.CREATED);
+// TODO: Event SeriesId를 먼저 생성하는 service를 돌리고 그 아이디 담아서 돌아가야됌
+    //        InvestEventDTO created = investEventService.createInvestEvent(investEventDTO);
+    //        return new ResponseEntity<>(created, HttpStatus.CREATED);
         return null;
     }
 
