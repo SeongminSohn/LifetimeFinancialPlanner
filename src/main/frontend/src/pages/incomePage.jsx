@@ -20,8 +20,8 @@ function homePage(){
     const [loggedIn, setLoggedIn] = useState(false)
     const [formData, setFormData] = useState({
         name: '', // String name
-        startYear: null, // Integer startYear
-        initialAmount: null, // Double initialAmount
+        startYear: '', // Integer startYear
+        initialAmount: '', // Double initialAmount
         annualChange: {
             amountOrPercent: "AMOUNT",
             distributionType: "FIXED",
@@ -45,7 +45,7 @@ function homePage(){
         event.preventDefault();
         console.log(formData)
         try {
-            const response = await axios.post("http://localhost:10000/api/scenarios", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+            const response = await axios.post("http://localhost:10000/api/income-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Scenario success:", response.data);
         } catch (error) {
             console.error("Scenario Error:", error);
@@ -56,56 +56,56 @@ function homePage(){
     function chooseMone() {
         return (
             <div>
-                {formData.lifeExpectancyUser.distributionType === "FIXED" && (
+                {formData.annualChange.distributionType === "FIXED" && (
                     <input
                         type="number"
-                        name="lifeExpectancyUser.value"
-                        id="distributionTypeFIXED"
+                        name="annualChange.value"
+                        id="annualChangeFIXED"
                         placeholder="value"
-                        value={formData.lifeExpectancyUser.value || ""}
+                        value={formData.annualChange.value || ""}
                         onChange={handleChange}
                         required
                     />
                 )}
-                {formData.lifeExpectancyUser.distributionType === "UNIFORM" && (
+                {formData.annualChange.distributionType === "UNIFORM" && (
                     <div>
                         <input
                             type="number"
-                            name="lifeExpectancyUser.lower"
-                            id="distributionTypeUNIFORM_lower"
+                            name="annualChange.lower"
+                            id="annualChangeLOWER"
                             placeholder="Lower"
-                            value={formData.lifeExpectancyUser.lower || ""}
+                            value={formData.annualChange.lower || ""}
                             onChange={handleChange}
                             required
                         />
                         <input
                             type="number"
-                            name="lifeExpectancyUser.upper"
-                            id="distributionTypeUNIFORM_upper"
+                            name="annualChange.upper"
+                            id="annualChangeUPPER"
                             placeholder="Upper"
-                            value={formData.lifeExpectancyUser.upper || ""}
+                            value={formData.annualChange.upper || ""}
                             onChange={handleChange}
                             required
                         />
                     </div>
                 )}
-                {formData.lifeExpectancyUser.distributionType === "NORMAL" && (
+                {formData.annualChange.distributionType === "NORMAL" && (
                     <div>
                         <input
                             type="number"
-                            name="lifeExpectancyUser.mean"
-                            id="distributionTypeNORMAL_mean"
+                            name="annualChange.mean"
+                            id="annualChangeMEAN"
                             placeholder="mean"
-                            value={formData.lifeExpectancyUser.mean || ""}
+                            value={formData.annualChange.mean || ""}
                             onChange={handleChange}
                             required
                         />
                         <input
                             type="number"
-                            name="lifeExpectancyUser.stDev"
-                            id="distributionTypeNORMAL_stDev"
+                            name="annualChange.stDev"
+                            id="annualChangeSTDEV"
                             placeholder="standard deviation"
-                            value={formData.lifeExpectancyUser.stDev || ""}
+                            value={formData.annualChange.stDev || ""}
                             onChange={handleChange}
                             required
                         />
@@ -128,7 +128,7 @@ function homePage(){
                     placeholder="Event Name"
                     required
                 /></div>
-            <div className="login"><label htmlFor="name"></label>
+            <div className="login"><label htmlFor="startYear"></label>
                 <input
                     type="number"
                     id="startYear"
@@ -136,16 +136,6 @@ function homePage(){
                     value={formData.startYear}
                     onChange={handleChange}
                     placeholder="start Year"
-                    required
-                /></div>
-            <div className="login"><label htmlFor="initialAmount"></label>
-                <input
-                    type="number"
-                    id="initialAmount"
-                    name="initialAmount"
-                    value={formData.initialAmount}
-                    onChange={handleChange}
-                    placeholder="Initial Amount"
                     required
                 /></div>
             <div className="login"><label htmlFor="initialAmount"></label>
@@ -167,7 +157,33 @@ function homePage(){
                     <option value = "AMOUNT">Amount</option>
                     <option value = "PERCENT">Percent</option>
                 </select></div>
+            <div className="login"><label htmlFor="annualChangedistributionType">Distribution Type </label>
+                <select name="annualChange.distributionType" id="annualChangedistributionType" value={formData.annualChange.distributionType} onChange={handleChange} required>
+                    <option value = "FIXED">FIXED</option>
+                    <option value = "UNIFORM">UNIFORM</option>
+                    <option value = "NORMAL">NORMAL</option>
+                </select></div>
             {chooseMone()}
+            <div className="login"><label htmlFor="inflationAdjustment">InflationAdjustment</label>
+                <select name="inflationAdjustment" id="inflationAdjustment" value={formData.inflationAdjustment} onChange={handleChange} required>
+                    <option value = "Y">Yes</option>
+                    <option value = "N">No</option>
+                </select></div>
+            <div className="login"><label htmlFor="userPercentage"></label>
+                <input
+                    type="number"
+                    id="userPercentage"
+                    name="userPercentage"
+                    value={formData.userPercentage}
+                    onChange={handleChange}
+                    placeholder="User Percentage"
+                    required
+                /></div>
+            <div className="login"><label htmlFor="isSocialSecurity">Is SocialSecurity</label>
+                <select name="isSocialSecurity" id="isSocialSecurity" value={formData.isSocialSecurity} onChange={handleChange} required>
+                    <option value = "Y">Yes</option>
+                    <option value = "N">No</option>
+                </select></div>
             <div>
                 <button className="submitButton" type="submit">Create An Account</button></div>
         </form>);
