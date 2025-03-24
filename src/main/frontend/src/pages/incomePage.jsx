@@ -118,8 +118,8 @@ function homePage(){
 
     function incomeManager(){
         return (<form onSubmit={handleSubmit} className="profileSetting">
-            <div className="logoLetter" style={{fontSize: '5vh', marginTop: "30px"}} >Edit Income Information</div>
-            <div className="login"><label htmlFor="name"></label>
+            <div className="logoLetter" style={{color: 'black', fontSize: '5vh', marginTop: "30px"}} >Edit Income Information</div>
+            <div className="login">Event Name<label htmlFor="name"></label>
                 <input
                     type="text"
                     id="name"
@@ -129,7 +129,7 @@ function homePage(){
                     placeholder="Event Name"
                     required
                 /></div>
-            <div className="login"><label htmlFor="startYear"></label>
+            <div className="login"><label htmlFor="startYear">Start Year</label>
                 <input
                     type="number"
                     id="startYear"
@@ -139,7 +139,7 @@ function homePage(){
                     placeholder="start Year"
                     required
                 /></div>
-            <div className="login"><label htmlFor="initialAmount"></label>
+            <div className="login">Initial Amount<label htmlFor="initialAmount"></label>
                 <input
                     type="number"
                     id="initialAmount"
@@ -170,7 +170,7 @@ function homePage(){
                     <option value = "Y">Yes</option>
                     <option value = "N">No</option>
                 </select></div>
-            <div className="login"><label htmlFor="userPercentage"></label>
+            <div className="login"><label htmlFor="userPercentage">User Percentage </label>
                 <input
                     type="number"
                     id="userPercentage"
@@ -190,7 +190,7 @@ function homePage(){
                     <option value = "N">No</option>
                 </select></div>
             <div>
-                <button className="submitButton" type="submit">Create An Account</button></div>
+                <button className="submitButton" type="submit">Save Changes</button></div>
         </form>);
     }
 
@@ -209,6 +209,17 @@ function homePage(){
                 userPercentage: numericValue,
             }));
             return;
+        }
+        if (name === "startYear") {
+            const currentYear = new Date().getFullYear();
+            const numericValue = parseInt(value, 10);
+            if (!isNaN(numericValue) && numericValue > currentYear) {
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: currentYear,
+                }));
+                return;
+            }
         }
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');

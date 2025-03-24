@@ -35,7 +35,6 @@ function profileSetting(){
             stDev: null
         },
         financialGoal: '',
-        preTaxContributionLimit: '',
         afterTaxContributionLimit: '',
         stateOfResidence: 'AL',
         inflationAssumption: {
@@ -101,6 +100,18 @@ function profileSetting(){
             }
         }
 
+        if (name === "financialGoal") {
+            let numericValue = parseFloat(value);
+            if (isNaN(numericValue)) numericValue = 1;
+            if (numericValue < 0) numericValue = 1;
+
+            setFormData(prev => ({
+                ...prev,
+                financialGoal: numericValue,
+            }));
+            return;
+        }
+
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
             setFormData(prevState => ({
@@ -161,7 +172,7 @@ function profileSetting(){
 
     function stateSelection() {
         return (<div className="login">
-                <label htmlFor="stateOfResidence"></label>
+                <label htmlFor="stateOfResidence">State Selection</label>
                 <select name="stateOfResidence" id="stateOfResidence" value={formData.stateOfResidence} onChange={handleChange}>
                     <option value="AL">AL</option>
                     <option value="AK">AK</option>
@@ -405,8 +416,8 @@ function profileSetting(){
     }
 
     function profileSetup(){
-        return (<form onSubmit={handleSubmit} className="profileSetting"> <div className="logoLetter" style={{fontSize: '5vh', marginTop: "30px"}} >Scenario Setting</div>
-            <div className="login"><label htmlFor="name"></label>
+        return (<form onSubmit={handleSubmit} className="profileSetting"> <div className="logoLetter" style={{color: 'black',fontSize: '5vh', marginTop: "30px"}} >Scenario Setting</div>
+            <div className="login"><label htmlFor="name">Scenario Name</label>
                 <input
                     type="text"
                     id="name"
@@ -471,11 +482,11 @@ function profileSetting(){
                     <option value = "NORMAL">NORMAL</option>
                 </select></div>}
             {formData.maritalStatus === "Y" && chooseFone()}
-            <div className="login"><label htmlFor="financialGoal"></label>
+            <div className="login"><label htmlFor="financialGoal">Financial Goal</label>
                 <input type="number" name="financialGoal"  id="financialGoal"  placeholder="Financial Goal" value={formData.financialGoal} onChange={handleChange} required/></div>
-            <div className="login"><label htmlFor="preTaxContributionLimit"></label>
-                <input type="number" name="preTaxContributionLimit"  id="preTaxContributionLimit"  placeholder="pre TaxContribution Limit" value={formData.preTaxContributionLimit} onChange={handleChange} required/></div>
-            <div className="login"><label htmlFor="afterTaxContributionLimit"></label>
+            {/*<div className="login"><label htmlFor="preTaxContributionLimit"></label>*/}
+            {/*    <input type="number" name="preTaxContributionLimit"  id="preTaxContributionLimit"  placeholder="pre TaxContribution Limit" value={formData.preTaxContributionLimit} onChange={handleChange} required/></div>*/}
+            <div className="login"><label htmlFor="afterTaxContributionLimit">after TaxContribution Limit</label>
                 <input type="number" name="afterTaxContributionLimit"  id="afterTaxContributionLimit"  placeholder="after TaxContribution Limit" value={formData.afterTaxContributionLimit} onChange={handleChange} required/></div>
             <div className="login"><label htmlFor="stateOfResidence"></label>
                 {stateSelection()}</div>

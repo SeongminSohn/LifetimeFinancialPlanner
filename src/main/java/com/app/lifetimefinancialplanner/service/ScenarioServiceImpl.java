@@ -70,8 +70,6 @@ public class ScenarioServiceImpl implements ScenarioService {
         }
 
         // Use default contribution limits if null
-        Double defaultPreTax = scenarioDTO.getPreTaxContributionLimit() != null
-                ? scenarioDTO.getPreTaxContributionLimit() : 22500.0;
         Double defaultAfterTax = scenarioDTO.getAfterTaxContributionLimit() != null
                 ? scenarioDTO.getAfterTaxContributionLimit() : 7000.0;
 

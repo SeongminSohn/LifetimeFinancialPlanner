@@ -67,7 +67,7 @@ function loginPage(){
 
     function signinBox(){
         return (<form onSubmit={handleSubmit} className="loginBox">
-            <div className="logoLetter" style={{fontSize: '50px'}} >Sign in</div>
+            <div className="logoLetter" style={{color: 'black',fontSize: '50px'}} >Sign in</div>
             <div className="login"><label htmlFor="id"></label>
                 <input type="text" id="id" name="id" value={formData.id} onChange={handleChange} placeholder="ID"/></div>
             <div className="login"><label htmlFor="password"></label>
