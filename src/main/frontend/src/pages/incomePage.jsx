@@ -19,7 +19,8 @@ function homePage(){
     const navPage = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false)
     const [formData, setFormData] = useState({
-        userid: '', // scenario ID
+        // userid: '', // userID
+        scenarioId: '',
         name: '', // String name
         startYear: '', // Integer startYear
         initialAmount: '', // Double initialAmount
@@ -48,7 +49,8 @@ function homePage(){
         console.log(formData)
         try {
             const response = await axios.post("http://localhost:10000/api/income-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
-            console.log("Scenario success:", response.data);
+            console.log("Scenario ID:", response.data.scenarioId);
+            localStorage.setItem("scenario", response.data.scenarioId);
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
