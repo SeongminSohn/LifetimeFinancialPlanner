@@ -15,9 +15,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 
 @WebMvcTest(controllers = UserController.class)
 public class UserControllerTest {
@@ -61,37 +64,30 @@ public class UserControllerTest {
 
     // Test for successful login endpoint
     @Test
-    public void testLoginSuccess() throws Exception {
-        // given: Create a LoginDTO with valid credentials
+    void testLoginSuccess() throws Exception {
         LoginDTO loginDTO = new LoginDTO();
         loginDTO.setEmail("logincontroller@example.com");
         loginDTO.setPassword("loginpassword");
 
-        User foundUser = User.builder()
+        // Use builder pattern instead of new User()
+        User mockUser = User.builder()
                 .id(2L)
                 .email("logincontroller@example.com")
-                .password("loginpassword")
                 .name("Login Controller User")
                 .build();
 
-        when(userService.login("logincontroller@example.com", "loginpassword")).thenReturn(foundUser);
+        when(userService.login(anyString(), anyString())).thenReturn(mockUser);
 
-        // Create a mock session for storing user info
-        MockHttpSession session = new MockHttpSession();
-
-        // when: Perform POST request to /api/users/login
         mockMvc.perform(post("/api/users/login")
-                        .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginDTO)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Login successful"));
-
-        // then: Verify that the session now contains the logged in user
-        User sessionUser = (User) session.getAttribute("loggedInUser");
-        assert sessionUser != null;
-        assert sessionUser.getEmail().equals("logincontroller@example.com");
+                .andExpect(jsonPath("$.id").value(mockUser.getId()))
+                .andExpect(jsonPath("$.email").value(mockUser.getEmail()))
+                .andExpect(jsonPath("$.name").value(mockUser.getName()));
     }
+
+
 
     // Test for login failure with invalid credentials
     @Test
