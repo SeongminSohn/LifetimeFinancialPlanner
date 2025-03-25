@@ -12,12 +12,13 @@ function investPage(){
         }
     }, []);
 
+
     const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false)
     const [formData, setFormData] = useState({
         scenarioId: '',// private Long scenarioId;
-        name: 'Cash',// private String name; // 'Cash', 'S&P 500' or 'Municipal bonds'
+        name: 'CASH',// private String name; // 'Cash', 'S&P 500' or 'Municipal bonds'
         description: '',// private String description;
         expectedAnnualReturn: {
             amountOrPercent: "AMOUNT",
@@ -124,7 +125,7 @@ function investPage(){
             }));
             return;
         }
-        if (name === "userPercentage") {
+        if (name === "expenseRatio") {
             let numericValue = parseFloat(value);
             if (isNaN(numericValue)) {
                 numericValue = 0;
@@ -134,7 +135,7 @@ function investPage(){
 
             setFormData(prev => ({
                 ...prev,
-                userPercentage: numericValue,
+                expenseRatio: numericValue,
             }));
             return;
         }
@@ -318,7 +319,7 @@ function investPage(){
                     <option value = "NORMAL">NORMAL</option>
                 </select></div>
             {chooseMone()}
-            <div className="login"><label htmlFor="expenseRatio">User Percentage </label>
+            <div className="login"><label htmlFor="expenseRatio">Expense Ratio </label>
                 <input
                     type="number"
                     id="expenseRatio"

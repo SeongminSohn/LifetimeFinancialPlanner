@@ -5,10 +5,24 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
 function investment(){
+    const [investEvents, setInvestEvents] = useState([]);
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
             setLoggedIn(true);
+        }
+    }, []);
+    useEffect(() => {
+        const scenarioId = localStorage.getItem("scenario");
+        if (scenarioId) {
+            axios.get(`http://localhost:10000/api/investment-types/scenario/${scenarioId}`)
+                .then(response => {
+                    setInvestEvents(response.data);
+                    console.log(investEvents)
+                })
+                .catch(error => {
+                    console.error("Error fetching invest events:", error);
+                });
         }
     }, []);
 
@@ -227,6 +241,10 @@ function investment(){
     //         </div>
     //     );
     // }
+
+    function investMentPage(){
+        return (<div></div>);
+    }
 
     function investMentPage(){
         return (<form onSubmit={handleSubmit} className="profileSetting">
