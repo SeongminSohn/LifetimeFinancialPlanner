@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 function investment(){
     const [investEvents, setInvestEvents] = useState([]);
+    const [selectedInvestment, setSelectedInvestment] = useState(null);
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -18,7 +19,7 @@ function investment(){
             axios.get(`http://localhost:10000/api/investment-types/scenario/${scenarioId}`)
                 .then(response => {
                     setInvestEvents(response.data);
-                    console.log(investEvents)
+                    console.log(response.data)
                 })
                 .catch(error => {
                     console.error("Error fetching invest events:", error);
@@ -30,7 +31,9 @@ function investment(){
     const navPage = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false)
     const [formData, setFormData] = useState({
-
+        investmentTypeId: '',
+        value: '',
+        taxStatus: ''
     });
 
     const popupMenu = () => {
@@ -74,185 +77,129 @@ function investment(){
 
     async function handleSubmit(event) {
         event.preventDefault();
-        formData.scenarioId = localStorage.getItem("scenario")
-        console.log(formData)
+        const updatedFormData = {
+            ...formData,
+            scenarioId: localStorage.getItem("scenario"),
+            investmentTypeId: selectedInvestment.id
+        };
+        console.log(updatedFormData);
         try {
-            const response = await axios.post("http://localhost:10000/api/investment-types", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+            const response = await axios.post(
+                "http://localhost:10000/api/investments",
+                updatedFormData,
+                { withCredentials: true, headers: { "Content-Type": "application/json" } }
+            );
             console.log("Scenario ID:", response.data);
+            setInvestEvents(prev =>
+                prev.map(item =>
+                    item.id === selectedInvestment.id
+                        ? { ...item, submitted: true }
+                        : item
+                )
+            );
+            setSelectedInvestment(null);
+            setFormData({ investmentTypeId: '', value: '', taxStatus: '' });
+            navPage('/Investment');
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
         }
     }
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        if (name === "userPercentage") {
-            let numericValue = parseFloat(value);
-            if (isNaN(numericValue)) {
-                numericValue = 0;
-            }
-            if (numericValue < 0) numericValue = 0;
-            if (numericValue > 1) numericValue = 1;
-
-            setFormData(prev => ({
-                ...prev,
-                userPercentage: numericValue,
-            }));
-            return;
-        }
-        if (name.includes('.')) {
-            const [parentKey, childKey] = name.split('.');
-            setFormData(prevState => ({
-                ...prevState,
-                [parentKey]: {
-                    ...prevState[parentKey],
-                    [childKey]: value
-                }
-            }));
-        } else {
-            setFormData(prevState => ({
-                ...prevState,
-                [name]: value
-            }));
-        }
-    }
-
-    // function chooseMone() {
-    //     return (
-    //         <div>
-    //             {formData.expectedAnnualReturn.distributionType === "FIXED" && (
-    //                 <input
-    //                     type="number"
-    //                     name="expectedAnnualReturn.value"
-    //                     id="expectedAnnualReturn.FIXED"
-    //                     placeholder="value"
-    //                     value={formData.expectedAnnualReturn.value || ""}
-    //                     onChange={handleChange}
-    //                     required
-    //                 />
-    //             )}
-    //             {formData.expectedAnnualReturn.distributionType === "UNIFORM" && (
-    //                 <div>
-    //                     <input
-    //                         type="number"
-    //                         name="expectedAnnualReturn.lower"
-    //                         id="expectedAnnualReturn.LOWER"
-    //                         placeholder="Lower"
-    //                         value={formData.expectedAnnualReturn.lower || ""}
-    //                         onChange={handleChange}
-    //                         required
-    //                     />
-    //                     <input
-    //                         type="number"
-    //                         name="expectedAnnualReturn.upper"
-    //                         id="expectedAnnualReturn.UPPER"
-    //                         placeholder="Upper"
-    //                         value={formData.expectedAnnualReturn.upper || ""}
-    //                         onChange={handleChange}
-    //                         required
-    //                     />
-    //                 </div>
-    //             )}
-    //             {formData.expectedAnnualReturn.distributionType === "NORMAL" && (
-    //                 <div>
-    //                     <input
-    //                         type="number"
-    //                         name="expectedAnnualReturn.mean"
-    //                         id="expectedAnnualReturn.MEAN"
-    //                         placeholder="mean"
-    //                         value={formData.expectedAnnualReturn.mean || ""}
-    //                         onChange={handleChange}
-    //                         required
-    //                     />
-    //                     <input
-    //                         type="number"
-    //                         name="expectedAnnualReturn.stDev"
-    //                         id="expectedAnnualReturn.STDEV"
-    //                         placeholder="standard deviation"
-    //                         value={formData.expectedAnnualReturn.stDev || ""}
-    //                         onChange={handleChange}
-    //                         required
-    //                     />
-    //                 </div>
-    //             )}
-    //         </div>
-    //     );
-    // }
+    // const handleChange = (e) => {
+    //     const { name, value } = e.target;
+    //     if (name === "userPercentage") {
+    //         let numericValue = parseFloat(value);
+    //         if (isNaN(numericValue)) {
+    //             numericValue = 0;
+    //         }
+    //         if (numericValue < 0) numericValue = 0;
+    //         if (numericValue > 1) numericValue = 1;
     //
-    // function chooseKone() {
-    //     return (
-    //         <div>
-    //             {formData.expectedAnnualIncome.distributionType === "FIXED" && (
-    //                 <input
-    //                     type="number"
-    //                     name="expectedAnnualIncome.value"
-    //                     id="expectedAnnualIncome.FIXED"
-    //                     placeholder="value"
-    //                     value={formData.expectedAnnualIncome.value || ""}
-    //                     onChange={handleChange}
-    //                     required
-    //                 />
-    //             )}
-    //             {formData.expectedAnnualIncome.distributionType === "UNIFORM" && (
-    //                 <div>
-    //                     <input
-    //                         type="number"
-    //                         name="expectedAnnualIncome.lower"
-    //                         id="expectedAnnualIncome.LOWER"
-    //                         placeholder="Lower"
-    //                         value={formData.expectedAnnualIncome.lower || ""}
-    //                         onChange={handleChange}
-    //                         required
-    //                     />
-    //                     <input
-    //                         type="number"
-    //                         name="expectedAnnualIncome.upper"
-    //                         id="expectedAnnualIncome.UPPER"
-    //                         placeholder="Upper"
-    //                         value={formData.expectedAnnualIncome.upper || ""}
-    //                         onChange={handleChange}
-    //                         required
-    //                     />
-    //                 </div>
-    //             )}
-    //             {formData.expectedAnnualIncome.distributionType === "NORMAL" && (
-    //                 <div>
-    //                     <input
-    //                         type="number"
-    //                         name="expectedAnnualIncome.mean"
-    //                         id="expectedAnnualIncome.MEAN"
-    //                         placeholder="mean"
-    //                         value={formData.expectedAnnualIncome.mean || ""}
-    //                         onChange={handleChange}
-    //                         required
-    //                     />
-    //                     <input
-    //                         type="number"
-    //                         name="expectedAnnualIncome.stDev"
-    //                         id="expectedAnnualIncome.STDEV"
-    //                         placeholder="standard deviation"
-    //                         value={formData.expectedAnnualIncome.stDev || ""}
-    //                         onChange={handleChange}
-    //                         required
-    //                     />
-    //                 </div>
-    //             )}
-    //         </div>
-    //     );
+    //         setFormData(prev => ({
+    //             ...prev,
+    //             userPercentage: numericValue,
+    //         }));
+    //         return;
+    //     }
+    //     if (name.includes('.')) {
+    //         const [parentKey, childKey] = name.split('.');
+    //         setFormData(prevState => ({
+    //             ...prevState,
+    //             [parentKey]: {
+    //                 ...prevState[parentKey],
+    //                 [childKey]: value
+    //             }
+    //         }));
+    //     } else {
+    //         setFormData(prevState => ({
+    //             ...prevState,
+    //             [name]: value
+    //         }));
+    //     }
     // }
 
-    function investMentPage(){
-        return (<div></div>);
+    function handleButtonClick(item) {
+        setSelectedInvestment(item);
+        setFormData({ investmentTypeId: '', value: '', taxStatus: 'NON-RETIREMENT' });
+    }
+
+    function investmentSetting(){
+        return (<div>
+            <div>
+                <h2>Update Investment for {selectedInvestment.name}</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="login">
+                        <label htmlFor="value">Value:</label>
+                        <input
+                            type="number"
+                            id="value"
+                            name="value"
+                            value={formData.value}
+                            onChange={(e) =>
+                                setFormData(prev => ({ ...prev, value: e.target.value }))
+                            }
+                            required
+                        />
+                    </div>
+                    <div className="login">
+                        <label htmlFor="taxStatus">Tax Status: </label>
+                        <select name="taxStatus" id="taxStatus" value={formData.taxStatus} onChange={(e) =>
+                            setFormData(prev => ({ ...prev, status: e.target.value }))} required>
+                            <option value = "NON-RETIREMENT">NON-RETIREMENT</option>
+                            <option value = "PRE-TAX">PRE-TAX</option>
+                            <option value = "AFTER-TAX">AFTER-TAX</option>
+                        </select>
+                    </div>
+                    <button type="submit">Submit</button>
+                    <button type="button" onClick={() => setSelectedInvestment(null)}>
+                        Cancel
+                    </button>
+                </form>
+            </div>
+        </div>);
     }
 
     function investMentPage(){
-        return (<form onSubmit={handleSubmit} className="profileSetting">
-            <div className="logoLetter" style={{color: 'black', fontSize: '5vh', marginTop: "30px"}}>Edit Investment</div>
-
-            <div>
-                <button className="submitButton" type="submit">Save Changes</button></div>
-        </form>);
+        return (
+            <div className="profileSetting">
+                <p className="logoLetter" style={{color: 'black',fontSize: '5vh', marginTop: "30px"}} >Investment Types</p>
+                {investEvents.map((item, index) => (
+                    <form key={item.id || index} className="investment-form">
+                        <div className="login">
+                            <label htmlFor={`name-${index}`}>Name: </label>
+                            <button
+                                onClick={() => handleButtonClick(item)}
+                                type="button"
+                                id={`name-${index}`}
+                                name="name"
+                            >{item.name}</button>
+                        </div>
+                    </form>
+                ))}
+                {selectedInvestment && (investmentSetting())}
+            </div>
+        );
     }
     return (<div className="total">
         <nav className="navBarTop">

@@ -52,11 +52,15 @@ function investPage(){
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
                 <button onClick={toInvest}>Invest Edit</button>
+                <button onClick={toInvestment}>Investment</button>
                 <button onClick={toSim}>Scenario Simulation</button>
-                <button>Reports & Logs</button>
                 <button>Import & Export Date</button>
             </aside>
         )
+    }
+
+    function toInvestment(){
+        navPage('/Investment')
     }
     function toIncome(){
         navPage('/IncomePage')
@@ -356,7 +360,7 @@ function investPage(){
                     <option value = "N">No </option>
                 </select></div>
             <div>
-                <button className="submitButton" type="submit">Save Changes</button></div>
+                <button onClick={toProfile} className="submitButton" type="button" style={{marginBottom:"20px"}}>Back</button><button className="submitButton" type="submit">Save Changes</button></div>
         </form>);
     }
 
