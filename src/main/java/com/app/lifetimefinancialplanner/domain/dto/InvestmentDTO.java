@@ -1,5 +1,8 @@
 package com.app.lifetimefinancialplanner.domain.dto;
 
+import lombok.Data;
+
+@Data
 public class InvestmentDTO {
     private Long id;
     private Long scenarioId;

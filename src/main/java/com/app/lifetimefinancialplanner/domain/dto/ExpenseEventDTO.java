@@ -1,6 +1,5 @@
 package com.app.lifetimefinancialplanner.domain.dto;
 
-import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import lombok.Data;
 
 @Data
