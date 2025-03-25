@@ -251,7 +251,7 @@ function investment(){
             <div className="logoLetter" style={{color: 'black', fontSize: '5vh', marginTop: "30px"}}>Edit Investment</div>
 
             <div>
-                <button className="submitButton" type="submit">Save Changes</button></div>
+                <button onClick={toInvest} className="submitButton" type="button" style={{marginBottom:"20px"}}>Back</button><button className="submitButton" type="submit">Save Changes</button></div>
         </form>);
     }
     return (<div className="total">

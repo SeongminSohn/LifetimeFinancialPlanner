@@ -356,7 +356,7 @@ function investPage(){
                     <option value = "N">No </option>
                 </select></div>
             <div>
-                <button className="submitButton" type="submit">Save Changes</button></div>
+                <button onClick={toProfile} className="submitButton" type="button" style={{marginBottom:"20px"}}>Back</button><button className="submitButton" type="submit">Save Changes</button></div>
         </form>);
     }
 
