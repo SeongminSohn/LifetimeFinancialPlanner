@@ -63,9 +63,9 @@ function homePage(){
         formData.scenarioId = localStorage.getItem("scenario")
         console.log(formData)
         try {
-            const response = await axios.post("http://localhost:10000/api/investment-types", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+            const response = await axios.post("http://localhost:10000/api/expense-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Scenario ID:", response.data);
-            navPage('/Investment')
+            // navPage('/Investment')
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");

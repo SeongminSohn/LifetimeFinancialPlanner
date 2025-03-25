@@ -1,6 +1,7 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import javax.persistence.*;
 
@@ -8,6 +9,7 @@ import javax.persistence.*;
 @SequenceGenerator(name = "SEQ_EVENT_SERIES_GENERATOR", sequenceName = "SEQ_EVENT_SERIES", allocationSize = 1)
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class EventSeries {
     @Id
     @GeneratedValue(generator = "SEQ_EVENT_SERIES_GENERATOR")

@@ -1,6 +1,7 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @SequenceGenerator(name = "SEQ_SCENARIO_GENERATOR", sequenceName = "SEQ_SCENARIO", allocationSize = 1)
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Scenario {
     @Id
     @GeneratedValue(generator = "SEQ_SCENARIO_GENERATOR")
