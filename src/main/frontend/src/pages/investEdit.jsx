@@ -52,11 +52,15 @@ function investPage(){
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
                 <button onClick={toInvest}>Invest Edit</button>
+                <button onClick={toInvestment}>Investment</button>
                 <button onClick={toSim}>Scenario Simulation</button>
-                <button>Reports & Logs</button>
                 <button>Import & Export Date</button>
             </aside>
         )
+    }
+
+    function toInvestment(){
+        navPage('/Investment')
     }
     function toIncome(){
         navPage('/IncomePage')

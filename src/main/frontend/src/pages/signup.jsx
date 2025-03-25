@@ -55,7 +55,7 @@ function signupPage(){
     function toSim(){
         navPage('/simulationPage')
     }
-    
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -136,7 +136,7 @@ function signupPage(){
     function signinBox(){
         return (<form onSubmit={handleSubmit} className="profileSetting">
 
-            <div className="logoLetter" style={{fontSize: '50px', marginTop: "30px"}} >Create an account</div>
+            <div className="logoLetter" style={{color: 'black',fontSize: '50px', marginTop: "30px"}} >Create an account</div>
             <div className="login"><label htmlFor="name"></label>
                 <input
                     type="text"

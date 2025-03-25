@@ -38,7 +38,7 @@ function homePage(){
             mean: null,
             stDev: null
         },// private DistributionDTO duration;
-        eventType: '',// private String eventType;
+        eventType: '',// private String eventType;  'INCOME', 'EXPENSE', 'INVEST'
         initialAmount: '', // Double initialAmount
         annualChange: {
             amountOrPercent: "AMOUNT",
@@ -61,7 +61,7 @@ function homePage(){
 
     async function handleSubmit(event) {
         event.preventDefault();
-        formData.userId = localStorage.getItem("token")
+        formData.scenarioId = localStorage.getItem("token")
         console.log(formData)
         try {
             const response = await axios.post("http://localhost:10000/api/income-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
@@ -428,11 +428,15 @@ function homePage(){
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
                 <button onClick={toInvest}>Invest Edit</button>
+                <button onClick={toInvestment}>Investment</button>
                 <button onClick={toSim}>Scenario Simulation</button>
-                <button>Reports & Logs</button>
                 <button>Import & Export Date</button>
             </aside>
         )
+    }
+
+    function toInvestment(){
+        navPage('/Investment')
     }
     function toHome(){
         navPage('/Homepage')
