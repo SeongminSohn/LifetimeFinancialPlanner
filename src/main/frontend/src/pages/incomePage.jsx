@@ -20,7 +20,25 @@ function homePage(){
         // userid: '', // userID
         scenarioId: '',
         name: '', // String name
-        startYear: '', // Integer startYear
+        startYear: {
+            amountOrPercent: "AMOUNT",
+            distributionType: "FIXED",
+            value: null,
+            lower: null,
+            upper: null,
+            mean: null,
+            stDev: null
+        },// private DistributionDTO startYear;
+        duration: {
+            amountOrPercent: "AMOUNT",
+            distributionType: "FIXED",
+            value: null,
+            lower: null,
+            upper: null,
+            mean: null,
+            stDev: null
+        },// private DistributionDTO duration;
+        eventType: '',// private String eventType;
         initialAmount: '', // Double initialAmount
         annualChange: {
             amountOrPercent: "AMOUNT",
@@ -57,11 +75,135 @@ function homePage(){
     function chooseMone() {
         return (
             <div>
+                {formData.startYear.distributionType === "FIXED" && (
+                    <input
+                        type="number"
+                        name="startYear.value"
+                        id="startYear.FIXED"
+                        placeholder="value"
+                        value={formData.startYear.value || ""}
+                        onChange={handleChange}
+                        required
+                    />
+                )}
+                {formData.startYear.distributionType === "UNIFORM" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="startYear.lower"
+                            id="startYear.LOWER"
+                            placeholder="Lower"
+                            value={formData.startYear.lower || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="startYear.upper"
+                            id="startYear.UPPER"
+                            placeholder="Upper"
+                            value={formData.startYear.upper || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+                {formData.startYear.distributionType === "NORMAL" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="startYear.mean"
+                            id="startYear.MEAN"
+                            placeholder="mean"
+                            value={formData.startYear.mean || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="startYear.stDev"
+                            id="startYear.STDEV"
+                            placeholder="standard deviation"
+                            value={formData.startYear.stDev || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    function chooseKone() {
+        return (
+            <div>
+                {formData.duration.distributionType === "FIXED" && (
+                    <input
+                        type="number"
+                        name="duration.value"
+                        id="duration.FIXED"
+                        placeholder="value"
+                        value={formData.duration.value || ""}
+                        onChange={handleChange}
+                        required
+                    />
+                )}
+                {formData.duration.distributionType === "UNIFORM" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="duration.lower"
+                            id="duration.LOWER"
+                            placeholder="Lower"
+                            value={formData.duration.lower || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="duration.upper"
+                            id="duration.UPPER"
+                            placeholder="Upper"
+                            value={formData.duration.upper || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+                {formData.duration.distributionType === "NORMAL" && (
+                    <div>
+                        <input
+                            type="number"
+                            name="duration.mean"
+                            id="duration.MEAN"
+                            placeholder="mean"
+                            value={formData.duration.mean || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="duration.stDev"
+                            id="duration.STDEV"
+                            placeholder="standard deviation"
+                            value={formData.duration.stDev || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    function chooseLone() {
+        return (
+            <div>
                 {formData.annualChange.distributionType === "FIXED" && (
                     <input
                         type="number"
                         name="annualChange.value"
-                        id="annualChangeFIXED"
+                        id="annualChange.FIXED"
                         placeholder="value"
                         value={formData.annualChange.value || ""}
                         onChange={handleChange}
@@ -73,7 +215,7 @@ function homePage(){
                         <input
                             type="number"
                             name="annualChange.lower"
-                            id="annualChangeLOWER"
+                            id="annualChange.LOWER"
                             placeholder="Lower"
                             value={formData.annualChange.lower || ""}
                             onChange={handleChange}
@@ -82,7 +224,7 @@ function homePage(){
                         <input
                             type="number"
                             name="annualChange.upper"
-                            id="annualChangeUPPER"
+                            id="annualChange.UPPER"
                             placeholder="Upper"
                             value={formData.annualChange.upper || ""}
                             onChange={handleChange}
@@ -95,7 +237,7 @@ function homePage(){
                         <input
                             type="number"
                             name="annualChange.mean"
-                            id="annualChangeMEAN"
+                            id="annualChange.MEAN"
                             placeholder="mean"
                             value={formData.annualChange.mean || ""}
                             onChange={handleChange}
@@ -104,7 +246,7 @@ function homePage(){
                         <input
                             type="number"
                             name="annualChange.stDev"
-                            id="annualChangeSTDEV"
+                            id="annualChange.STDEV"
                             placeholder="standard deviation"
                             value={formData.annualChange.stDev || ""}
                             onChange={handleChange}
@@ -119,37 +261,73 @@ function homePage(){
     function incomeManager(){
         return (<form onSubmit={handleSubmit} className="profileSetting">
             <div className="logoLetter" style={{color: 'black', fontSize: '5vh', marginTop: "30px"}} >Edit Income Information</div>
-            <div className="login">Event Name<label htmlFor="name"></label>
+            <div className="login"><label htmlFor="name">Name </label>
                 <input
                     type="text"
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Event Name"
+                    placeholder="Name"
                     required
                 /></div>
-            <div className="login"><label htmlFor="startYear">Start Year</label>
+            <div className="login"><label htmlFor="startYear.amountOrPercent">Start Year </label>
+                <select
+                    name="startYear.amountOrPercent"
+                    id="startYear.amountOrPercent"
+                    value={formData.startYear.amountOrPercent}
+                    onChange={handleChange} required>
+                    <option value = "AMOUNT">Amount</option>
+                    <option value = "PERCENT">Percent</option>
+                </select></div>
+            <div className="login"><label htmlFor="startYear.distributionType">Distribution Type </label>
+                <select name="startYear.distributionType" id="startYear.distributionType" value={formData.startYear.distributionType} onChange={handleChange} required>
+                    <option value = "FIXED">FIXED</option>
+                    <option value = "UNIFORM">UNIFORM</option>
+                    <option value = "NORMAL">NORMAL</option>
+                </select></div>
+            {chooseMone()}
+
+            <div className="login"><label htmlFor="duration.amountOrPercent">Duration: </label>
+                <select
+                    name="duration.amountOrPercent"
+                    id="duration.amountOrPercent"
+                    value={formData.duration.amountOrPercent}
+                    onChange={handleChange} required>
+                    <option value = "AMOUNT">Amount</option>
+                    <option value = "PERCENT">Percent</option>
+                </select></div>
+            <div className="login"><label htmlFor="duration.distributionType">Distribution Type </label>
+                <select name="duration.distributionType" id="duration.distributionType" value={formData.duration.distributionType} onChange={handleChange} required>
+                    <option value = "FIXED">FIXED</option>
+                    <option value = "UNIFORM">UNIFORM</option>
+                    <option value = "NORMAL">NORMAL</option>
+                </select></div>
+            {chooseKone()}
+
+            <div className="login"><label htmlFor="eventType">Event Type </label>
                 <input
-                    type="number"
-                    id="startYear"
-                    name="startYear"
-                    value={formData.startYear}
+                    type="text"
+                    id="eventType"
+                    name="eventType"
+                    value={formData.eventType}
                     onChange={handleChange}
-                    placeholder="start Year"
+                    placeholder="eventType"
                     required
                 /></div>
-            <div className="login">Initial Amount<label htmlFor="initialAmount"></label>
+
+            <div className="login"><label htmlFor="initialAmount">Initial Amount </label>
                 <input
                     type="number"
                     id="initialAmount"
                     name="initialAmount"
                     value={formData.initialAmount}
                     onChange={handleChange}
-                    placeholder="Initial Amount"
+                    placeholder="initialAmount"
                     required
                 /></div>
-            <div className="login"><label htmlFor="annualChange.amountOrPercent">Annual Year </label>
+
+            <div className="login"><label htmlFor="annualChange.amountOrPercent">Annual Change </label>
                 <select
                     name="annualChange.amountOrPercent"
                     id="annualChange.amountOrPercent"
@@ -158,18 +336,24 @@ function homePage(){
                     <option value = "AMOUNT">Amount</option>
                     <option value = "PERCENT">Percent</option>
                 </select></div>
-            <div className="login"><label htmlFor="annualChangedistributionType">Distribution Type </label>
-                <select name="annualChange.distributionType" id="annualChangedistributionType" value={formData.annualChange.distributionType} onChange={handleChange} required>
+            <div className="login"><label htmlFor="annualChange.distributionType">Distribution Type </label>
+                <select name="annualChange.distributionType" id="annualChange.distributionType" value={formData.annualChange.distributionType} onChange={handleChange} required>
                     <option value = "FIXED">FIXED</option>
                     <option value = "UNIFORM">UNIFORM</option>
                     <option value = "NORMAL">NORMAL</option>
                 </select></div>
-            {chooseMone()}
-            <div className="login"><label htmlFor="inflationAdjustment">InflationAdjustment</label>
-                <select name="inflationAdjustment" id="inflationAdjustment" value={formData.inflationAdjustment} onChange={handleChange} required>
-                    <option value = "Y">Yes</option>
-                    <option value = "N">No</option>
+            {chooseLone()}
+
+            <div className="login"><label htmlFor="inflationAdjustment">InflationAdjustment </label>
+                <select
+                    name="inflationAdjustment"
+                    id="inflationAdjustment"
+                    value={formData.inflationAdjustment}
+                    onChange={handleChange} required>
+                    <option value = "Y">Yes </option> {/*Cash -> YES or NO || S&P 500 -> YES || TAX-EXEMPT BONDS -> NO*/}
+                    <option value = "N">No </option>
                 </select></div>
+
             <div className="login"><label htmlFor="userPercentage">User Percentage </label>
                 <input
                     type="number"
@@ -181,6 +365,7 @@ function homePage(){
                     style={{width: "140px"}}
                     required
                 /></div>
+
             <div className="login"><label htmlFor="isSocialSecurity">Is SocialSecurity</label>
                 <select name="isSocialSecurity" id="isSocialSecurity" value={formData.isSocialSecurity} onChange={handleChange} required>
                     <option value = "Y">Yes</option>
@@ -207,17 +392,18 @@ function homePage(){
             }));
             return;
         }
-        if (name === "startYear") {
-            const currentYear = new Date().getFullYear();
-            const numericValue = parseInt(value, 10);
-            if (!isNaN(numericValue) && numericValue > currentYear) {
-                setFormData(prev => ({
-                    ...prev,
-                    [name]: currentYear,
-                }));
-                return;
-            }
-        }
+        // if (name === "startYear") {
+        //     const currentYear = new Date().getFullYear();
+        //     const numericValue = parseInt(value, 10);
+        //     if (!isNaN(numericValue) && numericValue > currentYear) {
+        //         setFormData(prev => ({
+        //             ...prev,
+        //             [name]: currentYear,
+        //         }));
+        //         return;
+        //     }
+        // }
+
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
             setFormData(prevState => ({
