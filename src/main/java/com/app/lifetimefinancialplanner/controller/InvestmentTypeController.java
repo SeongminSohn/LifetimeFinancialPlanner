@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/investment-types")
@@ -60,7 +59,7 @@ public class InvestmentTypeController {
             responseDto.setExpectedAnnualReturn(distributionService.convertEmbeddableToDTO(investmentType.getExpectedAnnualReturn()));
         }
         if (investmentType.getExpectedAnnualIncome() != null) {
-            responseDto.setExpectedAnnualReturn(distributionService.convertEmbeddableToDTO(investmentType.getExpectedAnnualIncome()));
+            responseDto.setExpectedAnnualIncome(distributionService.convertEmbeddableToDTO(investmentType.getExpectedAnnualIncome()));
         }
 
         return ResponseEntity.ok(responseDto);
@@ -103,7 +102,7 @@ public class InvestmentTypeController {
             responseDto.setExpectedAnnualReturn(distributionService.convertEmbeddableToDTO(updated.getExpectedAnnualReturn()));
         }
         if (updated.getExpectedAnnualIncome() != null) {
-            responseDto.setExpectedAnnualReturn(distributionService.convertEmbeddableToDTO(updated.getExpectedAnnualIncome()));
+            responseDto.setExpectedAnnualIncome(distributionService.convertEmbeddableToDTO(updated.getExpectedAnnualIncome()));
         }
 
         return ResponseEntity.ok(responseDto);
