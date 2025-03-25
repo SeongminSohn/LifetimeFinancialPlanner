@@ -9,7 +9,7 @@ public class InvestEventDTO {
     private String name;
     private DistributionDTO startYear;
     private DistributionDTO duration;
-    private String eventType;
+    private String eventType;                   // 'INCOME', 'EXPENSE', 'INVEST'
     private DistributionDTO assetAllocation;
     private Double maxCash;
 }

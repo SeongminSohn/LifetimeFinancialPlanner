@@ -1,6 +1,7 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import javax.persistence.*;
 
@@ -8,6 +9,7 @@ import javax.persistence.*;
 @Getter @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class InvestEvent {
     @Id
     @Column(name = "EVENT_SERIES_ID")

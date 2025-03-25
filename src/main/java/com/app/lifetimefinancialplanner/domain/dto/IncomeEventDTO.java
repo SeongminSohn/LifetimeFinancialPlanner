@@ -9,7 +9,7 @@ public class IncomeEventDTO {
     private String name;
     private DistributionDTO startYear;
     private DistributionDTO duration;
-    private String eventType;
+    private String eventType;               // 'INCOME', 'EXPENSE', 'INVEST'
     private Double initialAmount;
     private DistributionDTO annualChange;
     private String inflationAdjustment;     // 'Y' or 'N'

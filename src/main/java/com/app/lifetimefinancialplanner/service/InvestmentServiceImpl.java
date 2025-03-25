@@ -20,13 +20,16 @@ public class InvestmentServiceImpl implements InvestmentService {
 
     private final InvestmentRepository investmentRepository;
     private final InvestmentTypeRepository investmentTypeRepository;
+    private final ScenarioRepository scenarioRepository;
     private final DistributionService distributionService;
 
     public InvestmentServiceImpl(InvestmentRepository investmentRepository,
                                  InvestmentTypeRepository investmentTypeRepository,
+                                 ScenarioRepository scenarioRepository,
                                  DistributionService distributionService) {
         this.investmentRepository = investmentRepository;
         this.investmentTypeRepository = investmentTypeRepository;
+        this.scenarioRepository = scenarioRepository;
         this.distributionService = distributionService;
     }
 
@@ -36,10 +39,14 @@ public class InvestmentServiceImpl implements InvestmentService {
         InvestmentType investmentType = investmentTypeRepository.findById(dto.getInvestmentTypeId())
                 .orElseThrow(() -> new RuntimeException("InvestmentType not found with id: " + dto.getInvestmentTypeId()));
 
+        Scenario scenario = scenarioRepository.findById(dto.getScenarioId())
+                .orElseThrow(() -> new RuntimeException("Scenario not found with id: " + dto.getScenarioId()));
+
         Investment investment = Investment.builder()
                 .investmentType(investmentType)
                 .value(dto.getValue())
                 .taxStatus(dto.getTaxStatus())
+                .scenario(scenario)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -58,10 +65,18 @@ public class InvestmentServiceImpl implements InvestmentService {
         Investment existing = investmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Investment not found with id: " + id));
 
+        Scenario scenario = existing.getScenario();
+        if (dto.getScenarioId() != null && !dto.getScenarioId().equals(scenario.getId())) {
+            scenario = scenarioRepository.findById(dto.getScenarioId())
+                    .orElseThrow(() -> new RuntimeException("Scenario not found with id: " + dto.getScenarioId()));
+        }
+
         Investment updated = existing.toBuilder()
                 .value(dto.getValue() != null ? dto.getValue() : existing.getValue())
                 .taxStatus(dto.getTaxStatus() != null ? dto.getTaxStatus() : existing.getTaxStatus())
+                .scenario(scenario)
                 .build();
+
         return investmentRepository.save(updated);
     }
 

@@ -1,14 +1,14 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
 import com.app.lifetimefinancialplanner.domain.compositePk.ExpenseWithdrawalStrategyId;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity @Table(name = "TBL_EXPENSE_WITHDRAWAL_STRATEGY")
-@Data @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
 public class ExpenseWithdrawalStrategy {
 
     @EmbeddedId

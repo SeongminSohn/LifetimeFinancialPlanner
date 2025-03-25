@@ -1,12 +1,14 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import javax.persistence.*;
 
 @Entity @Table(name = "TBL_INCOME_EVENT")
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class IncomeEvent {
     @Id
     @Column(name = "EVENT_SERIES_ID")

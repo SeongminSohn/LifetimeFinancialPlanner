@@ -1,9 +1,7 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -12,6 +10,8 @@ import java.time.LocalDateTime;
 @Entity @Table(name = "TBL_STRATEGY")
 @SequenceGenerator(name = "SEQ_STRATEGY_GENERATOR", sequenceName = "SEQ_STRATEGY", allocationSize = 1)
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Strategy {
     @Id
     @GeneratedValue(generator = "SEQ_STRATEGY_GENERATOR")

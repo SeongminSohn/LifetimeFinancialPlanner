@@ -36,7 +36,7 @@ public class InvestmentController {
     })
     public ResponseEntity<Investment> createInvestment(@RequestBody InvestmentDTO investmentDTO) {
         Investment created = investmentService.createInvestment(investmentDTO);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+        return ResponseEntity.ok(created);
     }
 
     @GetMapping("/{id}")

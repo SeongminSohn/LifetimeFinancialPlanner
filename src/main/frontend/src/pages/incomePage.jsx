@@ -61,11 +61,12 @@ function homePage(){
 
     async function handleSubmit(event) {
         event.preventDefault();
-        formData.scenarioId = localStorage.getItem("token")
+        formData.scenarioId = localStorage.getItem("scenario")
         console.log(formData)
         try {
             const response = await axios.post("http://localhost:10000/api/income-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Scenario ID:", response.data);
+            toExpense()
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
