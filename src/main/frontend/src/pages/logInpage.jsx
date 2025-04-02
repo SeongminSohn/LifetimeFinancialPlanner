@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import './common.css';
 import {useEffect} from "react";
 import axios from "axios";
-import profileImage from '/public/back.jpg';
+// import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
 
 
 function loginPage(){
-    
+
 
     // const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
