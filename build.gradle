@@ -2,6 +2,26 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.16'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'jacoco'                     // Coverage Test plugin
+}
+
+jacoco {
+    toolVersion = "0.8.8"           // JaCoCo Version
+}
+
+tasks.test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport     // Automatically create Coverage Report after Test
+}
+
+// Find the report in build/reports/jacoco/test/html/index.html
+jacocoTestReport {
+    dependsOn test                   // Create report after test
+    reports {
+        xml.required = true
+        html.required = true        // Create Report in HTML format inside the folder
+        csv.required = false
+    }
 }
 
 group = 'com.app'
