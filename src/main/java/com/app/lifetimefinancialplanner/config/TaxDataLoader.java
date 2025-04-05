@@ -24,7 +24,7 @@ public class TaxDataLoader {
     @PostConstruct
     public void init() throws IOException {
         // Load the YAML files from resources
-        ClassPathResource federalResource = new ClassPathResource("static/taxBracket2025.yaml");
+        ClassPathResource federalResource = new ClassPathResource("static/federalTaxBracket2025.yaml");
         federalTaxDTO = yamlMapper.readValue(federalResource.getInputStream(), FederalTaxDTO.class);
 
         ClassPathResource stateResource = new ClassPathResource("static/stateTaxBracket2025.yaml");

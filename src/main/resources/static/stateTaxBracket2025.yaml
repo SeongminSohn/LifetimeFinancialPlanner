@@ -1,54 +1,150 @@
 stateBrackets:
   NY:
     SINGLE:
-      - rate: 0.04
-      - rate: 0.045
-      - rate: 0.0525
-      - rate: 0.06
+      - min: 0
+        max: 8500
+        rate: 0.04
+      - min: 8500
+        max: 11700
+        rate: 0.045
+      - min: 11700
+        max: 13900
+        rate: 0.0525
+      - min: 13900
+        max: 21400
+        rate: 0.0590
+      - min: 21400
+        max: 80650
+        rate: 0.0597
+      - min: 80650
+        max: 215400
+        rate: 0.0633
+      - min: 215400
+        max: 1077550
+        rate: 0.0657
+      - min: 1077550
+        max: null
+        rate: 0.0685
     MARRIED_JOINT:
-      - rate: 0.04
-      - rate: 0.045
-      - rate: 0.0525
-      - rate: 0.06
-    StandardDeduction:
-      SINGLE: 8000
-      MARRIED_JOINT: 16000
-    PersonalExemption:
-      SINGLE: "n.a."
-      MARRIED_JOINT: "n.a."
+      - min: 0
+        max: 17150
+        rate: 0.04
+      - min: 17150
+        max: 23600
+        rate: 0.045
+      - min: 23600
+        max: 27900
+        rate: 0.0525
+      - min: 27900
+        max: 43000
+        rate: 0.0590
+      - min: 43000
+        max: 161550
+        rate: 0.0597
+      - min: 161550
+        max: 323200
+        rate: 0.0633
+      - min: 323200
+        max: 2155350
+        rate: 0.0657
+      - min: 2155350
+        max: null
+        rate: 0.0685
 
   NJ:
     SINGLE:
-      - rate: 0.014
-      - rate: 0.0175
-      - rate: 0.035
-      - rate: 0.05525
+      - min: 0
+        max: 10000
+        rate: 0.014
+      - min: 10000
+        max: 20000
+        rate: 0.0175
+      - min: 20000
+        max: 50000
+        rate: 0.035
+      - min: 50000
+        max: 75000
+        rate: 0.05525
+      - min: 75000
+        max: 500000
+        rate: 0.0637
+      - min: 500000
+        max: 5000000
+        rate: 0.0897
+      - min: 5000000
+        max: null
+        rate: 0.1075
     MARRIED_JOINT:
-      - rate: 0.014
-      - rate: 0.0175
-      - rate: 0.0245
-      - rate: 0.035
-    StandardDeduction:
-      SINGLE: "n.a."
-      MARRIED_JOINT: "n.a."
-    PersonalExemption:
-      SINGLE: 1000
-      MARRIED_JOINT: 1000
+      - min: 0
+        max: 20000
+        rate: 0.014
+      - min: 20000
+        max: 40000
+        rate: 0.0175
+      - min: 40000
+        max: 80000
+        rate: 0.0245
+      - min: 80000
+        max: 150000
+        rate: 0.035
+      - min: 150000
+        max: 750000
+        rate: 0.0637
+      - min: 750000
+        max: 7500000
+        rate: 0.0897
+      - min: 7500000
+        max: null
+        rate: 0.1075
 
   CT:
     SINGLE:
-      - rate: 0.03
-      - rate: 0.05
-      - rate: 0.055
-      - rate: 0.06
+      - min: 0
+        max: 15000
+        rate: 0.03
+      - min: 15000
+        max: 30000
+        rate: 0.05
+      - min: 30000
+        max: 50000
+        rate: 0.055
+      - min: 50000
+        max: 100000
+        rate: 0.06
+      - min: 100000
+        max: 200000
+        rate: 0.065
+      - min: 200000
+        max: 250000
+        rate: 0.069
+      - min: 250000
+        max: 500000
+        rate: 0.0699
+      - min: 500000
+        max: null
+        rate: 0.0699
     MARRIED_JOINT:
-      - rate: 0.03
-      - rate: 0.05
-      - rate: 0.055
-      - rate: 0.06
-    StandardDeduction:
-      SINGLE: 0
-      MARRIED_JOINT: 0
-    PersonalExemption:
-      SINGLE: 15000
-      MARRIED_JOINT: 15000
+      - min: 0
+        max: 30000
+        rate: 0.03
+      - min: 30000
+        max: 60000
+        rate: 0.05
+      - min: 60000
+        max: 90000
+        rate: 0.055
+      - min: 90000
+        max: 180000
+        rate: 0.06
+      - min: 180000
+        max: 250000
+        rate: 0.065
+      - min: 250000
+        max: 500000
+        rate: 0.069
+      - min: 500000
+        max: 750000
+        rate: 0.0699
+      - min: 750000
+        max: null
+        rate: 0.0699
