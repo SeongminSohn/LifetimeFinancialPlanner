@@ -32,5 +32,6 @@ public class Chart {
 
     @CreationTimestamp
     @Column(name = "ins_date")
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 }

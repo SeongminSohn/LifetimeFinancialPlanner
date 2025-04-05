@@ -25,7 +25,7 @@ public class ScenarioServiceImpl implements ScenarioService {
 
     @Override
     public Scenario createScenario(ScenarioDTO scenarioDTO) {
-        // Retrieve the currently logged-in user from HttpSession
+        // Retrieve the currently logged-in user
         if (scenarioDTO.getUserId() == null) {
             throw new RuntimeException("User not logged in");
         }
@@ -55,7 +55,7 @@ public class ScenarioServiceImpl implements ScenarioService {
                 .name(scenarioDTO.getName())
                 .maritalStatus(scenarioDTO.getMaritalStatus())
                 .birthYearUser(scenarioDTO.getBirthYearUser())
-                .birthYearSpouse(scenarioDTO.getBirthYearSpouse())
+                .birthYearSpouse(birthYearSpouse)
                 .lifeExpectancyUser(lifeExpUser)
                 .lifeExpectancySpouse(lifeExpSpouse)
                 .financialGoal(scenarioDTO.getFinancialGoal())
