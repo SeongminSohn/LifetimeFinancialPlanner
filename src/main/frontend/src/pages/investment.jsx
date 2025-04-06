@@ -193,6 +193,35 @@ function Investment() {
         );
     }
 
+    async function deleteButton(investmentTypeId) {
+        const existingRecord = existingInvestments.find(
+            item => item.investmentTypeId === investmentTypeId
+        );
+        if (!existingRecord) {
+            alert("Did not Exist");
+            return;
+        }
+
+        try {
+            const response = await axios.delete(
+                `http://localhost:10000/api/investments/${existingRecord.id}`,
+                { withCredentials: true }
+            );
+            console.log("Deleted investment:", response.data);
+            setExistingInvestments(prev =>
+                prev.filter(item => item.id !== existingRecord.id)
+            );
+            setInvestmentTypes(prev =>
+                prev.filter(item => item.id !== investmentTypeId)
+            );
+        } catch (error) {
+            console.error("Error deleting investment:", error);
+            alert("Fail to Delete");
+        }
+    }
+
+
+
     function investEvents() {
         return (
             <div className="profileSetting">
@@ -207,20 +236,28 @@ function Investment() {
                                 type="button"
                                 id={`name-${index}`}
                                 name="name"
-                                onClick={() => handleButtonClick(item)}>
+                                onClick={() => handleButtonClick(item)}
+                            >
                                 {item.name}
+                            </button>
+                            <button
+                                type="button"
+                                style={{ backgroundColor: "Black", color: "White" }}
+                                onClick={() => deleteButton(item.id)}
+                            >
+                                X
                             </button>
                         </div>
                     </form>
                 ))}
                 {selectedInvestment && investmentSetting()}
                 <div>
-                    <button onClick={toInvestEvent}
-                            disabled={(existingInvestments.length > 0 && existingInvestments.every(item => item.value === null))}>Save</button>
+                    <button onClick={toInvestEvent}>Save</button>
                 </div>
             </div>
         );
     }
+
 
     return (
         <div className="total">

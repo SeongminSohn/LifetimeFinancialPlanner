@@ -14,10 +14,28 @@ function InvestEventPage() {
         id: "",
         scenarioId: "", //private Long scenarioId;
         name: "", //private String name;
-        startYear: "", //private DistributionDTO startYear;
-        duration: "", // private DistributionDTO duration;
+        startYear: {
+            amountOrPercent: "AMOUNT",
+            distributionType: "FIXED",
+            value: null,
+            lower: null,
+            upper: null,
+            mean: null,
+            stDev: null
+        }, //private DistributionDTO startYear;
+        duration: {
+            amountOrPercent: "AMOUNT",
+            distributionType: "FIXED",
+            value: null,
+            lower: null,
+            upper: null,
+            mean: null,
+            stDev: null
+        }, // private DistributionDTO duration;
         eventType: "", //private String eventType;                   // 'INCOME', 'EXPENSE', 'INVEST'
-        assetAllocation: "", //private DistributionDTO assetAllocation;
+        assetAllocation: {
+
+        }, //private DistributionDTO assetAllocation;
         maxCash: "" //private Double maxCash;
     });
 
@@ -33,15 +51,16 @@ function InvestEventPage() {
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
-            axios.get(`http://localhost:10000/api/invest-events/${scenarioId}`)
+            axios.get(`http://localhost:10000/api/investments/scenario/${scenarioId}`)
                 .then(response => {
-                    console.log("Existing Investments:", response.data);
                     setExistingInvestments(response.data);
+                    console.log("This data is from investments: ", response.data);
                 })
                 .catch(error => {
                     console.error("Error fetching investments:", error);
                 });
         }
+
     }, []);
 
     useEffect(() => {
@@ -49,13 +68,14 @@ function InvestEventPage() {
         if (scenarioId) {
             axios.get(`http://localhost:10000/api/investment-types/scenario/${scenarioId}`)
                 .then(response => {
-                    console.log("Investment Types:", response.data);
                     setInvestmentTypes(response.data);
+                    console.log("This data is from investmnet type: ", response.data);
                 })
                 .catch(error => {
                     console.error("Error fetching investment types:", error);
                 });
         }
+
     }, []);
 
     const popupMenu = () => {
