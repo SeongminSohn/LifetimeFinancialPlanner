@@ -10,38 +10,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Setter
-@Getter
+@Getter @Setter
 public class StateTaxDTO {
     // "stateBrackets": { "NY": {"SINGLE": [...], "MARRIED_JOINT": [...]}, "NJ": {...} }
     private Map<String, StateTaxData> stateBrackets;
 
-    @Getter
-    @Setter
+    @Getter @Setter
     public static class StateTaxData {
-        // List of tax brackets by filing status
+        // Map of filing status to list of tax brackets.
         private Map<String, List<TaxBracketDTO>> brackets = new HashMap<>();
-        // Standard deduction by filing status (SINGLE or MARRIED_JOINT)
-        private Map<String, Object> standardDeduction;
-        // Personal exemption by filing status
-        private Map<String, Object> personalExemption;
 
+        // Citation: GPT helped me how to parse the state tax bracket
         @JsonAnySetter
         public void handleUnknown(String key, Object value) {
-            if ("StandardDeduction".equalsIgnoreCase(key)) {
-                if (value instanceof Map) {
-                    standardDeduction = (Map<String, Object>) value;
-                }
-            } else if ("PersonalExemption".equalsIgnoreCase(key)) {
-                if (value instanceof Map) {
-                    personalExemption = (Map<String, Object>) value;
-                }
-            } else {
-                // For any other key (e.g., "SINGLE", "MARRIED_JOINT"), treat as tax bracket list.
-                ObjectMapper mapper = new ObjectMapper();
-                List<TaxBracketDTO> list = mapper.convertValue(value, new TypeReference<List<TaxBracketDTO>>() {});
-                brackets.put(key, list);
-            }
+            // For keys like "SINGLE" or "MARRIED_JOINT", treat as tax bracket list.
+            ObjectMapper mapper = new ObjectMapper();
+            List<TaxBracketDTO> list = mapper.convertValue(value, new TypeReference<List<TaxBracketDTO>>() {});
+            brackets.put(key, list);
         }
     }
 }
