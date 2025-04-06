@@ -3,7 +3,7 @@ import './common.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function Investment() {
+function InvestEventPage() {
     const [investmentTypes, setInvestmentTypes] = useState([]);
     const [existingInvestments, setExistingInvestments] = useState([]);
     const [selectedInvestment, setSelectedInvestment] = useState(null);
@@ -11,10 +11,14 @@ function Investment() {
     const [openSide, setSide] = useState(false);
 
     const [formData, setFormData] = useState({
-        id: '',
-        investmentTypeId: '',
-        value: '',
-        taxStatus: 'NON-RETIREMENT',
+        id: "",
+        scenarioId: "", //private Long scenarioId;
+        name: "", //private String name;
+        startYear: "", //private DistributionDTO startYear;
+        duration: "", // private DistributionDTO duration;
+        eventType: "", //private String eventType;                   // 'INCOME', 'EXPENSE', 'INVEST'
+        assetAllocation: "", //private DistributionDTO assetAllocation;
+        maxCash: "" //private Double maxCash;
     });
 
     const navPage = useNavigate();
@@ -29,7 +33,7 @@ function Investment() {
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
-            axios.get(`http://localhost:10000/api/investments/scenario/${scenarioId}`)
+            axios.get(`http://localhost:10000/api/invest-events/${scenarioId}`)
                 .then(response => {
                     console.log("Existing Investments:", response.data);
                     setExistingInvestments(response.data);
@@ -193,11 +197,11 @@ function Investment() {
         );
     }
 
-    function investEvents() {
+    function investmentPage() {
         return (
             <div className="profileSetting">
                 <p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px" }}>
-                    Investments
+                    Invest Events
                 </p>
                 {investmentTypes.map((item, index) => (
                     <form key={item.id || index} className="investment-form">
@@ -238,9 +242,9 @@ function Investment() {
                     </button>
                 )}
             </nav>
-            {investEvents()}
+            {investmentPage()}
         </div>
     );
 }
 
-export default Investment;
+export default InvestEventPage;
