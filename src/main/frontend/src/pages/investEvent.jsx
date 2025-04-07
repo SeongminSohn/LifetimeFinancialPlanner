@@ -9,7 +9,6 @@ function InvestEventPage() {
     const [selectedInvestment, setSelectedInvestment] = useState(null);
     const [loggedIn, setLoggedIn] = useState(false);
     const [openSide, setSide] = useState(false);
-
     const [formData, setFormData] = useState({
         id: "",
         scenarioId: "", //private Long scenarioId;
@@ -38,7 +37,6 @@ function InvestEventPage() {
         }, //private DistributionDTO assetAllocation;
         maxCash: "" //private Double maxCash;
     });
-
     const navPage = useNavigate();
 
     useEffect(() => {
@@ -94,7 +92,6 @@ function InvestEventPage() {
             </aside>
         );
     }
-
     function toIncome() {
         navPage('/IncomePage');
     }
@@ -223,8 +220,7 @@ function InvestEventPage() {
                 <p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px" }}>
                     Invest Events
                 </p>
-                {investmentTypes.map((item, index) => (
-                    <form key={item.id || index} className="investment-form">
+                {investmentTypes.map((item, index) => (<form key={item.id || index} className="investment-form">
                         <div className="login">
                             <label htmlFor={`name-${index}`}>Name:</label>
                             <button
@@ -235,19 +231,16 @@ function InvestEventPage() {
                                 {item.name}
                             </button>
                         </div>
-                    </form>
-                ))}
+                    </form>))}
                 {selectedInvestment && investmentSetting()}
                 <div>
-                    <button onClick={toInvestEvent}
-                            disabled={(existingInvestments.length > 0 && existingInvestments.every(item => item.value === null))}>Save</button>
+                    <button onClick={toInvestEvent}>Save</button>
                 </div>
             </div>
         );
     }
 
-    return (
-        <div className="total">
+    return (<div className="total">
             <nav className="navBarTop">
                 <img onClick={toHome} src="/public/caffeineOverloadLogo.png" alt="logo" className="logoSize" />
                 <p className="logoLetter">Life Time Financial Planner</p>
