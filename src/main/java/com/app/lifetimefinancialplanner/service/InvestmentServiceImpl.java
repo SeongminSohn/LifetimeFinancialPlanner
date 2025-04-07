@@ -21,16 +21,17 @@ public class InvestmentServiceImpl implements InvestmentService {
     private final InvestmentRepository investmentRepository;
     private final InvestmentTypeRepository investmentTypeRepository;
     private final ScenarioRepository scenarioRepository;
-    private final DistributionService distributionService;
+//    private final DistributionService distributionService;
 
     public InvestmentServiceImpl(InvestmentRepository investmentRepository,
                                  InvestmentTypeRepository investmentTypeRepository,
-                                 ScenarioRepository scenarioRepository,
-                                 DistributionService distributionService) {
+                                 ScenarioRepository scenarioRepository
+//                               , DistributionService distributionService
+    ) {
         this.investmentRepository = investmentRepository;
         this.investmentTypeRepository = investmentTypeRepository;
         this.scenarioRepository = scenarioRepository;
-        this.distributionService = distributionService;
+//        this.distributionService = distributionService;
     }
 
     @Override
