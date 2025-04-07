@@ -3,60 +3,80 @@ import './common.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function ExpenseWithdrawlPage(){
+function ExpenseWithdrawlPage() {
     const [investmentTypes, setInvestmentTypes] = useState([]);
     const [existingInvestments, setExistingInvestments] = useState([]);
     const [selectedInvestment, setSelectedInvestment] = useState(null);
     const [loggedIn, setLoggedIn] = useState(false);
     const [openSide, setSide] = useState(false);
     const [formData, setFormData] = useState({
-        id: '',//private Long id;
-        scenarioId: '',//private Long scenarioId;
-        sellingOrder: ''//private String sellingOrder;
+        scenarioId: '',
+        sellingOrder: ""
     });
-    const navPage = useNavigate();
     const [clickedItems, setClickedItems] = useState([]);
+    const navPage = useNavigate();
 
-
-    // Check Log in or not
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
             setLoggedIn(true);
         }
     }, []);
-    // Get the data from Investment
+
+    async function postArray() {
+        console.log("FormData length: ", clickedItems.length);
+        if(clickedItems.length < existingInvestments.length){
+            alert("Put all elements into the array!")
+            return;
+        }
+        const scenarioId = localStorage.getItem("scenario");
+        const updatedFormData = {
+            ...formData,
+            scenarioId: scenarioId,
+            sellingOrder: JSON.stringify(clickedItems.map(item => item.label))
+        };
+
+        try {
+            const response = await axios.post(
+                "http://localhost:10000/api/expense-withdrawal-strategies",
+                updatedFormData,
+                { withCredentials: true, headers: { "Content-Type": "application/json" } }
+            );
+            console.log("Expense withdrawal strategy saved:", response.data);
+        } catch (error) {
+            console.error("Error saving expense withdrawal strategy:", error);
+        }
+    }
+
+
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
             axios.get(`http://localhost:10000/api/investments/scenario/${scenarioId}`)
                 .then(response => {
                     setExistingInvestments(response.data);
-                    console.log("This data is from investments: ", response.data);
                 })
                 .catch(error => {
                     console.error("Error fetching investments:", error);
                 });
         }
-
     }, []);
-    // Get data from Invest-type
+
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
             axios.get(`http://localhost:10000/api/investment-types/scenario/${scenarioId}`)
                 .then(response => {
                     setInvestmentTypes(response.data);
-                    console.log("This data is from investmnet type: ", response.data);
                 })
                 .catch(error => {
                     console.error("Error fetching investment types:", error);
                 });
         }
-
     }, []);
+
     useEffect(() => {
-        console.log("In the Array: ", clickedItems);
+        console.log("clickedItems updated:", clickedItems);
     }, [clickedItems]);
 
     const popupMenu = () => {
@@ -75,6 +95,7 @@ function ExpenseWithdrawlPage(){
             </aside>
         );
     }
+
     function toIncome() {
         navPage('/IncomePage');
     }
@@ -93,14 +114,13 @@ function ExpenseWithdrawlPage(){
     function toProfile() {
         navPage('/Profset');
     }
-    function toInvestEvent(){
-        navPage("/InvestEvent")
+    function toInvestEvent() {
+        navPage('/InvestEvent');
     }
+
     function handleButtonClick(item) {
         setSelectedInvestment(item);
-        const savedRecord = existingInvestments.find(
-            inv => inv.investmentTypeId === item.id
-        );
+        const savedRecord = existingInvestments.find(inv => inv.investmentTypeId === item.id);
         if (savedRecord) {
             setFormData({
                 id: savedRecord.id,
@@ -117,72 +137,67 @@ function ExpenseWithdrawlPage(){
             });
         }
     }
-    function toggleClickedItem(item, index) {
+
+    const toggleClickedItem = (item) => {
         const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
         if (!matchedType) return;
-        const combinedString = `${matchedType.name} ${item.taxStatus} (${index})`;
+        const label = `${matchedType.name} ${item.taxStatus}`;
         setClickedItems(prev => {
-            if (prev.includes(combinedString)) {
-                return prev.filter(str => str !== combinedString);
+            if (prev.some(obj => obj.id === item.id)) {
+                return prev.filter(obj => obj.id !== item.id);
             } else {
-                return [...prev, combinedString];}
+                return [...prev, { id: item.id, label }];
+            }
         });
     };
 
 
     const renderClickedItems = () => (
-        <div className="total" style={{ marginTop: '20px' }}>
-            <p>Orders: </p>
-            {clickedItems.map((item, idx) => (
-                <button
-                    key={idx}
-                    onClick={() => setClickedItems(prev => prev.filter((_, i) => i !== idx))}
-                    style={{ marginRight: '5px' }}>
-                    {item}</button>
+        <div className="forOrdering">
+            <p>Orders : </p>
+            {clickedItems.map(obj => (
+                <div className="arrays" key={obj.id}>{obj.label}</div>
             ))}
         </div>
     );
 
-
-    function expenseComponents(){
-        return (<div className="profileSetting">
+    function expenseComponents() {
+        return (
+            <div className="profileSetting">
                 <p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px" }}>
                     Expense WithDrawl. Choose Order.
-                </p>{existingInvestments.map((item, index) => (
-                <form key={item.investmentTypeId || index} className="investment-form">
-                    <div className="login">
-                        <label htmlFor={`name-${index}`}>Status</label>
-                        <button
-                            type="button"
-                            id={`name-${index}`}
-                            name="name"
-                            onClick={() => handleButtonClick(item)}>
-                            {(() => {const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
-                                return matchedType ? <span>{matchedType.name}</span> : null;
-                            })()}
-                            {item.taxStatus}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => toggleClickedItem(item, index)}
-                        >
-                            {index}
-                        </button>
-                    </div>
-                </form>
-            ))}
-
-
-                {selectedInvestment && investmentSetting()}
+                </p>
+                {existingInvestments.map((item, index) => (
+                    <form key={item.investmentTypeId || index} className="investment-form">
+                        <div className="login">
+                            <label htmlFor={`name-${index}`}>Status</label>
+                            <button
+                                type="button"
+                                id={`name-${index}`}
+                                name="name"
+                                onClick={() => handleButtonClick(item)}
+                            >
+                                {(() => {
+                                    const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
+                                    return matchedType ? <span>{matchedType.name}</span> : null;
+                                })()}
+                                {item.taxStatus}
+                            </button>
+                            <button type="button" onClick={() => toggleClickedItem(item)}>Add or Remove</button>
+                        </div>
+                    </form>
+                ))}
+                {selectedInvestment && null}
                 <div>
-                    <button onClick={toInvestEvent}>Save</button>
+                    <button onClick={postArray}>Save</button>
                 </div>
                 {renderClickedItems()}
             </div>
         );
     }
 
-    return (<div className="total">
+    return (
+        <div className="total">
             <nav className="navBarTop">
                 <img onClick={toHome} src="/public/caffeineOverloadLogo.png" alt="logo" className="logoSize" />
                 <p className="logoLetter">Life Time Financial Planner</p>
@@ -192,11 +207,12 @@ function ExpenseWithdrawlPage(){
                 <button className="commonButton" onClick={popupMenu}>Menu</button>
                 {sideElements()}
                 {loggedIn && (
-                    <button className="commonButton" onClick={toProfile}>Scenario Setting
-                    </button>
+                    <button className="commonButton" onClick={toProfile}>Scenario Setting</button>
                 )}
             </nav>
             {expenseComponents()}
-        </div>);
+        </div>
+    );
 }
-export default ExpenseWithdrawlPage
+
+export default ExpenseWithdrawlPage;
