@@ -1,11 +1,13 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
+import com.app.lifetimefinancialplanner.domain.converter.StringListConverter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity @Table(name = "TBL_EXPENSE_WITHDRAWAL_STRATEGY")
 @Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,9 +22,9 @@ public class ExpenseWithdrawalStrategy {
     @Column(name = "SCENARIO_ID", nullable = false)
     private Long scenarioId;
 
-    // Field to store the ordered list of investment IDs as a JSON array string
-    @Column(name = "SELLING_ORDER", columnDefinition = "TEXT", nullable = false)
-    private String sellingOrder;
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "selling_order", columnDefinition = "CLOB", nullable = false)
+    private List<String> sellingOrder;
 
     @CreationTimestamp
     @Column(name = "ins_date")

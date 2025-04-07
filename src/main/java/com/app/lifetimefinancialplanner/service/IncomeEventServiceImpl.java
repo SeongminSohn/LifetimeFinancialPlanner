@@ -1,8 +1,5 @@
 package com.app.lifetimefinancialplanner.service;
 
-import com.app.lifetimefinancialplanner.domain.dto.DistributionDTO;
-import com.app.lifetimefinancialplanner.domain.dto.ScenarioDTO;
-import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.EventSeries;
 import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.dto.IncomeEventDTO;
@@ -148,13 +145,17 @@ public class IncomeEventServiceImpl implements IncomeEventService {
                 })
                 .collect(Collectors.toList());
     }
+
     @Override
     @Transactional
     public void runIncomeEvents(IncomeEventDTO incomeEventDTO, int currentYear, double inflationRate) {
-        Scenario scenario = scenarioRepository.findById(incomeEventDTO.getScenarioId()).orElseThrow(() -> new IllegalArgumentException("Scenario not found with id: " + incomeEventDTO.getScenarioId()));
+
+        Scenario scenario = scenarioRepository.findById(incomeEventDTO.getScenarioId())
+                .orElseThrow(() -> new IllegalArgumentException("Scenario not found with id: " + incomeEventDTO.getScenarioId()));
         double startYear = incomeEventDTO.getStartYear().getValue();
         double duration = incomeEventDTO.getDuration().getValue();
         double endYear = startYear + duration;
+
         if (currentYear < startYear || currentYear >= endYear){
             double prevAmount = incomeEventDTO.getInitialAmount();
             double annualChange = incomeEventDTO.getAnnualChange().getValue();
