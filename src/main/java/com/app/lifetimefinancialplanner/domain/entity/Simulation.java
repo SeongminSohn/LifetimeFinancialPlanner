@@ -2,6 +2,7 @@ package com.app.lifetimefinancialplanner.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -21,9 +22,15 @@ public class Simulation {
     @JoinColumn(name = "SCENARIO_ID", nullable = false)
     private Scenario scenario;
 
-    @Column(name = "SIMULATION_DATE", nullable = false)
-    private LocalDate simulationDate;
+    @Column(name = "SIMULATION_COUNT", nullable = false)
+    private Integer simulationCount;
 
+    // Final simulation result (success / failure)
     @Column(length = 100, nullable = false)
     private String result;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false)
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
