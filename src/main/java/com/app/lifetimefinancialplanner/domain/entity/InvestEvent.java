@@ -1,9 +1,11 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
+import com.app.lifetimefinancialplanner.domain.embeddable.AllocationEmbeddable;
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import javax.persistence.*;
+import java.util.List;
 
 @Entity @Table(name = "TBL_INVEST_EVENT")
 @Getter @ToString
@@ -15,17 +17,10 @@ public class InvestEvent {
     @Column(name = "EVENT_SERIES_ID")
     private Long eventSeriesId;
 
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "amountOrPercent", column = @Column(name = "ASSET_ALLOCATION_AMOUNT_OR_PERCENT", nullable = false)),
-            @AttributeOverride(name = "distributionType", column = @Column(name = "ASSET_ALLOCATION_DISTRIBUTION_TYPE", nullable = false)),
-            @AttributeOverride(name = "value", column = @Column(name = "ASSET_ALLOCATION_VALUE")),
-            @AttributeOverride(name = "lower", column = @Column(name = "ASSET_ALLOCATION_LOWER")),
-            @AttributeOverride(name = "upper", column = @Column(name = "ASSET_ALLOCATION_UPPER")),
-            @AttributeOverride(name = "mean", column = @Column(name = "ASSET_ALLOCATION_MEAN")),
-            @AttributeOverride(name = "stDev", column = @Column(name = "ASSET_ALLOCATION_STDDEV"))
-    })
-    private DistributionEmbeddable assetAllocation;
+    // GPT helped me how to use List as a data type
+    @ElementCollection
+    @CollectionTable(name = "TBL_INVEST_EVENT_ALLOCATION", joinColumns = @JoinColumn(name = "EVENT_SERIES_ID"))
+    private List<AllocationEmbeddable> assetAllocations;
 
     @Column(name = "MAX_CASH", nullable = false)
     private Double maxCash;
@@ -34,6 +29,10 @@ public class InvestEvent {
     @MapsId
     @JoinColumn(name = "EVENT_SERIES_ID")
     private EventSeries eventSeries;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "INVESTMENT_ID", nullable = false)
+    private Investment investment;
 
     @PrePersist
     private void onPrePersist() {
