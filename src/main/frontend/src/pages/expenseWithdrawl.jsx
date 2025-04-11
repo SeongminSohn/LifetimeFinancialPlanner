@@ -25,28 +25,38 @@ function ExpenseWithdrawlPage() {
 
     async function postArray() {
         console.log("FormData length: ", clickedItems.length);
-        if(clickedItems.length < existingInvestments.length){
-            alert("Put all elements into the array!")
+        if (clickedItems.length < existingInvestments.length) {
+            alert("Put all elements into the array!");
             return;
         }
         const scenarioId = localStorage.getItem("scenario");
         const updatedFormData = {
             ...formData,
             scenarioId: scenarioId,
-            sellingOrder: clickedItems.map(item => item.label)
+            sellingOrder: clickedItems
         };
-        console.log(updatedFormData)
+        console.log(updatedFormData);
         try {
-            const response = await axios.post(
-                "http://localhost:10000/api/expense-withdrawal-strategies",
-                updatedFormData,
-                { withCredentials: true, headers: { "Content-Type": "application/json" } }
-            );
-            console.log("Expense withdrawal strategy saved:", response.data);
+            if (updatedFormData.id) {
+                const response = await axios.put(
+                    `http://localhost:10000/api/expense-withdrawal-strategies/${updatedFormData.id}`,
+                    updatedFormData,
+                    { withCredentials: true, headers: { "Content-Type": "application/json" } }
+                );
+                console.log("Updated Investment:", response.data);
+            } else {
+                const response = await axios.post(
+                    "http://localhost:10000/api/expense-withdrawal-strategies",
+                    updatedFormData,
+                    { withCredentials: true, headers: { "Content-Type": "application/json" } }
+                );
+                console.log("Expense withdrawal strategy saved:", response.data);
+            }
         } catch (error) {
             console.error("Error saving expense withdrawal strategy:", error);
         }
     }
+
 
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
@@ -90,6 +100,22 @@ function ExpenseWithdrawlPage() {
     useEffect(() => {
         console.log("clickedItems updated:", clickedItems);
     }, [clickedItems]);
+
+    useEffect(() => {
+        const scenarioId = localStorage.getItem("scenario");
+        if (scenarioId) {
+            axios.get(`http://localhost:10000/api/expense-withdrawal-strategies/1`)
+                .then(response => {
+                    setFormData(response.data);
+                    console.log("This is Expense-withDrawlData: ", response.data)
+                    console.log("TEST: ", response.data.sellingOrder)
+                    setClickedItems(response.data.sellingOrder)
+                })
+                .catch(error => {
+                    console.error("Error fetching expense-withdrawl-strategies:", error);
+                });
+        }
+    }, []);
 
     const popupMenu = () => {
         setSide(prev => !prev);
@@ -159,23 +185,25 @@ function ExpenseWithdrawlPage() {
         if (!matchedType) return;
         const label = `${matchedType.name} ${item.taxStatus}`;
         setClickedItems(prev => {
-            if (prev.some(obj => obj.id === item.id)) {
-                return prev.filter(obj => obj.id !== item.id);
+            if (prev.includes(label)) {
+                return prev.filter(currentLabel => currentLabel !== label);
             } else {
-                return [...prev, { id: item.id, label }];
+                return [...prev, label];
             }
         });
     };
 
 
+
     const renderClickedItems = () => (
         <div className="forOrdering">
             <p>Orders : </p>
-            {clickedItems.map(obj => (
-                <div className="arrays" key={obj.id}>{obj.label}</div>
+            {clickedItems.map((label, index) => (
+                <div key={index} className="arrays">{label}</div>
             ))}
         </div>
     );
+
 
     function expenseComponents() {
         return (
