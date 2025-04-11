@@ -14,5 +14,5 @@ public interface IncomeEventService {
     IncomeEvent updateIncomeEvent(Long eventSeriesId, IncomeEventDTO incomeEventDTO);
     void deleteIncomeEvent(Long eventSeriesId);
     List<IncomeEventDTO> getIncomeEventListByScenarioId(Long seriesId);
-    void runIncomeEvents(Scenario scenario, SimulationContext context);
+    void runIncomeEvents(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive);
 }
