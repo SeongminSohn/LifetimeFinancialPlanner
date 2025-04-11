@@ -7,7 +7,6 @@ import java.util.List;
 public class InvestEventDTO {
     private Long scenarioId;
     private Long eventSeriesId;
-    private Long investmentId;
     private String name;
     private DistributionDTO startYear;
     private DistributionDTO duration;

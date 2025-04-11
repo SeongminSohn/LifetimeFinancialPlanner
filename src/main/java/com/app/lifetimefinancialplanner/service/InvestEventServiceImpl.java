@@ -47,13 +47,6 @@ public class InvestEventServiceImpl implements InvestEventService {
         Scenario scenario = scenarioRepository.findById(dto.getScenarioId())
                 .orElseThrow(() -> new RuntimeException("Scenario not found with id: " + dto.getScenarioId()));
 
-        // Retrieve Investment using investmentId from DTO (assume dto has investmentId)
-        if(dto.getInvestmentId() == null) {
-            throw new RuntimeException("Investment ID is required.");
-        }
-        Investment investment = investmentRepository.findById(dto.getInvestmentId())
-                .orElseThrow(() -> new RuntimeException("Investment not found with id: " + dto.getInvestmentId()));
-
         // Create EventSeries for the InvestEvent using provided fields from DTO.
         EventSeries eventSeries = EventSeries.builder()
                 .scenario(scenario)
@@ -73,7 +66,6 @@ public class InvestEventServiceImpl implements InvestEventService {
                 .assetAllocations(allocationList)
                 .maxCash(dto.getMaxCash())
                 .eventSeries(eventSeries)
-                .investment(investment)
                 .build();
 
         return investEventRepository.save(investEvent);
@@ -130,7 +122,6 @@ public class InvestEventServiceImpl implements InvestEventService {
                     dto.setMaxCash(event.getMaxCash());
                     // Convert the list<AllocationEmbeddable> to List<AllocationDTO>
                     dto.setAssetAllocations(allocationService.convertEmbeddableListToDTOList(event.getAssetAllocations()));
-                    dto.setInvestmentId(event.getInvestment().getId());
                     return dto;
                 })
                 .collect(Collectors.toList());
