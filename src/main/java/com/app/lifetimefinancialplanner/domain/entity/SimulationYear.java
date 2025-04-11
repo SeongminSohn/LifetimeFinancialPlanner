@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity @Table(name = "TBL_SIMULATION_YEAR")
@@ -15,35 +16,36 @@ import java.time.LocalDateTime;
 public class SimulationYear {
     @Id
     @GeneratedValue(generator = "SEQ_SIMULATION_YEAR_GENERATOR")
+    @Column(name = "ID")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SIMULATION_ID", nullable = false)
     private Simulation simulation;
 
-    // The simulated year
-    @Column(name = "SIMULATED_YEAR", nullable = false)
-    private Integer simulatedYear;
+    @Column(name = "SIMULATION_INDEX", nullable = false)
+    private Integer simulationIndex;
 
-    // Total value of investments at the end of the year.
-    @Column(name = "TOTAL_INVESTMENT", nullable = false)
-    private Double totalInvestment;
+    @Column(name = "YEAR", nullable = false)
+    private Integer year;
 
-    // Total income for the year.
+    @Column(name = "TOTAL_INVESTMENTS", nullable = false)
+    private BigDecimal totalInvestments;
+
     @Column(name = "TOTAL_INCOME", nullable = false)
-    private Double totalIncome;
+    private BigDecimal totalIncome;
 
-    // Total expenses for the year.
-    @Column(name = "TOTAL_EXPENSE", nullable = false)
-    private Double totalExpense;
+    @Column(name = "TOTAL_EXPENSES", nullable = false)
+    private BigDecimal totalExpenses;
 
-    // Taxes paid in that year.
-    @Column(name = "TAXES_PAID", nullable = false)
-    private Double taxesPaid;
+    @Column(name = "TOTAL_TAX", nullable = false)
+    private BigDecimal totalTax;
 
-    // Cash balance at the end of the year.
     @Column(name = "CASH_BALANCE", nullable = false)
-    private Double cashBalance;
+    private BigDecimal cashBalance;
+
+    @Column(name = "DETAILS", columnDefinition = "CLOB")
+    private String details;
 
     @CreationTimestamp
     @Column(name = "INS_DATE", nullable = false)
