@@ -48,6 +48,30 @@ function profileSetting(){
             stDev: null,
         }
     });
+    const [loggedIn, setLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            setLoggedIn(true);
+        }
+    }, []);
+
+    useEffect(() => {
+        const scenarioId = localStorage.getItem("scenario");
+        console.log(scenarioId)
+        if (scenarioId) {
+            axios.get(`http://localhost:10000/api/scenarios/${scenarioId}`)
+                .then(response => {
+                    console.log("Existing Investments:", response.data);
+                    setFormData(response.data);
+                })
+                .catch(error => {
+                    console.error("Error fetching investments:", error);
+                });
+        }
+    }, []);
+
     //
     // const popupMenu = () => {
     //     setSide(prevState => !prevState);
@@ -84,6 +108,10 @@ function profileSetting(){
 
     function toHome(){
         navPage('/Homepage')
+    }
+
+    function toInvestment(){
+        navPage('/Investment')
     }
 
     function handleChange(e) {
@@ -146,12 +174,24 @@ function profileSetting(){
     async function handleSubmit(event) {
         event.preventDefault();
         formData.userId = localStorage.getItem("token")
-        console.log(formData)
+        const scenarioId =  localStorage.getItem("scenario")
+        console.log("hi",scenarioId )
         try {
-            const response = await axios.post("http://localhost:10000/api/scenarios", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
-            console.log("Scenario ID:", response.data.scenarioId);
-            localStorage.setItem("scenario", response.data.scenarioId);
-            navPage('/InvestEdit')
+            if (scenarioId) {
+                const response = await axios.put(`http://localhost:10000/api/scenarios/${scenarioId}`, formData, {
+                    withCredentials: true,
+                    headers: {"Content-Type": "application/json"}
+                });
+                // console.log("Scenario ID:", response.data);
+                // localStorage.setItem("scenario", response.data.scenarioId);
+                toInvestment()
+            }else{
+                const response = await axios.post(
+                    `http://localhost:10000/api/scenarios`, formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });console.log("Created Investment:", response.data);
+                console.log("Scenario ID:", response.data);
+                localStorage.setItem("scenario", response.data.scenarioId);
+                toInvestment()
+            }
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
@@ -501,7 +541,8 @@ function profileSetting(){
                     <option value = "UNIFORM">UNIFORM</option>
                     <option value = "NORMAL">NORMAL</option>
                 </select></div>
-            {chooseKone()}<div><button onClick={toHome} className="submitButton" type="button" style={{marginBottom:"20px"}}>Back</button><button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
+            {chooseKone()}<div>
+                <button onClick={toHome} className="submitButton" type="button" style={{marginBottom:"20px"}}>Back</button><button className="submitButton" type="submit" style={{marginBottom:"20px"}}>Save Changes</button>
                 </div>
 
         </form>);

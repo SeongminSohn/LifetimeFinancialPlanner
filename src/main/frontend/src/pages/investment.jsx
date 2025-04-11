@@ -63,14 +63,18 @@ function Investment() {
             <aside className="sidebar">
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
-                <button onClick={toInvest}>Invest Edit</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button>Reports & Logs</button>
+                {/*<button onClick={toInvest}>Invest Edit</button>*/}
+                <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
+                <button onClick={toInvestEvent}>Invest Event Edit</button>
+                <button onClick={toSim} disabled>Scenario Simulation</button>
                 <button>Import & Export Data</button>
             </aside>
         );
     }
 
+    function toWithDrawal(){
+        navPage('/ExpenseW');
+    }
     function toIncome() {
         navPage('/IncomePage');
     }
@@ -89,7 +93,6 @@ function Investment() {
     function toProfile() {
         navPage('/Profset');
     }
-
     function toInvestEvent(){
         navPage("/InvestEvent")
     }
@@ -225,9 +228,7 @@ function Investment() {
     function investEvents() {
         return (
             <div className="profileSetting">
-                <p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px" }}>
-                    Investments
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', margin:'10px'}}><p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px", marginRight: '50px'}}>Investments</p><button onClick={toInvest} className="addButton">+</button></div>
                 {investmentTypes.map((item, index) => (
                     <form key={item.id || index} className="investment-form">
                         <div className="login">
@@ -236,15 +237,11 @@ function Investment() {
                                 type="button"
                                 id={`name-${index}`}
                                 name="name"
-                                onClick={() => handleButtonClick(item)}
-                            >
+                                onClick={() => handleButtonClick(item)}>
                                 {item.name}
                             </button>
                             <button
-                                type="button"
-                                style={{ backgroundColor: "Black", color: "White" }}
-                                onClick={() => deleteButton(item.id)}
-                            >
+                                type="button" style={{ backgroundColor: "Black", color: "White" }} onClick={() => deleteButton(item.id)}>
                                 X
                             </button>
                         </div>

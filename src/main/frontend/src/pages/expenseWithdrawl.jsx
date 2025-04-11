@@ -33,9 +33,9 @@ function ExpenseWithdrawlPage() {
         const updatedFormData = {
             ...formData,
             scenarioId: scenarioId,
-            sellingOrder: JSON.stringify(clickedItems.map(item => item.label))
+            sellingOrder: clickedItems.map(item => item.label)
         };
-
+        console.log(updatedFormData)
         try {
             const response = await axios.post(
                 "http://localhost:10000/api/expense-withdrawal-strategies",
@@ -48,6 +48,18 @@ function ExpenseWithdrawlPage() {
         }
     }
 
+    useEffect(() => {
+        const scenarioId = localStorage.getItem("scenario");
+        if (scenarioId) {
+            axios.get(`http://localhost:10000/api/investments/scenario/${scenarioId}`)
+                .then(response => {
+                    setExistingInvestments(response.data);
+                })
+                .catch(error => {
+                    console.error("Error fetching investments:", error);
+                });
+        }
+    }, []);
 
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
@@ -94,6 +106,10 @@ function ExpenseWithdrawlPage() {
                 <button>Import & Export Data</button>
             </aside>
         );
+    }
+
+    function toInvestment(){
+        navPage('/Investment')
     }
 
     function toIncome() {
@@ -175,8 +191,7 @@ function ExpenseWithdrawlPage() {
                                 type="button"
                                 id={`name-${index}`}
                                 name="name"
-                                onClick={() => handleButtonClick(item)}
-                            >
+                                onClick={() => handleButtonClick(item)}>
                                 {(() => {
                                     const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
                                     return matchedType ? <span>{matchedType.name}</span> : null;
