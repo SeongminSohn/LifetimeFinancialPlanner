@@ -17,7 +17,7 @@ public class InvestEvent {
     @Column(name = "EVENT_SERIES_ID")
     private Long eventSeriesId;
 
-    // GPT helped me how to use List as a data type
+    // GPT helped me how to use List as a data type (collectionTable)
     @ElementCollection
     @CollectionTable(name = "TBL_INVEST_EVENT_ALLOCATION", joinColumns = @JoinColumn(name = "EVENT_SERIES_ID"))
     private List<AllocationEmbeddable> assetAllocations;
@@ -29,10 +29,6 @@ public class InvestEvent {
     @MapsId
     @JoinColumn(name = "EVENT_SERIES_ID")
     private EventSeries eventSeries;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "INVESTMENT_ID", nullable = false)
-    private Investment investment;
 
     @PrePersist
     private void onPrePersist() {

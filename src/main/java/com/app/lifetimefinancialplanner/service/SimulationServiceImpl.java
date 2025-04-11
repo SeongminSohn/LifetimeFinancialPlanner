@@ -63,13 +63,16 @@ public class SimulationServiceImpl implements SimulationService {
         int currentUserAge = startYear - scenario.getBirthYearUser();
         int userLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancyUser()));
         int remainingUserYears = userLifeExpectancy - currentUserAge;
+        boolean userAlive = currentUserAge < userLifeExpectancy;
 
         // If scenario is for married couple, calculate spouse's age and life expectancy.
         int remainingSpouseYears = 0;
+        boolean spouseAlive = false;
         if ("Y".equalsIgnoreCase(scenario.getMaritalStatus()) && scenario.getBirthYearSpouse() != null) {
             int currentSpouseAge = startYear - scenario.getBirthYearSpouse();
             int spouseLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancySpouse()));
             remainingSpouseYears = spouseLifeExpectancy - currentSpouseAge;
+            spouseAlive = currentSpouseAge < spouseLifeExpectancy;
         }
 
         // Update numYears by comparing user's and spouse's life expectancy
@@ -112,7 +115,7 @@ public class SimulationServiceImpl implements SimulationService {
              * The results from these events should update local variables for SimulationYear
              * such as: totalInvestments, totalIncome, totalExpenses, totalTax, cashBalance.
              */
-            incomeEventService.runIncomeEvents(scenario, context);
+            incomeEventService.runIncomeEvents(scenario, context, userAlive, spouseAlive);
 
             // Save the results in SimulationYear TODO: Currently Dummy data
             context.setCurYearIncome(BigDecimal.ZERO);

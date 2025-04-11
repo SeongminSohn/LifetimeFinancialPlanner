@@ -78,7 +78,6 @@ public class InvestEventController {
         dto.setEventType(event.getEventSeries().getEventType());
         dto.setMaxCash(event.getMaxCash());
         dto.setAssetAllocations(allocationService.convertEmbeddableListToDTOList(event.getAssetAllocations()));
-        dto.setInvestmentId(event.getInvestment().getId());
         return ResponseEntity.ok(dto);
     }
 

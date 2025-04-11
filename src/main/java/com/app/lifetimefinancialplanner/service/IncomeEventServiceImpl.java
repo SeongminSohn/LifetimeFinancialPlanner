@@ -150,7 +150,7 @@ public class IncomeEventServiceImpl implements IncomeEventService {
 
     @Override
     @Transactional
-    public void runIncomeEvents(Scenario scenario, SimulationContext context) {
+    public void runIncomeEvents(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive) {
         // Get list of EventSeries for incomeEvent
         List<EventSeries> incomeEventSeriesList = eventSeriesRepository.findAllByScenarioIdAndEventType(scenario.getId(), "INCOME");
         if (incomeEventSeriesList.isEmpty()) {
@@ -179,9 +179,8 @@ public class IncomeEventServiceImpl implements IncomeEventService {
                     currentAmount *= context.getInflationFactor();
                 }
 
-                // TODO: UserPercentage 관련 개념 confirm 받으면 수정하기
-                double userPercent = incomeEvent.getUserPercentage() != null ? incomeEvent.getUserPercentage() : 0.0;
-                currentAmount = (1 + userPercent) * currentAmount;
+                double effectivePercentage = getEffectivePercentage(userAlive, spouseAlive, incomeEvent);
+                currentAmount = effectivePercentage * currentAmount;
 
                 // Update the value of corresponding income type (regular / social security)
                 if ("Y".equalsIgnoreCase(incomeEvent.getIsSocialSecurity())) {
@@ -191,6 +190,21 @@ public class IncomeEventServiceImpl implements IncomeEventService {
                 }
             }
         }
+    }
+
+    private static double getEffectivePercentage(Boolean userAlive, Boolean spouseAlive, IncomeEvent incomeEvent) {
+        double userPercent = incomeEvent.getUserPercentage() != null ? incomeEvent.getUserPercentage() : 0.0;
+        double effectivePercentage;
+        if (userAlive && spouseAlive) {
+            effectivePercentage = 1.0;
+        } else if (userAlive && !spouseAlive) {
+            effectivePercentage = userPercent;
+        } else if (!userAlive && spouseAlive) {
+            effectivePercentage = 1 - userPercent;
+        } else {
+            effectivePercentage = 0.0;
+        }
+        return effectivePercentage;
     }
 }
 
