@@ -1,5 +1,37 @@
 package com.app.lifetimefinancialplanner.controller;
 
+import com.app.lifetimefinancialplanner.domain.dto.SimulationDTO;
+import com.app.lifetimefinancialplanner.service.SimulationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/simulations")
+@Tag(name = "Simulation API", description = "Endpoints for running simulations and retrieving simulation results")
 public class SimulationController {
 
+    private final SimulationService simulationService;
+
+    public SimulationController(SimulationService simulationService) {
+        this.simulationService = simulationService;
+    }
+
+    @Operation(
+            summary = "Run Simulation",
+            description = "Executes a simulation for the specified scenario and returns the simulation results, including per-year details."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Simulation executed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
+    @PostMapping
+    public ResponseEntity<SimulationDTO> runSimulation(@RequestParam Long scenarioId,
+                                                       @RequestParam Integer simulationCount) {
+        SimulationDTO simulationDTO = simulationService.runSimulation(scenarioId, simulationCount);
+        return ResponseEntity.ok(simulationDTO);
+    }
 }

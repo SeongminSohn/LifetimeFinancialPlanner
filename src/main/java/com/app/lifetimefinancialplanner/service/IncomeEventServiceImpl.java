@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.service;
 
+import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
 import com.app.lifetimefinancialplanner.domain.entity.EventSeries;
 import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.dto.IncomeEventDTO;
@@ -10,6 +11,7 @@ import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -148,26 +150,46 @@ public class IncomeEventServiceImpl implements IncomeEventService {
 
     @Override
     @Transactional
-    public void runIncomeEvents(IncomeEventDTO incomeEventDTO, int currentYear, double inflationRate) {
+    public void runIncomeEvents(Scenario scenario, SimulationContext context) {
+        // Get list of EventSeries for incomeEvent
+        List<EventSeries> incomeEventSeriesList = eventSeriesRepository.findAllByScenarioIdAndEventType(scenario.getId(), "INCOME");
+        if (incomeEventSeriesList.isEmpty()) {
+            throw new IllegalArgumentException("IncomeEvent not found for scenario id: " + scenario.getId());
+        }
 
-        Scenario scenario = scenarioRepository.findById(incomeEventDTO.getScenarioId())
-                .orElseThrow(() -> new IllegalArgumentException("Scenario not found with id: " + incomeEventDTO.getScenarioId()));
-        double startYear = incomeEventDTO.getStartYear().getValue();
-        double duration = incomeEventDTO.getDuration().getValue();
-        double endYear = startYear + duration;
+        BigDecimal regularIncome = context.getCurYearIncome();
+        BigDecimal socialSecurity = context.getCurYearSS();
 
-        if (currentYear < startYear || currentYear >= endYear){
-            double prevAmount = incomeEventDTO.getInitialAmount();
-            double annualChange = incomeEventDTO.getAnnualChange().getValue();
-            double currentAmount = prevAmount + annualChange;
+        for (EventSeries incomeSeries : incomeEventSeriesList) {
+            // Get corresponding IncomeEvent with eventSeriesID
+            IncomeEvent incomeEvent = incomeEventRepository.findById(incomeSeries.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("IncomeEvent not found for EventSeries id: " + incomeSeries.getId()));
 
-            if ("Y".equalsIgnoreCase(incomeEventDTO.getInflationAdjustment())) {
-                currentAmount *= (1 + scenario.getInflationAssumption().getValue());
+            double startYear = incomeSeries.getStartYear().getValue();
+            double duration = incomeSeries.getDuration().getValue();
+            double endYear = startYear + duration;
+            int currentYear = context.getCurrentYear();
+
+            if (currentYear < startYear || currentYear >= endYear){
+                double prevAmount = incomeEvent.getInitialAmount();
+                double annualChange = incomeEvent.getAnnualChange().getValue();
+                double currentAmount = prevAmount + annualChange;
+
+                if ("Y".equalsIgnoreCase(incomeEvent.getInflationAdjustment())) {
+                    currentAmount *= context.getInflationFactor();
+                }
+
+                // TODO: UserPercentage 관련 개념 confirm 받으면 수정하기
+                double userPercent = incomeEvent.getUserPercentage() != null ? incomeEvent.getUserPercentage() : 0.0;
+                currentAmount = (1 + userPercent) * currentAmount;
+
+                // Update the value of corresponding income type (regular / social security)
+                if ("Y".equalsIgnoreCase(incomeEvent.getIsSocialSecurity())) {
+                    context.setCurYearSS(context.getCurYearSS().add(BigDecimal.valueOf(currentAmount)));
+                } else {
+                    context.setCurYearIncome(context.getCurYearIncome().add(BigDecimal.valueOf(currentAmount)));
+                }
             }
-
-            double userPercent = incomeEventDTO.getUserPercentage() != null ? incomeEventDTO.getUserPercentage() : 0.0;
-            currentAmount = (1 + userPercent) * currentAmount;
-            incomeEventDTO.setInitialAmount(currentAmount);
         }
     }
 }
