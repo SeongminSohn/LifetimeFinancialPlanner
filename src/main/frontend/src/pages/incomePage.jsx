@@ -13,6 +13,20 @@ function homePage(){
         }
     }, []);
 
+    useEffect(() => {
+        axios.get(`http://localhost:10000/api/income-events/2`)
+            .then(response => {
+                console.log("Existing IncomeEvents:", response.data);
+                setFormData(prevState => ({
+                    ...prevState,
+                    ...response.data
+                }));
+            })
+            .catch(error => {
+                console.error("Error fetching incomes:", error);
+            });
+    }, []);
+
     const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false)
@@ -377,33 +391,32 @@ function homePage(){
         </form>);
     }
 
-    const handleChange = (e) => {
+    function handleChange(e) {
         const { name, value } = e.target;
-        if (name === "userPercentage") {
-            let numericValue = parseFloat(value);
-            if (isNaN(numericValue)) {
-                numericValue = 0;
+
+        if (name === "birthYearUser" || name === "birthYearSpouse") {
+            const currentYear = new Date().getFullYear();
+            const numericValue = parseInt(value, 10);
+            if (!isNaN(numericValue) && numericValue > currentYear) {
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: currentYear,
+                }));
+                return;
             }
-            if (numericValue < 0) numericValue = 0;
-            if (numericValue > 1) numericValue = 1;
+        }
+
+        if (name === "financialGoal") {
+            let numericValue = parseFloat(value);
+            if (isNaN(numericValue)) numericValue = 1;
+            if (numericValue < 0) numericValue = 1;
 
             setFormData(prev => ({
                 ...prev,
-                userPercentage: numericValue,
+                financialGoal: numericValue,
             }));
             return;
         }
-        // if (name === "startYear") {
-        //     const currentYear = new Date().getFullYear();
-        //     const numericValue = parseInt(value, 10);
-        //     if (!isNaN(numericValue) && numericValue > currentYear) {
-        //         setFormData(prev => ({
-        //             ...prev,
-        //             [name]: currentYear,
-        //         }));
-        //         return;
-        //     }
-        // }
 
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
@@ -415,10 +428,22 @@ function homePage(){
                 }
             }));
         } else {
-            setFormData(prevState => ({
-                ...prevState,
-                [name]: value
-            }));
+            if (name === "maritalStatus") {
+                setFormData(prevState => ({
+                    ...prevState,
+                    maritalStatus: value,
+                    lifeExpectancySpouse: {
+                        ...prevState.lifeExpectancySpouse,
+                        amountOrPercent: value === "Y" ? "AMOUNT" : value === "N" ? null : prevState.lifeExpectancySpouse?.amountOrPercent,
+                        distributionType: value === "Y" ? "FIXED" : value === "N" ? null : prevState.lifeExpectancySpouse?.distributionType,
+                    }
+                }));
+            } else {
+                setFormData(prevState => ({
+                    ...prevState,
+                    [name]: value
+                }));
+            }
         }
     }
 

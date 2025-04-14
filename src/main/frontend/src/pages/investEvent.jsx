@@ -14,7 +14,7 @@ function InvestEventPage() {
     const [formData, setFormData] = useState({
         scenarioId: "", //private Long scenarioId;
         // eventSeriesId: "", //private Long eventSeriesId;
-        investmentId: '', //private Long investmentId;
+        // investmentId: '', //private Long investmentId;
         name: "", //private String name;
         startYear: {
             amountOrPercent: "AMOUNT",
@@ -35,7 +35,7 @@ function InvestEventPage() {
             stDev: null
         }, // private DistributionDTO duration;
         eventType: "", //private String eventType;                   // 'INCOME', 'EXPENSE', 'INVEST'
-        assetAllocation: "", //private List<AllocationDTO> assetAllocations;
+        assetAllocations: [], //private List<AllocationDTO> assetAllocations;
         maxCash: "" //private Double maxCash;
     });
     const navPage = useNavigate();
@@ -63,18 +63,49 @@ function InvestEventPage() {
     }, []);
 
     useEffect(() => {
+        if (formData.assetAllocations && Array.isArray(formData.assetAllocations)) {
+            const newAllocationValues = {};
+            formData.assetAllocations.forEach(allocation => {
+                newAllocationValues[allocation.investmentKey] = allocation.ratio;
+            });
+            setAllocationValues(newAllocationValues);
+        }
+    }, [formData.assetAllocations]);
+
+
+
+
+
+    // useEffect(() => {
+    //     const scenarioId = localStorage.getItem("scenario");
+    //     if (scenarioId) {
+    //         axios.get(`http://localhost:10000/api/invest-events/scenario/${scenarioId}`)
+    //             .then(response => {
+    //                 setFormData(response.data);
+    //                 console.log("This data is from invest Event and Data: ", response.data);
+    //             })
+    //             .catch(error => {
+    //                 console.error("Error fetching invest Event:", error);
+    //             });
+    //     }
+    // }, []);
+
+    useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
             axios.get(`http://localhost:10000/api/invest-events/scenario/${scenarioId}`)
                 .then(response => {
-                    setInvestEvents(response.data);
-                    console.log("This data is from invest Event: ", response.data);
+                    if(response.data[0] !== undefined){
+                        setFormData(response.data[0]);
+                        console.log("This data is from invest Event and Data: ", response.data[0]);
+                    }else{
+                        console.log("There is no DATA")
+                    }
                 })
                 .catch(error => {
                     console.error("Error fetching invest Event:", error);
                 });
         }
-
     }, []);
 
     useEffect(() => {
@@ -92,9 +123,22 @@ function InvestEventPage() {
 
     }, []);
 
+    //If there is any change in array!
+    useEffect(() => {
+        if (formData.assetAllocations && Array.isArray(formData.assetAllocations)) {
+            const newAllocationValues = {};
+            formData.assetAllocations.forEach(allocation => {
+                newAllocationValues[allocation.investmentKey] = allocation.ratio;
+            });
+            console.log("New Allocation Values (before state update): ", newAllocationValues);
+            setAllocationValues(newAllocationValues);
+        }
+    }, [formData.assetAllocations]);
+
     const popupMenu = () => {
         setSide(prev => !prev);
     };
+
     function sideElements() {
         return openSide && (
             <aside className="sidebar">
@@ -108,6 +152,7 @@ function InvestEventPage() {
             </aside>
         );
     }
+
     function toWithDrawal(){
         navPage('/ExpenseW');
     }
@@ -316,46 +361,56 @@ function InvestEventPage() {
     }
 
     function setupAssetAllocation(){
-        return (<div>
-            {existingInvestments.map((item, index) => (
-                <form key={item.investmentTypeId || index} className="investment-form">
-                    <div className="login">
-                        <label htmlFor={`name-${index}`}></label>
-                        <button
-                            type="button"
-                            id={`name-${index}`}
-                            name="name"
-                            onClick={() => handleButtonClick(item)}>{(() => {
-                                const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
-                                return matchedType ? <span>{matchedType.name}</span> : null;})()}
-                            {" "}
-                            {item.taxStatus}
-                            <input
-                                type="number"
-                                value={allocationValues[item.investmentTypeId] !== undefined ? allocationValues[item.investmentTypeId] : ""}
-                                onChange={(e) => {
-                                    const val = parseFloat(e.target.value);
-                                    setAllocationValues(prev => ({
-                                        ...prev,
-                                        [item.investmentTypeId]: isNaN(val) ? 0 : val}));}}/>
-                        </button>
-                    </div>
-                </form>
+        return (
+            <div>
+                {existingInvestments.map((item, index) => {
+                    const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
 
-            ))}
-
-        </div>)
+                    const allocationKey = matchedType ? `${matchedType.name} ${item.taxStatus}` : item.investmentTypeId;
+                    return (
+                        <form key={item.investmentTypeId || index} className="investment-form">
+                            <div className="login">
+                                <label htmlFor={`name-${index}`}></label>
+                                <button
+                                    type="button"
+                                    id={`name-${index}`}
+                                    name="name"
+                                    onClick={() => handleButtonClick(item)}>
+                                    {matchedType ? <span>{matchedType.name}</span> : null}
+                                    {" "}
+                                    {item.taxStatus}
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        value={allocationValues[allocationKey] !== undefined ? allocationValues[allocationKey] : ""}
+                                        onChange={(e) => {
+                                            const val = parseFloat(e.target.value);
+                                            setAllocationValues(prev => ({
+                                                ...prev,
+                                                [allocationKey]: isNaN(val) ? 0 : val
+                                            }));
+                                        }}
+                                    />
+                                </button>
+                            </div>
+                        </form>
+                    );
+                })}
+            </div>
+        );
     }
+
 
     function handleSaveList() {
         const savedList = existingInvestments.reduce((acc, item) => {
             const matchedType = investmentTypes.find(
                 type => type.id === item.investmentTypeId
             );
-            if(matchedType && allocationValues[item.investmentTypeId] !== undefined) {
+            const allocationKey = matchedType ? `${matchedType.name} ${item.taxStatus}` : item.investmentTypeId;
+            if (allocationValues.hasOwnProperty(allocationKey)) {
                 acc.push({
-                    key: `${matchedType.name} ${item.taxStatus}`,
-                    value: allocationValues[item.investmentTypeId]
+                    investmentKey: allocationKey,
+                    ratio: allocationValues[allocationKey]
                 });
             }
             return acc;
@@ -363,67 +418,69 @@ function InvestEventPage() {
 
         setFormData(prev => ({
             ...prev,
-            assetAllocation: savedList
+            assetAllocations: savedList
         }));
         console.log("Saved List:", savedList);
     }
 
+
     async function handleSubmit(event) {
         const scenarioId = localStorage.getItem("scenario");
+        const check = localStorage.getItem("InvestEvent");
         const allocationSum = Object.values(allocationValues).reduce((acc, cur) => acc + cur, 0);
         if (allocationSum !== 1) {console.log("This is Allocation Sum: ", allocationSum); alert("Sum of the values that you put must be 1."); return;
         }
         const updatedData = {
             ...formData,
             scenarioId,
-            assetAllocation: allocationValues
+            assetAllocations: formData.assetAllocations
         };
         console.log("This is Updated Data: ", updatedData);
         try {
-            if (formData.id) {
+            if (check) {
                 const response = await axios.put(
-                    `http://localhost:10000/api/invest-events/${formData.id}`,
+                    `http://localhost:10000/api/invest-events/1`,
                     updatedData,
                     { withCredentials: true, headers: { "Content-Type": "application/json" } }
                 );
-                console.log("Updated Investment:", response.data);
+                console.log("Updated Investment!:", response.data);
             } else {
                 const response = await axios.post(
                     `http://localhost:10000/api/invest-events`,
                     updatedData,
-                    { withCredentials: true, headers: { "Content-Type": "application/json" } }
-                );
-                console.log("Created Investment:", response.data);
+                    { withCredentials: true, headers: { "Content-Type": "application/json" } });
+                localStorage.setItem("InvestEvent", response.data.scenarioId);
+                console.log("Created Investment!:", response.data);
             }
             setSelectedInvestment(null);
-            setFormData({
-                scenarioId: "",
-                // eventSeriesId: "",
-                investmentId: '',
-                name: "",
-                startYear: {
-                    amountOrPercent: "AMOUNT",
-                    distributionType: "FIXED",
-                    value: null,
-                    lower: null,
-                    upper: null,
-                    mean: null,
-                    stDev: null
-                },
-                duration: {
-                    amountOrPercent: "AMOUNT",
-                    distributionType: "FIXED",
-                    value: null,
-                    lower: null,
-                    upper: null,
-                    mean: null,
-                    stDev: null
-                },
-                eventType: "",
-                assetAllocation: "",
-                maxCash: ""
-            });
-            setAllocationValues({});
+            // setFormData({
+            //     scenarioId: "",
+            //     // eventSeriesId: "",
+            //     // investmentId: '',
+            //     name: "",
+            //     startYear: {
+            //         amountOrPercent: "AMOUNT",
+            //         distributionType: "FIXED",
+            //         value: null,
+            //         lower: null,
+            //         upper: null,
+            //         mean: null,
+            //         stDev: null
+            //     },
+            //     duration: {
+            //         amountOrPercent: "AMOUNT",
+            //         distributionType: "FIXED",
+            //         value: null,
+            //         lower: null,
+            //         upper: null,
+            //         mean: null,
+            //         stDev: null
+            //     },
+            //     eventType: "",
+            //     assetAllocations: "",
+            //     maxCash: ""
+            // });
+            // setAllocationValues({});
         } catch (error) {
             console.error("Submit Error:", error);
             alert("Try again");
@@ -436,13 +493,7 @@ function InvestEventPage() {
                 <form>
                     <div className="login">
                         <label htmlFor="name">name:</label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            required
+                        <input type="text" id="name" name="name" value={formData.name} onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))} required
                         />
                     </div>
                     <div className="login"><label htmlFor="startYear.amountOrPercent">Start Year: </label>
@@ -465,10 +516,7 @@ function InvestEventPage() {
                     {chooseMone()}
                     <div className="login"><label htmlFor="duration.amountOrPercent">Duration: </label>
                         <select
-                            name="duration.amountOrPercent"
-                            id="duration.amountOrPercent"
-                            value={formData.duration.amountOrPercent}
-                            onChange={handleChange} required>
+                            name="duration.amountOrPercent" id="duration.amountOrPercent" value={formData.duration.amountOrPercent} onChange={handleChange} required>
                             <option value = "AMOUNT">Amount</option>
                             <option value = "PERCENT">Percent</option>
                         </select></div>
@@ -482,21 +530,18 @@ function InvestEventPage() {
                     <div className="login">
                         <label htmlFor="eventType">Event Type: </label>
                         <input
-                            type="text"
-                            id="eventType"
-                            name="eventType"
-                            value={formData.eventType}
+                            type="text" id="eventType" name="eventType" value={formData.eventType}
                             onChange={(e) => setFormData(prev => ({ ...prev, eventType: e.target.value }))} required/>
                     </div>
                     {setupAssetAllocation()}
-                    <button type = "submit" onClick={handleSaveList}>Save to List</button>
+                    <button type = "button" onClick={handleSaveList}>Save to List</button>
                     <div className="login">
                         <label htmlFor="maxCash">Max Cash: </label>
                         <input type="number" id="maxCash" name="maxCash" value={formData.maxCash} onChange={(e) => setFormData(prev => ({ ...prev, maxCash: e.target.value }))} required/>
                     </div>
 
                 </form>
-                    <button type="button" onClick={handleSubmit} >Submit</button>
+                    <button type="Submit" onClick={handleSubmit}>Submit</button>
             </div>
         );
     }
@@ -524,10 +569,7 @@ function InvestEventPage() {
             <nav className="navBarSub">
                 <button className="commonButton" onClick={popupMenu}>Menu</button>
                 {sideElements()}
-                {loggedIn && (
-                    <button className="commonButton" onClick={toProfile}>
-                        Scenario Setting
-                    </button>
+                {loggedIn && (<button className="commonButton" onClick={toProfile}>Scenario Setting</button>
                 )}
             </nav>
             {investmentPage()}
