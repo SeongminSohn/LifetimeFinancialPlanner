@@ -92,11 +92,12 @@ public class SimulationServiceImpl implements SimulationService {
         double cumulativeInflation = 1.0;
 
         List<SimulationYearDTO> simulationYearDTOList = new ArrayList<>();
+        SimulationContext context = new SimulationContext();
+
         for (int i = 0; i < numYears; i++) {
             int currentYear = startYear + i;
 
             // Update simulation variables for each year
-            SimulationContext context = new SimulationContext();
             context.setCurrentYear(currentYear);
 
             // Sample the current year's inflation rate and calculate inflation factor.
@@ -115,6 +116,15 @@ public class SimulationServiceImpl implements SimulationService {
             double adjustedAfterTaxLimit = scenario.getAfterTaxContributionLimit() * inflationFactor;
             context.setAdjustedAfterTaxContributionLimit(adjustedAfterTaxLimit);
 
+            // At the beginning of each simulation year, reset per-year fields in SimulationContext
+            context.setCurYearIncome(BigDecimal.ZERO);
+            context.setCurYearSS(BigDecimal.ZERO);
+            context.setCurYearGains(BigDecimal.ZERO);
+            context.setCurYearEarlyWithdrawals(BigDecimal.ZERO);
+            context.setTotalExpenses(BigDecimal.ZERO);
+            context.setTotalTax(BigDecimal.ZERO);
+            context.setCashBalance(BigDecimal.ZERO);
+
             /* --- Begin simulation for the current year ---
              * TODO: Call various service methods that process events:
              * - updateInvestments()
@@ -124,6 +134,7 @@ public class SimulationServiceImpl implements SimulationService {
              * such as: totalInvestments, totalIncome, totalExpenses, totalTax, cashBalance.
              */
             incomeEventService.runIncomeEvents(scenario, context, userAlive, spouseAlive);
+
 //            payExpenseAndTax(scenario, context, userAlive, spouseAlive);
 
             // Save the results in SimulationYear TODO: Currently Dummy data

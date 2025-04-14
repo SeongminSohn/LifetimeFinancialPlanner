@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.domain.context;
 
+import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.entity.Investment;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ public class SimulationContext {
     private double inflationFactor;
     private double cumulativeInflation;
     private double adjustedAfterTaxContributionLimit;
+    private List<IncomeEvent> updatedIncomeEvents;
     private List<Investment> updatedInvestments;
     private BigDecimal curYearIncome = BigDecimal.ZERO;
     private BigDecimal curYearSS = BigDecimal.ZERO;

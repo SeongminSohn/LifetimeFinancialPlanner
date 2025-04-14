@@ -4,6 +4,7 @@ import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
 import com.app.lifetimefinancialplanner.domain.entity.EventSeries;
 import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.dto.IncomeEventDTO;
+import com.app.lifetimefinancialplanner.domain.entity.Investment;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.repository.EventSeriesRepository;
 import com.app.lifetimefinancialplanner.repository.IncomeEventRepository;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -156,28 +159,36 @@ public class IncomeEventServiceImpl implements IncomeEventService {
     @Override
     @Transactional
     public void runIncomeEvents(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive) {
-        // Get list of EventSeries for incomeEvent
-        List<EventSeries> incomeEventSeriesList = eventSeriesRepository.findAllByScenarioIdAndEventType(scenario.getId(), "INCOME");
-        if (incomeEventSeriesList.isEmpty()) {
-            throw new IllegalArgumentException("IncomeEvent not found for scenario id: " + scenario.getId());
+        int currentYear = context.getCurrentYear();
+        List<IncomeEvent> incomeEventList;
+        List<IncomeEvent> updatedIncomeEventList = new ArrayList<>();
+
+        // If currentYear is the actual current year, fetch IncomeEvents from DB
+        if (currentYear == LocalDateTime.now().getYear()) {
+            incomeEventList = incomeEventRepository.findAllByScenarioId(scenario.getId());
+            if (incomeEventList == null || incomeEventList.isEmpty()) {
+                throw new IllegalArgumentException("There is no IncomeEvent Information and This is Scenario ID: " + scenario.getId());
+            }
+        }
+        // Otherwise, get IncomeEvents from updatedIncomeEvents in context
+        else {
+            incomeEventList = context.getUpdatedIncomeEvents();
+            if (incomeEventList == null || incomeEventList.isEmpty()) {
+                throw new IllegalArgumentException("There is no updated IncomeEvent Information and This is Scenario ID: " + scenario.getId());
+            }
         }
 
-        BigDecimal regularIncome = context.getCurYearIncome();
-        BigDecimal socialSecurity = context.getCurYearSS();
+        // Iterate over each IncomeEvent from the chosen list
+        for (IncomeEvent incomeEvent : incomeEventList) {
+            // Get associated EventSeries for incomeEvent
+            EventSeries incomeSeries = incomeEvent.getEventSeries();
+            int startYear = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getStartYear()));
+            int duration = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getDuration()));
+            int endYear = startYear + duration;
 
-        for (EventSeries incomeSeries : incomeEventSeriesList) {
-            // Get corresponding IncomeEvent with eventSeriesID
-            IncomeEvent incomeEvent = incomeEventRepository.findById(incomeSeries.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("IncomeEvent not found for EventSeries id: " + incomeSeries.getId()));
-
-            double startYear = samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getStartYear()));
-            double duration = samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getDuration()));
-            double endYear = startYear + duration;
-            int currentYear = context.getCurrentYear();
-
-            // Check if current year is within the period of income event
-            if (currentYear < startYear || currentYear >= endYear){
-                // Sample annualChange and calculate the current amount of income
+            // Process IncomeEvent only if currentYear is within event period
+            if (currentYear >= startYear && currentYear < endYear) {
+                // Sample annualChange and compute the current income amount
                 BigDecimal annualChange = BigDecimal.valueOf(samplingService.sample(distributionService.convertEmbeddableToDTO(incomeEvent.getAnnualChange())));
                 BigDecimal initialAmount = BigDecimal.valueOf(incomeEvent.getInitialAmount());
                 BigDecimal currentAmount = initialAmount.add(annualChange);
@@ -190,14 +201,23 @@ public class IncomeEventServiceImpl implements IncomeEventService {
                 double effectivePercentage = getEffectivePercentage(userAlive, spouseAlive, incomeEvent);
                 currentAmount = currentAmount.multiply(BigDecimal.valueOf(effectivePercentage));
 
-                // Update the value of corresponding income type (regular / social security)
+                // Update corresponding income type in context (regular income or social security)
                 if ("Y".equalsIgnoreCase(incomeEvent.getIsSocialSecurity())) {
                     context.setCurYearSS(context.getCurYearSS().add(currentAmount));
                 } else {
                     context.setCurYearIncome(context.getCurYearIncome().add(currentAmount));
                 }
+
+                // Create updated IncomeEvent with new computed initialAmount and add to updated list
+                IncomeEvent updatedIncomeEvent = incomeEvent.toBuilder()
+                        .initialAmount(currentAmount.doubleValue())
+                        .build();
+                updatedIncomeEventList.add(updatedIncomeEvent);
             }
         }
+
+        // Update the context with the new list of updated IncomeEvents
+        context.setUpdatedIncomeEvents(updatedIncomeEventList);
     }
 
     private static double getEffectivePercentage(Boolean userAlive, Boolean spouseAlive, IncomeEvent incomeEvent) {
