@@ -446,7 +446,7 @@ function homePage(){
                     id="isDiscretionary"
                     value={formData.isDiscretionary}
                     onChange={handleChange} required>
-                    <option value = "Y">Yes </option> {/*Cash -> YES or NO || S&P 500 -> YES || TAX-EXEMPT BONDS -> NO*/}
+                    {/*Cash -> YES or NO || S&P 500 -> YES || TAX-EXEMPT BONDS -> NO*/}
                     <option value = "N">No </option>
                 </select></div>
 
