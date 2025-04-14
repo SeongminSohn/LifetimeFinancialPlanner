@@ -153,17 +153,18 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
     @Override
     @Transactional
     public BigDecimal calculateNonDiscretionaryExpense(Scenario scenario, int simulationYear, double inflationFactor) {
-        // Retrieve all ExpenseEvents for the scenario (e.g., via expenseEventRepository.findAllByScenarioId(scenario.getId()))
+        // Retrieve all ExpenseEvents for the scenario
         List<ExpenseEvent> expenseEvents = expenseEventRepository.findAllByEventSeries_Scenario_Id(scenario.getId());
         BigDecimal totalExpense = BigDecimal.ZERO;
+
         for (ExpenseEvent event : expenseEvents) {
             // Get event series parameters by sampling
-            int eventStartYear = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(event.getEventSeries().getStartYear()));
-            int eventDuration = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(event.getEventSeries().getDuration()));
-            int eventEndYear = eventStartYear + eventDuration;
+            int startYear = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(event.getEventSeries().getStartYear()));
+            int duration = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(event.getEventSeries().getDuration()));
+            int endYear = startYear + duration;
 
-            // Process only if simulationYear falls in the event period
-            if (simulationYear >= eventStartYear && simulationYear < eventEndYear) {
+            // Process only if simulationYear is within the event period
+            if (simulationYear >= startYear && simulationYear < endYear) {
                 BigDecimal annualChange = BigDecimal.valueOf(samplingService.sample(distributionService.convertEmbeddableToDTO(event.getAnnualChange())));
                 BigDecimal baseAmount = BigDecimal.valueOf(event.getInitialAmount());
                 BigDecimal eventExpense = baseAmount.add(annualChange);
