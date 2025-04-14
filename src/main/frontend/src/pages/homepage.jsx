@@ -22,7 +22,6 @@ function homePage(){
   const popupMenu = () => {
     setSide(prevState => !prevState);
   };
-
   function sideElements(){
     return openSide && (
         <aside className="sidebar">
@@ -35,6 +34,7 @@ function homePage(){
         </aside>
     )
   }
+
 
   function toIncome(){
     navPage('/IncomePage')
@@ -50,6 +50,10 @@ function homePage(){
 
   function toSim(){
     navPage('/SimulationPage')
+  }
+
+  function toInvestment(){
+      navPage('/Investment')
   }
 
   function toProfile(){
@@ -70,7 +74,13 @@ function homePage(){
   }
 
   function gettingStart(){
-      navPage("/Profset")
+      const scenarioId = localStorage.getItem("scenario");
+      console.log(scenarioId)
+      if (scenarioId) {
+          toInvestment();
+      }else{
+          toProfile();
+      }
   }
 
 

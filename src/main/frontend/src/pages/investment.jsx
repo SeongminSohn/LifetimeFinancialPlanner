@@ -63,14 +63,18 @@ function Investment() {
             <aside className="sidebar">
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
-                <button onClick={toInvest}>Invest Edit</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button>Reports & Logs</button>
+                {/*<button onClick={toInvest}>Invest Edit</button>*/}
+                <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
+                <button onClick={toInvestEvent}>Invest Event Edit</button>
+                <button onClick={toSim} disabled>Scenario Simulation</button>
                 <button>Import & Export Data</button>
             </aside>
         );
     }
 
+    function toWithDrawal(){
+        navPage('/ExpenseW');
+    }
     function toIncome() {
         navPage('/IncomePage');
     }
@@ -89,7 +93,6 @@ function Investment() {
     function toProfile() {
         navPage('/Profset');
     }
-
     function toInvestEvent(){
         navPage("/InvestEvent")
     }
@@ -193,12 +196,39 @@ function Investment() {
         );
     }
 
+    async function deleteButton(investmentTypeId) {
+        const existingRecord = existingInvestments.find(
+            item => item.investmentTypeId === investmentTypeId
+        );
+        if (!existingRecord) {
+            alert("Did not Exist");
+            return;
+        }
+
+        try {
+            const response = await axios.delete(
+                `http://localhost:10000/api/investments/${existingRecord.id}`,
+                { withCredentials: true }
+            );
+            console.log("Deleted investment:", response.data);
+            setExistingInvestments(prev =>
+                prev.filter(item => item.id !== existingRecord.id)
+            );
+            setInvestmentTypes(prev =>
+                prev.filter(item => item.id !== investmentTypeId)
+            );
+        } catch (error) {
+            console.error("Error deleting investment:", error);
+            alert("Fail to Delete");
+        }
+    }
+
+
+
     function investEvents() {
         return (
             <div className="profileSetting">
-                <p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px" }}>
-                    Investments
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', margin:'10px'}}><p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px", marginRight: '50px'}}>Investments</p><button onClick={toInvest} className="addButton">+</button></div>
                 {investmentTypes.map((item, index) => (
                     <form key={item.id || index} className="investment-form">
                         <div className="login">
@@ -210,17 +240,21 @@ function Investment() {
                                 onClick={() => handleButtonClick(item)}>
                                 {item.name}
                             </button>
+                            <button
+                                type="button" style={{ backgroundColor: "Black", color: "White" }} onClick={() => deleteButton(item.id)}>
+                                X
+                            </button>
                         </div>
                     </form>
                 ))}
                 {selectedInvestment && investmentSetting()}
                 <div>
-                    <button onClick={toInvestEvent}
-                            disabled={(existingInvestments.length > 0 && existingInvestments.every(item => item.value === null))}>Save</button>
+                    <button onClick={toInvestEvent}>Save</button>
                 </div>
             </div>
         );
     }
+
 
     return (
         <div className="total">
