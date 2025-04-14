@@ -121,6 +121,17 @@ html {
     border: 0px;
 }
 
+.guider{
+    width: 100px;
+    height: 50px;
+    background-color: #333333;
+    color: white;
+    font-weight: bold;
+    border-radius: 15px;
+    border: none;
+    margin: 0px;
+    padding: 10px;
+}
 /*.submitButton{*/
 /*    width: 100px;*/
 /*    height: 50px;*/

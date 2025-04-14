@@ -35,42 +35,46 @@ function userGuidePage(){
         )
     }
 
-
-    function toIncome(){
-        navPage('/IncomePage')
-    }
-
-    function toExpense(){
-        navPage('/ExpenseEdit');
-    }
-
-    function toInvest(){
-        navPage('/InvestEdit')
-    }
-
-    function toSim(){
-        navPage('/SimulationPage')
-    }
-
     function toInvestment(){
         navPage('/Investment')
     }
-
-    function toProfile(){
+    function toWithDrawal(){
+        navPage('/ExpenseW');
+    }
+    function toIncome() {
+        navPage('/IncomePage');
+    }
+    function toExpense() {
+        navPage('/ExpenseEdit');
+    }
+    function toInvest() {
+        navPage('/InvestEdit');
+    }
+    function toSim() {
+        navPage('/simulationPage');
+    }
+    function toHome() {
+        navPage('/Homepage');
+    }
+    function toProfile() {
         navPage('/Profset');
     }
-
-    function toLogin(){
-        navPage('/Loginpage');
+    function toInvestEvent(){
+        navPage("/InvestEvent")
     }
 
     function homeManage(){
         return(<div className="guideBox">
             <p className="logoLetter" style={{fontSize: 'xx-large', color: 'black', fontWeight: 'bold'}}>Life Financial Planner User Guide</p>
-            {/*{loggedIn === true && (<button className="submitButton" onClick={gettingStart}>Getting Start</button>)}*/}
-            {/*{loggedIn === false && (<button className="submitButton" onClick={toLogin} >Sign in</button>)}*/}
-            {/*{loggedIn === false && (<button className="submitButton">Try as a guest</button>)}*/}
-            <p style={{paddingLeft: "100px", paddingRight: "100px"}}>1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.</p>
+            <button className="guider">Investment</button>
+            <button>Income Edit</button>
+            <button>Expense Edit</button>
+            <button>Invest Edit</button>
+            <button>Expense Withdrawal Edit</button>
+            <button>Invest Event Edit</button>
+            <button disabled>Scenario Simulation</button>
+            <button disabled>Import & Export Data</button>
+            <p style={{paddingLeft: "100px", paddingRight: "100px"}}></p>
         </div>)
     }
 

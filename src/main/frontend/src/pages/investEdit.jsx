@@ -46,43 +46,46 @@ function investPage(){
         setSide(prevState => !prevState);
     };
 
-    function sideElements(){
+    function sideElements() {
         return openSide && (
             <aside className="sidebar">
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
-                <button onClick={toInvest}>Invest Edit</button>
+                {/*<button onClick={toInvest}>Invest Edit</button>*/}
+                <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
                 <button onClick={toInvestment}>Investment</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button>Import & Export Date</button>
+                <button onClick={toSim} disabled>Scenario Simulation</button>
+                <button>Import & Export Data</button>
             </aside>
-        )
+        );
     }
 
     function toInvestment(){
         navPage('/Investment')
     }
-    function toIncome(){
-        navPage('/IncomePage')
+    function toWithDrawal(){
+        navPage('/ExpenseW');
     }
-
-    function toExpense(){
+    function toIncome() {
+        navPage('/IncomePage');
+    }
+    function toExpense() {
         navPage('/ExpenseEdit');
     }
-
-    function toInvest(){
-        navPage('/InvestEdit')
+    function toInvest() {
+        navPage('/InvestEdit');
     }
-
-    function toSim(){
-        navPage('/simulationPage')
+    function toSim() {
+        navPage('/simulationPage');
     }
-
-    function toHome(){
-        navPage('/Homepage')
+    function toHome() {
+        navPage('/Homepage');
     }
-    function toProfile(){
+    function toProfile() {
         navPage('/Profset');
+    }
+    function toInvestEvent(){
+        navPage("/InvestEvent")
     }
 
     async function handleSubmit(event) {
