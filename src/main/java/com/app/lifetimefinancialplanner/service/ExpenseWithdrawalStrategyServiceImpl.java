@@ -73,27 +73,40 @@ public class ExpenseWithdrawalStrategyServiceImpl implements ExpenseWithdrawalSt
         int currentYear = context.getCurrentYear();
         List<Investment> withdrawalInvestments;
 
-        // For the first simulation year, load investments from the database; for later years, use updated investments from context.
+        // If currentYear is the actual current year, fetch IncomeEvents from DB
         if (currentYear == LocalDateTime.now().getYear()) {
             withdrawalInvestments = investmentRepository.findAllByScenarioId(scenario.getId());
             if (withdrawalInvestments == null || withdrawalInvestments.isEmpty()) {
                 throw new IllegalArgumentException("There is no Investment Information for Scenario ID: " + scenario.getId());
             }
-        } else {
+
+            // Initialize each investment with its value as purchase price.
+            List<Investment> purchasePriceRecords = new ArrayList<>();
+            for (Investment investment : withdrawalInvestments) {
+                Investment record = investment.toBuilder().value(investment.getValue()).build();
+                purchasePriceRecords.add(record);
+            }
+            context.setInvestmentsPurchasingPrices(purchasePriceRecords);
+
+        }
+        else {
             withdrawalInvestments = context.getUpdatedInvestments();
             if (withdrawalInvestments == null || withdrawalInvestments.isEmpty()) {
                 throw new IllegalArgumentException("There is no updated Investment Information for Scenario ID: " + scenario.getId());
             }
         }
 
-        // Sort investments according to the expense withdrawal strategy's selling order.
-        // Retrieve the expense withdrawal strategy for the scenario.
+        // Retrieve the purchase price records from context
+        List<Investment> purchasePriceRecords = context.getInvestmentsPurchasingPrices();
+        if (purchasePriceRecords == null) {
+            throw new IllegalArgumentException("Purchase price records are not initialized for Scenario ID: " + scenario.getId());
+        }
+
+        // Citation: GPT helped me how to sort the investments
+        // Sort investments in expense withdrawal strategy's selling order.
         ExpenseWithdrawalStrategy strategy = getExpenseWithdrawalStrategyByScenarioId(scenario.getId());
         if (strategy != null && strategy.getSellingOrder() != null && !strategy.getSellingOrder().isEmpty()) {
             List<String> sellingOrder = strategy.getSellingOrder();
-
-            // Citation: GPT helped me to how to sort the investments
-            // Sort the investments by the index of their IDs (converted to String) in the sellingOrder list.
             withdrawalInvestments.sort((inv1, inv2) -> {
                 String id1 = inv1.getId().toString();
                 String id2 = inv2.getId().toString();
@@ -105,55 +118,84 @@ public class ExpenseWithdrawalStrategyServiceImpl implements ExpenseWithdrawalSt
             });
         }
 
-        // Initialize a new list to collect updated investments
         List<Investment> updatedInvestmentsList = new ArrayList<>();
 
-        // Iterate over each investment in the sorted list to process withdrawals.
+        // Process withdrawals by iterating sorted list of investments
         for (Investment investment : withdrawalInvestments) {
-            // If the required withdrawal amount has been met, add the remaining investments as-is.
             if (withdrawalNeeded.compareTo(BigDecimal.ZERO) <= 0) {
                 updatedInvestmentsList.add(investment);
                 continue;
             }
 
             BigDecimal investmentValue = BigDecimal.valueOf(investment.getValue());
-            // Skip if the investment's value is zero or negative.
             if (investmentValue.compareTo(BigDecimal.ZERO) <= 0) {
                 updatedInvestmentsList.add(investment);
                 continue;
             }
 
-            // Determine the amount to sell: the lesser of the current investment value and the remaining withdrawal needed.
-            BigDecimal sellAmount = investmentValue.compareTo(withdrawalNeeded) >= 0 ? withdrawalNeeded : investmentValue;
+            // Determine sell amount for capitalGains.
+            BigDecimal sellAmount = (investmentValue.compareTo(withdrawalNeeded) >= 0) ? withdrawalNeeded : investmentValue;
             BigDecimal preSaleValue = investmentValue;
             BigDecimal afterSaleValue = investmentValue.subtract(sellAmount);
 
-            // Compute the proportional capital gain for the sold portion.
-//            BigDecimal purchasePrice = investment.getPurchasePrice(); // Assume not null.
-//            BigDecimal capitalGain;
-//            if (sellAmount.compareTo(preSaleValue) == 0) {
-//                capitalGain = preSaleValue.subtract(purchasePrice);
-//            } else {
-//                BigDecimal fraction = sellAmount.divide(preSaleValue, 10, RoundingMode.HALF_UP);
-//                capitalGain = fraction.multiply(preSaleValue.subtract(purchasePrice));
-//            }
-//            if ("NON-RETIREMENT".equalsIgnoreCase(investment.getTaxStatus())) {
-//                context.setCurYearGains(context.getCurYearGains().add(capitalGain));
-//            }
-//
-//            // Increase the cash balance by the sell proceeds.
-//            context.setCashBalance(context.getCashBalance().add(sellAmount));
-//            // Decrease the remaining withdrawal needed.
-//            withdrawalNeeded = withdrawalNeeded.subtract(sellAmount);
+            // Retrieve corresponding purchase price record from investmentsPurchasingPrices.
+            Investment purchaseRecord = purchasePriceRecords.stream()
+                    .filter(rec -> rec.getId().equals(investment.getId()))
+                    .findFirst()
+                    .orElse(null);
 
-            // Create an updated Investment with the reduced value.
+            // If no record exists, use initial investment value as purchase price.
+            BigDecimal purchasePrice = (purchaseRecord != null)
+                    ? BigDecimal.valueOf(purchaseRecord.getValue())
+                    : BigDecimal.valueOf(investment.getValue());
+
+            // Compute sell fraction (f = sellAmount / preSaleValue)
+            BigDecimal fraction = sellAmount.divide(preSaleValue, 10, RoundingMode.HALF_UP);
+
+            // Compute capital gain (f * (preSaleValue - purchasePrice))
+            BigDecimal capitalGain = fraction.multiply(preSaleValue.subtract(purchasePrice));
+
+            if ("NON-RETIREMENT".equalsIgnoreCase(investment.getTaxStatus())) {
+                context.setCurYearGains(context.getCurYearGains().add(capitalGain));
+            }
+
+            // Update cash balance.
+            context.setCashBalance(context.getCashBalance().add(sellAmount));
+            withdrawalNeeded = withdrawalNeeded.subtract(sellAmount);
+
+            // Update purchase price for the sold investment (newPurchasePrice = (1 - f) * purchasePrice)
+            BigDecimal newPurchasePrice = BigDecimal.ONE.subtract(fraction).multiply(purchasePrice);
+
+            // Update the purchase record in purchasePriceRecords.
+            if (purchaseRecord != null) {
+                Investment updatedPurchaseRecord = purchaseRecord.toBuilder()
+                        .value(newPurchasePrice.doubleValue())
+                        .build();
+
+                // Replace old record in the list.
+                purchasePriceRecords.remove(purchaseRecord);
+                purchasePriceRecords.add(updatedPurchaseRecord);
+            }
+            else {
+                // If no record existed, create one using the newPurchasePrice.
+                Investment newRecord = investment.toBuilder()
+                        .value(newPurchasePrice.doubleValue())
+                        .build();
+                purchasePriceRecords.add(newRecord);
+            }
+
+            // Update the investment's market value after sale.
             Investment updatedInvestment = investment.toBuilder()
                     .value(afterSaleValue.doubleValue())
                     .build();
             updatedInvestmentsList.add(updatedInvestment);
         }
 
-        // Update the simulation context with the new list of updated investments.
+        // Update simulation context with the new list of updated investments.
         context.setUpdatedInvestments(updatedInvestmentsList);
+
+        // Also update the purchase price records in context.
+        context.setInvestmentsPurchasingPrices(purchasePriceRecords);
     }
+
 }

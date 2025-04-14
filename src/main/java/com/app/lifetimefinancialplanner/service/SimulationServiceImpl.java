@@ -223,33 +223,36 @@ public class SimulationServiceImpl implements SimulationService {
     public void payExpenseAndTax(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive) {
         // Determine filing status
         String filingStatus = (userAlive && spouseAlive) ? "MARRIED_JOINT" : "SINGLE";
+        int currentYear = context.getCurrentYear();
 
-        // Calculate taxable income
-        BigDecimal curYearIncome = context.getCurYearIncome();
-        BigDecimal curYearSS = context.getCurYearSS();
+        // Previous year's tax calculations
+        BigDecimal taxableIncome;
+        BigDecimal federalTax = BigDecimal.ZERO;
+        BigDecimal stateTax = BigDecimal.ZERO;
+        BigDecimal capitalGainsTax = BigDecimal.ZERO;
+        BigDecimal earlyWithdrawalTax = BigDecimal.ZERO;
 
-        // Compute taxable income (social security 85% is taxable)
-        BigDecimal taxableIncome = curYearIncome.add(curYearSS.multiply(BigDecimal.valueOf(0.85)));
-        if (taxableIncome.compareTo(BigDecimal.ZERO) < 0) {
+        if (currentYear == LocalDateTime.now().getYear()) {
+            // First simulation year: no tax
             taxableIncome = BigDecimal.ZERO;
         }
+        else {
+            taxableIncome = context.getPrevYearIncome().add(
+                    context.getPrevYearSS().multiply(BigDecimal.valueOf(0.85))
+            );
+            if (taxableIncome.compareTo(BigDecimal.ZERO) < 0) {
+                taxableIncome = BigDecimal.ZERO;
+            }
 
-        // Calculate federal and state income tax
-        BigDecimal federalTax = taxService.calculateFederalTax(taxableIncome, filingStatus);
-        BigDecimal stateTax = taxService.calculateStateTax(taxableIncome, scenario.getStateOfResidence(), filingStatus);
+            federalTax = taxService.calculateFederalTax(taxableIncome, filingStatus);
+            stateTax = taxService.calculateStateTax(taxableIncome, scenario.getStateOfResidence(), filingStatus);
+            capitalGainsTax = taxService.calculateCapitalGainsTax(context.getPrevYearGains(), filingStatus, scenario.getStateOfResidence());
 
-        // Compute capital gains tax
-        BigDecimal capitalGainsTax = taxService.calculateCapitalGainsTax(context.getCurYearGains(), filingStatus, scenario.getStateOfResidence());
-
-        // Compute early withdrawal tax:
-        int currentYear = context.getCurrentYear();
-        int userAge = currentYear - scenario.getBirthYearUser();
-
-        // If user's age is below 59, apply 10% penalty on early withdrawals.
-        BigDecimal earlyWithdrawalTax = BigDecimal.ZERO;
-         if (userAge < 59) {
-             earlyWithdrawalTax = taxService.calculateEarlyWithdrawalTax(context.getCurYearEarlyWithdrawals());
-         }
+            int userAge = currentYear - scenario.getBirthYearUser();
+            if (userAge < 59) {
+                earlyWithdrawalTax = taxService.calculateEarlyWithdrawalTax(context.getPrevYearEarlyWithdrawals());
+            }
+        }
 
         // Sum up total tax
         BigDecimal totalTax = federalTax.add(stateTax).add(capitalGainsTax).add(earlyWithdrawalTax);
