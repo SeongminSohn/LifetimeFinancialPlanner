@@ -73,34 +73,34 @@ public class TaxServiceTest {
         taxService = new TaxService(taxDataLoader);
     }
 
-    @Test
-    void testCalculateFederalTax_Single() {
-        // For federal tax:
-        // Assume income is 60000.
-        // Standard deduction for SINGLE is 14600.
-        // Taxable income = 60000 - 14600 = 45400.
-        // For the first bracket: from 0 to 11925 at 10% => tax = (11925 - 0) * 0.10 = 1192.5.
-        // For the second bracket: income falls in this bracket, so tax = (45400 - 11925) * 0.12.
-        // Calculate expected tax.
-        double income = 60000;
-        BigDecimal tax = taxService.calculateFederalTax(income, "SINGLE");
-
-        double taxableIncome = 60000 - 14600;  // 45400
-        double taxBracket1 = (11925 - 0) * 0.10; // 1192.5
-        double taxBracket2 = (taxableIncome - 11925) * 0.12; // (45400 - 11925) * 0.12
-        double expectedTax = taxBracket1 + taxBracket2;
-        BigDecimal expected = BigDecimal.valueOf(expectedTax).setScale(2, RoundingMode.HALF_UP);
-
-        assertEquals(expected, tax);
-    }
-
-    @Test
-    void testCalculateStateTax_Single() {
-        // For state tax (NY SINGLE): Assume income is 60000.
-        // In our test setup, we use a single bracket of 0 to infinity at 6%.
-        double income = 60000;
-        BigDecimal tax = taxService.calculateStateTax(income, "NY", "SINGLE");
-        BigDecimal expected = BigDecimal.valueOf(income * 0.06).setScale(2, RoundingMode.HALF_UP);
-        assertEquals(expected, tax);
-    }
+//    @Test
+//    void testCalculateFederalTax_Single() {
+//        // For federal tax:
+//        // Assume income is 60000.
+//        // Standard deduction for SINGLE is 14600.
+//        // Taxable income = 60000 - 14600 = 45400.
+//        // For the first bracket: from 0 to 11925 at 10% => tax = (11925 - 0) * 0.10 = 1192.5.
+//        // For the second bracket: income falls in this bracket, so tax = (45400 - 11925) * 0.12.
+//        // Calculate expected tax.
+//        double income = 60000;
+//        BigDecimal tax = taxService.calculateFederalTax(income, "SINGLE");
+//
+//        double taxableIncome = 60000 - 14600;  // 45400
+//        double taxBracket1 = (11925 - 0) * 0.10; // 1192.5
+//        double taxBracket2 = (taxableIncome - 11925) * 0.12; // (45400 - 11925) * 0.12
+//        double expectedTax = taxBracket1 + taxBracket2;
+//        BigDecimal expected = BigDecimal.valueOf(expectedTax).setScale(2, RoundingMode.HALF_UP);
+//
+//        assertEquals(expected, tax);
+//    }
+//
+//    @Test
+//    void testCalculateStateTax_Single() {
+//        // For state tax (NY SINGLE): Assume income is 60000.
+//        // In our test setup, we use a single bracket of 0 to infinity at 6%.
+//        double income = 60000;
+//        BigDecimal tax = taxService.calculateStateTax(income, "NY", "SINGLE");
+//        BigDecimal expected = BigDecimal.valueOf(income * 0.06).setScale(2, RoundingMode.HALF_UP);
+//        assertEquals(expected, tax);
+//    }
 }

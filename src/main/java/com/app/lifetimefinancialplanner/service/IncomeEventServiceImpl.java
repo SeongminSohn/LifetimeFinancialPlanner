@@ -22,13 +22,18 @@ public class IncomeEventServiceImpl implements IncomeEventService {
     private final EventSeriesRepository eventSeriesRepository;
     private final DistributionService distributionService;
     private final ScenarioRepository scenarioRepository;
+    private final SamplingService samplingService;
 
     public IncomeEventServiceImpl(IncomeEventRepository incomeEventRepository,
-                                  EventSeriesRepository eventSeriesRepository, DistributionService distributionService, ScenarioRepository scenarioRepository) {
+                                  EventSeriesRepository eventSeriesRepository,
+                                  DistributionService distributionService,
+                                  ScenarioRepository scenarioRepository,
+                                  SamplingService samplingService) {
         this.incomeEventRepository = incomeEventRepository;
         this.eventSeriesRepository = eventSeriesRepository;
         this.distributionService = distributionService;
         this.scenarioRepository = scenarioRepository;
+        this.samplingService = samplingService;
     }
 
     @Override
@@ -165,28 +170,31 @@ public class IncomeEventServiceImpl implements IncomeEventService {
             IncomeEvent incomeEvent = incomeEventRepository.findById(incomeSeries.getId())
                     .orElseThrow(() -> new IllegalArgumentException("IncomeEvent not found for EventSeries id: " + incomeSeries.getId()));
 
-            double startYear = incomeSeries.getStartYear().getValue();
-            double duration = incomeSeries.getDuration().getValue();
+            double startYear = samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getStartYear()));
+            double duration = samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getDuration()));
             double endYear = startYear + duration;
             int currentYear = context.getCurrentYear();
 
+            // Check if current year is within the period of income event
             if (currentYear < startYear || currentYear >= endYear){
-                double prevAmount = incomeEvent.getInitialAmount();
-                double annualChange = incomeEvent.getAnnualChange().getValue();
-                double currentAmount = prevAmount + annualChange;
+                // Sample annualChange and calculate the current amount of income
+                BigDecimal annualChange = BigDecimal.valueOf(samplingService.sample(distributionService.convertEmbeddableToDTO(incomeEvent.getAnnualChange())));
+                BigDecimal initialAmount = BigDecimal.valueOf(incomeEvent.getInitialAmount());
+                BigDecimal currentAmount = initialAmount.add(annualChange);
 
+                // Apply inflation adjustment if enabled
                 if ("Y".equalsIgnoreCase(incomeEvent.getInflationAdjustment())) {
-                    currentAmount *= context.getInflationFactor();
+                    currentAmount = currentAmount.multiply(BigDecimal.valueOf(context.getInflationFactor()));
                 }
 
                 double effectivePercentage = getEffectivePercentage(userAlive, spouseAlive, incomeEvent);
-                currentAmount = effectivePercentage * currentAmount;
+                currentAmount = currentAmount.multiply(BigDecimal.valueOf(effectivePercentage));
 
                 // Update the value of corresponding income type (regular / social security)
                 if ("Y".equalsIgnoreCase(incomeEvent.getIsSocialSecurity())) {
-                    context.setCurYearSS(context.getCurYearSS().add(BigDecimal.valueOf(currentAmount)));
+                    context.setCurYearSS(context.getCurYearSS().add(currentAmount));
                 } else {
-                    context.setCurYearIncome(context.getCurYearIncome().add(BigDecimal.valueOf(currentAmount)));
+                    context.setCurYearIncome(context.getCurYearIncome().add(currentAmount));
                 }
             }
         }

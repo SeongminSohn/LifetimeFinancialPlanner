@@ -3,6 +3,7 @@ package com.app.lifetimefinancialplanner.service;
 import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
 import com.app.lifetimefinancialplanner.domain.dto.SimulationDTO;
 import com.app.lifetimefinancialplanner.domain.dto.SimulationYearDTO;
+import com.app.lifetimefinancialplanner.domain.entity.Investment;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.domain.entity.Simulation;
 import com.app.lifetimefinancialplanner.domain.entity.SimulationYear;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -24,25 +26,31 @@ public class SimulationServiceImpl implements SimulationService {
     private final SimulationRepository simulationRepository;
     private final SimulationYearRepository simulationYearRepository;
     private final ScenarioRepository scenarioRepository;
-    private final LogService logService;
     private final IncomeEventService incomeEventService;
+    private final ExpenseWithdrawalStrategyService expenseWithdrawalStrategyService;
     private final SamplingService samplingService;
     private final DistributionService distributionService;
+    private final TaxService taxService;
+    private final LogService logService;
 
     public SimulationServiceImpl(SimulationRepository simulationRepository,
                                  SimulationYearRepository simulationYearRepository,
                                  ScenarioRepository scenarioRepository,
-                                 LogService logService,
+                                 ExpenseWithdrawalStrategyService expenseWithdrawalStrategyService,
                                  IncomeEventService incomeEventService,
                                  SamplingService samplingService,
-                                 DistributionService distributionService) {
+                                 DistributionService distributionService,
+                                 TaxService taxService,
+                                 LogService logService) {
         this.simulationRepository = simulationRepository;
         this.simulationYearRepository = simulationYearRepository;
         this.scenarioRepository = scenarioRepository;
-        this.logService = logService;
         this.incomeEventService = incomeEventService;
+        this.expenseWithdrawalStrategyService = expenseWithdrawalStrategyService;
         this.samplingService = samplingService;
         this.distributionService = distributionService;
+        this.taxService = taxService;
+        this.logService = logService;
     }
 
 
@@ -116,6 +124,7 @@ public class SimulationServiceImpl implements SimulationService {
              * such as: totalInvestments, totalIncome, totalExpenses, totalTax, cashBalance.
              */
             incomeEventService.runIncomeEvents(scenario, context, userAlive, spouseAlive);
+//            payExpenseAndTax(scenario, context, userAlive, spouseAlive);
 
             // Save the results in SimulationYear TODO: Currently Dummy data
             context.setCurYearIncome(BigDecimal.ZERO);
@@ -189,4 +198,131 @@ public class SimulationServiceImpl implements SimulationService {
 
         return simulationDTO;
     }
+
+    @Override
+    @Transactional
+    public void payExpenseAndTax(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive) {
+        // Determine filing status
+        String filingStatus = (userAlive && spouseAlive) ? "MARRIED_JOINT" : "SINGLE";
+
+        // Calculate taxable income
+        BigDecimal curYearIncome = context.getCurYearIncome();
+        BigDecimal curYearSS = context.getCurYearSS();
+        // Compute taxable income (social security 85% is taxable)
+        BigDecimal taxableIncome = curYearIncome.add(curYearSS.multiply(BigDecimal.valueOf(0.85)));
+        if (taxableIncome.compareTo(BigDecimal.ZERO) < 0) {
+            taxableIncome = BigDecimal.ZERO;
+        }
+
+        // Calculate federal and state income tax
+        BigDecimal federalTax = taxService.calculateFederalTax(taxableIncome, filingStatus);
+        BigDecimal stateTax = taxService.calculateStateTax(taxableIncome, scenario.getStateOfResidence(), filingStatus);
+
+        // Compute capital gains tax:
+        // Example: If context contains total capital gains, apply a rate (e.g., 15% for long-term gains)
+        // Here we assume context.getTotalGains() exists; modify accordingly if not yet defined.
+        BigDecimal capitalGainsTax = BigDecimal.ZERO;
+        // Uncomment and adjust when context has total gains:
+        // capitalGainsTax = context.getTotalGains().multiply(BigDecimal.valueOf(0.15));
+
+        // Compute early withdrawal tax:
+        int currentYear = context.getCurrentYear();
+        int userAge = currentYear - scenario.getBirthYearUser();
+
+        // If user's age is below 59, apply 10% penalty on early withdrawals.
+        BigDecimal earlyWithdrawalTax = BigDecimal.ZERO;
+         if (userAge < 59) {
+             earlyWithdrawalTax = context.getCurYearEarlyWithdrawals().multiply(BigDecimal.valueOf(0.10));
+         }
+
+        // Sum up total tax
+        BigDecimal totalTax = federalTax.add(stateTax).add(capitalGainsTax).add(earlyWithdrawalTax);
+        context.setTotalTax(totalTax);
+
+        // Compute total payment required: non-discretionary expenses + previous year's taxes
+        BigDecimal nonDiscretionaryExpense = context.getTotalExpenses();
+        BigDecimal totalPayment = nonDiscretionaryExpense.add(totalTax);
+
+        // Compute withdrawal needed: W = totalPayment - current cash balance
+        BigDecimal availableCash = context.getCashBalance();
+        BigDecimal withdrawalNeeded = totalPayment.subtract(availableCash);
+        if (withdrawalNeeded.compareTo(BigDecimal.ZERO) < 0) {
+            withdrawalNeeded = BigDecimal.ZERO;
+        }
+
+        // Withdraw necessary funds to cover expenses
+        // Instead of calling expenseWithdrawalService.withdraw, we use a local method withdrawFundsForExpenses.
+//        withdrawFundsForExpenses(scenario, context, withdrawalNeeded);
+
+        // 10. Finally, deduct the total payment from the cash balance.
+        context.setCashBalance(availableCash.subtract(totalPayment));
+    }
+
+//    private void withdrawFundsForExpenses(Scenario scenario, SimulationContext context, BigDecimal withdrawalNeeded) {
+//        // Retrieve the list of investments in the expense withdrawal strategy order
+//        List<Investment> withdrawalInvestments = getWithdrawalStrategyInvestments(scenario);
+//
+//        // Iterate through the investments to sell enough funds
+//        for (Investment investment : withdrawalInvestments) {
+//            // If the required withdrawal amount has been met, exit the loop.
+//            if (withdrawalNeeded.compareTo(BigDecimal.ZERO) <= 0) {
+//                break;
+//            }
+//
+//            BigDecimal investmentValue = BigDecimal.valueOf(investment.getValue());
+//            // Skip if the investment's value is 0 or negative.
+//            if (investmentValue.compareTo(BigDecimal.ZERO) <= 0) {
+//                continue;
+//            }
+//
+//            // Determine the amount to sell from the current investment
+//            BigDecimal sellAmount;
+//            if (investmentValue.compareTo(withdrawalNeeded) >= 0) {
+//                sellAmount = withdrawalNeeded;
+//            } else {
+//                sellAmount = investmentValue;
+//            }
+//
+//            // Save the pre-sale investment value for capital gain calculation.
+//            BigDecimal preSaleValue = investmentValue;
+//
+//            // Update the investment's value by subtracting the sell amount.
+//            BigDecimal afterSaleValue = investmentValue.subtract(sellAmount);
+//            investment.setValue(afterSaleValue);
+////            investment.toBuilder()
+////                    .aslkdfjlasdkfj
+//
+//            // Compute the proportional capital gain for the sold portion.
+//            BigDecimal purchasePrice = investment.getPurchasePrice(); // 반드시 null이 아니라고 가정
+//            BigDecimal capitalGain;
+//            if (sellAmount.compareTo(preSaleValue) == 0) {
+//                // If selling the entire investment, capital gain is the difference between the old value and the purchase price.
+//                capitalGain = preSaleValue.subtract(purchasePrice);
+//            } else {
+//                // For a partial sale, compute the fraction sold.
+//                BigDecimal fraction = sellAmount.divide(preSaleValue, 10, RoundingMode.HALF_UP);
+//                // Then, capital gain for the sold portion is the same fraction of the total (old value - purchasePrice).
+//                capitalGain = fraction.multiply(preSaleValue.subtract(purchasePrice));
+//            }
+//
+//            // Update the cumulative capital gains (curYearGains) only for NON-RETIREMENT investments.
+//            if ("NON-RETIREMENT".equalsIgnoreCase(investment.getTaxStatus())) {
+//                context.setTotalGains(context.getTotalGains().add(capitalGain));
+//            }
+//
+//            // Add the proceeds from the sale to the cash balance.
+//            context.setCashBalance(context.getCashBalance().add(sellAmount));
+//
+//            // Decrease the remaining withdrawal needed by the sell amount.
+//            withdrawalNeeded = withdrawalNeeded.subtract(sellAmount);
+//        }
+//    }
+
+    // Get list of investments in the expense withdrawal strategy order.
+    // 실제 구현에서는 시나리오의 expense withdrawal 전략(예: 투자 ID 목록 등)을 기반으로 투자 목록을 조회해야 합니다.
+//    private List<Investment> getWithdrawalStrategyInvestments(Scenario scenario) {
+//        // TODO: Implement the retrieval of investments based on the expense withdrawal strategy defined in the scenario.
+//        return investmentRepository.findInvestmentsForWithdrawalByScenarioId(scenario.getId());
+//    }
+
 }
