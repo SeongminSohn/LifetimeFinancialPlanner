@@ -22,21 +22,21 @@ public class TaxService {
     }
 
     // Calculate federal income tax based on income and filing status.
-    public BigDecimal calculateFederalTax(double income, String filingStatus) {
+    public BigDecimal calculateFederalTax(BigDecimal income, String filingStatus) {
         // Set Standard Deduction in terms of filing status
-        double standardDeduction;
+        BigDecimal standardDeduction;
         if (filingStatus.equalsIgnoreCase("SINGLE")) {
-            standardDeduction = 14600;
+            standardDeduction = BigDecimal.valueOf(14600);
         } else if (filingStatus.equalsIgnoreCase("MARRIED_JOINT")) {
-            standardDeduction = 29200;
+            standardDeduction = BigDecimal.valueOf(29200);
         } else {
             throw new IllegalArgumentException("Invalid filing status: " + filingStatus);
         }
 
-        double taxableIncome = income - standardDeduction;
+        BigDecimal taxableIncome = income.subtract(standardDeduction);
         // taxableIncome can't be negative (Set as 0)
-        if (taxableIncome < 0) {
-            taxableIncome = 0;
+        if (taxableIncome.compareTo(BigDecimal.ZERO) < 0) {
+            taxableIncome = BigDecimal.ZERO;
         }
 
         List<TaxBracketDTO> brackets = federalTaxDTO.getFederalBrackets().get(filingStatus);
@@ -47,7 +47,7 @@ public class TaxService {
     }
 
     // Calculate state income tax based on income, state code, and filing status.
-    public BigDecimal calculateStateTax(double income, String stateCode, String filingStatus) {
+    public BigDecimal calculateStateTax(BigDecimal income, String stateCode, String filingStatus) {
         // Retrieve tax brackets for the given state and filing status from stateTaxDTO.
         List<TaxBracketDTO> brackets = stateTaxDTO.getStateBrackets().get(stateCode)
                 .getBrackets().get(filingStatus);
@@ -58,39 +58,45 @@ public class TaxService {
         return calculateTaxFromBrackets(income, brackets);
     }
 
+    // Calculate capital gains tax
+    public BigDecimal calculateCapitalGainsTax(BigDecimal capitalGains, String filingStatus, String stateCode) {
+        BigDecimal federalTax = calculateFederalTax(capitalGains, filingStatus);
+        BigDecimal stateTax = calculateStateTax(capitalGains, stateCode, filingStatus);
+        return federalTax.add(stateTax).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // Calculate early withdrawal tax at a fixed 10% rate
+    public BigDecimal calculateEarlyWithdrawalTax(BigDecimal withdrawalAmount) {
+        return withdrawalAmount.multiply(BigDecimal.valueOf(0.10)).setScale(2, RoundingMode.HALF_UP);
+    }
+
     // Implement progressive tax calculation based on the given tax brackets.
-    private BigDecimal calculateTaxFromBrackets(double income, List<TaxBracketDTO> brackets) {
+    private BigDecimal calculateTaxFromBrackets(BigDecimal income, List<TaxBracketDTO> brackets) {
         BigDecimal taxResult = BigDecimal.ZERO;
         // Calculate the taxable amount for each bracket
         for (TaxBracketDTO bracket : brackets) {
-            double bracketMin = bracket.getMin();
-            Double bracketMax = bracket.getMax(); // can be null for highest tax bracket
-            double rate = bracket.getRate();
+            BigDecimal bracketMin = BigDecimal.valueOf(bracket.getMin());
+            Double bracketMaxVal = bracket.getMax(); // Set as double since highest tax bracket can be null
+            BigDecimal bracketMax = (bracketMaxVal != null) ? BigDecimal.valueOf(bracketMaxVal) : null;
+            BigDecimal rate = BigDecimal.valueOf(bracket.getRate());
 
             // Income does not reach this bracket, move to next bracket
-            if (income < bracketMin) {
+            if (income.compareTo(bracketMin) < 0) {
                 continue;
             }
-            // Income is greater than bracketMin
-            double taxableAmount;
-            if (bracketMax != null && income < bracketMax) {
+            BigDecimal taxableAmount;
+            if (bracketMax != null && income.compareTo(bracketMax) < 0) {
                 // Income is within this bracket, so calculate the taxableAmount
-                taxableAmount = income - bracketMin;
-                taxResult = taxResult.add(
-                        BigDecimal.valueOf(taxableAmount).multiply(BigDecimal.valueOf(rate))
-                );
+                taxableAmount = income.subtract(bracketMin);
+                taxResult = taxResult.add(taxableAmount.multiply(rate));
                 // No further brackets need processing.
                 break;
-            }
-            else {
+            } else {
                 // If income exceeds the bracket's max, tax the full range of the bracket.
-                taxableAmount = (bracketMax == null ? income : bracketMax) - bracketMin;
-                taxResult = taxResult.add(
-                        BigDecimal.valueOf(taxableAmount).multiply(BigDecimal.valueOf(rate))
-                );
+                taxableAmount = (bracketMax != null ? bracketMax.subtract(bracketMin) : income.subtract(bracketMin));
+                taxResult = taxResult.add(taxableAmount.multiply(rate));
             }
         }
-        //
         return taxResult.setScale(2, RoundingMode.HALF_UP);
     }
 }

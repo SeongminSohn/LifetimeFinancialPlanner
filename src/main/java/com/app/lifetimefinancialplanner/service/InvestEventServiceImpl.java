@@ -10,6 +10,8 @@ import com.app.lifetimefinancialplanner.repository.EventSeriesRepository;
 import com.app.lifetimefinancialplanner.repository.InvestEventRepository;
 import com.app.lifetimefinancialplanner.repository.InvestmentRepository;
 import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class InvestEventServiceImpl implements InvestEventService {
 
+    private static final Logger log = LoggerFactory.getLogger(InvestEventServiceImpl.class);
     private final InvestEventRepository investEventRepository;
     private final EventSeriesRepository eventSeriesRepository;
     private final InvestmentRepository investmentRepository;
@@ -81,17 +84,21 @@ public class InvestEventServiceImpl implements InvestEventService {
     public InvestEvent updateInvestEvent(Long eventSeriesId, InvestEventDTO dto) {
         InvestEvent existing = investEventRepository.findById(eventSeriesId)
                 .orElseThrow(() -> new RuntimeException("InvestEvent not found with id: " + eventSeriesId));
+        log.info("Updating InvestEvent with id: " + eventSeriesId);
+        log.info("Existing InvestEvent: " + existing);
 
-        // Assume scenario and investment are immutable once created.
-        // Update mutable fields such as assetAllocations and maxCash.
+        // Update assetAllocations and maxCash.
         List<AllocationEmbeddable> updatedAllocations =
                 dto.getAssetAllocations() != null ?
                         allocationService.convertDTOListToEmbeddableList(dto.getAssetAllocations()) : existing.getAssetAllocations();
+        log.info("Updated Allocation List:" + updatedAllocations);
 
         InvestEvent updated = existing.toBuilder()
                 .maxCash(dto.getMaxCash() != null ? dto.getMaxCash() : existing.getMaxCash())
                 .assetAllocations(updatedAllocations)
                 .build();
+        log.info("Updated InvestEvent: " + updated);
+
         return investEventRepository.save(updated);
     }
 
