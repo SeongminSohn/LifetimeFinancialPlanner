@@ -11,6 +11,7 @@ import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,15 +22,18 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
     private final EventSeriesRepository eventSeriesRepository;
     private final ScenarioRepository scenarioRepository;
     private final DistributionService distributionService;
+    private final SamplingService samplingService;
 
     public ExpenseEventServiceImpl(ExpenseEventRepository expenseEventRepository,
                                    EventSeriesRepository eventSeriesRepository,
                                    ScenarioRepository scenarioRepository,
-                                   DistributionService distributionService) {
+                                   DistributionService distributionService,
+                                   SamplingService samplingService) {
         this.expenseEventRepository = expenseEventRepository;
         this.eventSeriesRepository = eventSeriesRepository;
         this.scenarioRepository = scenarioRepository;
         this.distributionService = distributionService;
+        this.samplingService = samplingService;
     }
 
     @Override
@@ -145,4 +149,32 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional
+    public BigDecimal calculateNonDiscretionaryExpense(Scenario scenario, int simulationYear, double inflationFactor) {
+        // Retrieve all ExpenseEvents for the scenario (e.g., via expenseEventRepository.findAllByScenarioId(scenario.getId()))
+        List<ExpenseEvent> expenseEvents = expenseEventRepository.findAllByEventSeries_Scenario_Id(scenario.getId());
+        BigDecimal totalExpense = BigDecimal.ZERO;
+        for (ExpenseEvent event : expenseEvents) {
+            // Get event series parameters by sampling
+            int eventStartYear = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(event.getEventSeries().getStartYear()));
+            int eventDuration = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(event.getEventSeries().getDuration()));
+            int eventEndYear = eventStartYear + eventDuration;
+
+            // Process only if simulationYear falls in the event period
+            if (simulationYear >= eventStartYear && simulationYear < eventEndYear) {
+                BigDecimal annualChange = BigDecimal.valueOf(samplingService.sample(distributionService.convertEmbeddableToDTO(event.getAnnualChange())));
+                BigDecimal baseAmount = BigDecimal.valueOf(event.getInitialAmount());
+                BigDecimal eventExpense = baseAmount.add(annualChange);
+                if ("Y".equalsIgnoreCase(event.getInflationAdjustment())) {
+                    eventExpense = eventExpense.multiply(BigDecimal.valueOf(inflationFactor));
+                }
+                eventExpense = eventExpense.multiply(BigDecimal.valueOf(event.getUserPercentage()));
+                totalExpense = totalExpense.add(eventExpense);
+            }
+        }
+        return totalExpense;
+    }
+
 }

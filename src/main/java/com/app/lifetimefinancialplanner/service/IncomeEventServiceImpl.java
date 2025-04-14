@@ -4,7 +4,6 @@ import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
 import com.app.lifetimefinancialplanner.domain.entity.EventSeries;
 import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.dto.IncomeEventDTO;
-import com.app.lifetimefinancialplanner.domain.entity.Investment;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.repository.EventSeriesRepository;
 import com.app.lifetimefinancialplanner.repository.IncomeEventRepository;
@@ -165,7 +164,7 @@ public class IncomeEventServiceImpl implements IncomeEventService {
 
         // If currentYear is the actual current year, fetch IncomeEvents from DB
         if (currentYear == LocalDateTime.now().getYear()) {
-            incomeEventList = incomeEventRepository.findAllByScenarioId(scenario.getId());
+            incomeEventList = incomeEventRepository.findAllByEventSeries_Scenario_Id(scenario.getId());
             if (incomeEventList == null || incomeEventList.isEmpty()) {
                 throw new IllegalArgumentException("There is no IncomeEvent Information and This is Scenario ID: " + scenario.getId());
             }
