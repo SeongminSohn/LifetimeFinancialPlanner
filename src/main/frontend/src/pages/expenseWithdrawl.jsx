@@ -126,9 +126,10 @@ function ExpenseWithdrawlPage() {
             <aside className="sidebar">
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
-                <button onClick={toInvest}>Invest Edit</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button>Reports & Logs</button>
+                {/*<button onClick={toInvest}>Invest Edit</button>*/}
+                <button onClick={toInvestment}>Investment</button>
+                <button onClick={toInvestEvent}>Invest Event Edit</button>
+                <button onClick={toSim} disabled>Scenario Simulation</button>
                 <button>Import & Export Data</button>
             </aside>
         );
@@ -137,7 +138,9 @@ function ExpenseWithdrawlPage() {
     function toInvestment(){
         navPage('/Investment')
     }
-
+    function toWithDrawal(){
+        navPage('/ExpenseW');
+    }
     function toIncome() {
         navPage('/IncomePage');
     }
@@ -156,8 +159,8 @@ function ExpenseWithdrawlPage() {
     function toProfile() {
         navPage('/Profset');
     }
-    function toInvestEvent() {
-        navPage('/InvestEvent');
+    function toInvestEvent(){
+        navPage("/InvestEvent")
     }
 
     function handleButtonClick(item) {

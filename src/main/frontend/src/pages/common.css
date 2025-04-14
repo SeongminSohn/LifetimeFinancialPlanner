@@ -121,6 +121,17 @@ html {
     border: 0px;
 }
 
+.guider{
+    width: 100px;
+    height: 50px;
+    background-color: #333333;
+    color: white;
+    font-weight: bold;
+    border-radius: 15px;
+    border: none;
+    margin: 0px;
+    padding: 10px;
+}
 /*.submitButton{*/
 /*    width: 100px;*/
 /*    height: 50px;*/
@@ -144,12 +155,38 @@ html {
     align-items: center;
     height: 100vh;
     width: 60vw;
-    margin: 0;
-    padding: 0;
+    padding-top: 50px;
+    /*margin: 0;*/
+    /*padding: 0;*/
     background: #ffffff;
     border-radius: 30px;
     flex-direction: column;
     gap: 5vh;
+
+}
+.horizontal{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+}
+
+.instructions{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    width: 60vw;
+    margin: 0;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+    background: #ffffff;
+    border-radius: 30px;
+    flex-direction: column;
+    gap: 10px
 }
 
 .loginBox{
@@ -240,6 +277,19 @@ button:hover {
     background-color: #2980b9;
     transform: scale(1.05);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/*.instructions ul {*/
+/*    list-style: disc;*/
+/*    padding-left: 20px;*/
+/*}*/
+
+.instructions li {
+    margin-bottom: 30px;
+}
+
+.instructions li:last-child {
+    margin-bottom: 0;
 }
 
 img:hover {

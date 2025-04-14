@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './common.css';
-import {useEffect} from "react";
-import axios from "axios";
-import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
-import Axios from "axios"
 
-function userGuidePage(){
+function UserGuidePage() {
+    const navigate = useNavigate();
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [selectedInstruction, setSelectedInstruction] = useState(null);
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -14,99 +14,167 @@ function userGuidePage(){
         }
     }, []);
 
-    const [openSide, setSide] = useState(false);
-    const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
-    const navPage = useNavigate();
-    const [loggedIn, setLoggedIn] = useState(false)
-
-    const popupMenu = () => {
-        setSide(prevState => !prevState);
-    };
-    function sideElements(){
-        return openSide && (
-            <aside className="sidebar">
-                <button onClick={toIncome}>Income Edit</button>
-                <button onClick={toExpense}>Expense Edit</button>
-                <button onClick={toInvest}>Invest Edit</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button>Reports & Logs</button>
-                <button>Import & Export Date</button>
-            </aside>
-        )
+    function instructionInvestment() {
+        return (
+            <div className = "instructions">
+                <h2>Investment Instruction</h2>
+                <div>
+                    <ul>
+                <li>This page shows which investments the user currently holds.</li>
+                <li>Click the plus button at the top to set an investment type, which will then be displayed in the investments section.</li>
+                <li>In the Investment Type section, you can set the value of the entered investment type and configure its corresponding tax status.</li>
+                    <li>Clicking the X button will delete only the value and tax status entered for that investment.</li>
+                    </ul>
+                </div>
+            </div>
+        );
     }
 
-
-    function toIncome(){
-        navPage('/IncomePage')
+    function instructionIncomeEdit() {
+        return (
+            <div className = "instructions">
+                <h2>Income Edit Instruction</h2>
+                <div>
+                    <ul>
+                        <li>On this page, the user can enter their income information.</li>
+                        <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                    </ul>
+                </div>
+            </div>
+        );
     }
 
-    function toExpense(){
-        navPage('/ExpenseEdit');
+    function instructionExpenseEdit() {
+        return (
+            <div className = "instructions">
+                <h2>Expense Edit</h2>
+                <div>
+                    <ul>
+                        <li>On this page, the user can enter their expense information.</li>
+                        <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                    </ul>
+                </div>
+            </div>
+        );
     }
 
-    function toInvest(){
-        navPage('/InvestEdit')
+    function instructionInvestEdit() {
+        return (
+            <div className = "instructions">
+                <h2>Invest Edit Instruction</h2>
+                <div>
+                    <ul>
+                        <li>On this page, the user can enter their income information.</li>
+                        <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                    </ul>
+                </div>
+            </div>
+        );
     }
 
-    function toSim(){
-        navPage('/SimulationPage')
+    function instructionExpenseWithdrawal() {
+        return (
+            <div className = "instructions">
+                <h2>Expense Withdrawal Instruction</h2>
+                <div>
+                    <ul>
+                        <li>On this page, the user can enter their income information.</li>
+                        <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                    </ul>
+                </div>
+            </div>
+        );
     }
 
-    function toInvestment(){
-        navPage('/Investment')
+    function instructionInvestEventEdit() {
+        return (
+            <div className = "instructions">
+                <h2>Income Edit Instruction</h2>
+                <div>
+                    <ul>
+                        <li>On this page, the user can enter their income information.</li>
+                        <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                    </ul>
+                </div>
+            </div>
+        );
     }
 
-    function toProfile(){
-        navPage('/Profset');
+    function homeManage() {
+        return (
+            <div>
+                <p className="logoLetter" style={{ fontSize: 'xx-large', color: 'black', fontWeight: 'bold' }}>
+                    Life Financial Planner User Guide
+                </p>
+                <div className="horizontal">
+                <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "investment" ? null : "investment")}>
+                    Investment
+                </button>
+                <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "income" ? null : "income")}>
+                    Income Edit
+                </button>
+                <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "expense" ? null : "expense")}>
+                    Expense Edit
+                </button>
+                <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "invest" ? null : "invest")}>
+                    Invest Edit
+                </button>
+                <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "withdrawal" ? null : "withdrawal")}>
+                    Expense Withdrawal Edit
+                </button>
+                <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "investEvent" ? null : "investEvent")}>
+                    Invest Event Edit
+                </button>
+                <button className="guider" disabled style={{backgroundColor: 'grey'}}>
+                    Scenario Simulation
+                </button>
+                <button className="guider" disabled style={{backgroundColor: 'grey'}}>
+                    Import & Export Data
+                </button>
+                </div>
+            </div>
+        );
     }
 
-    function toLogin(){
-        navPage('/Loginpage');
-    }
-
-    function homeManage(){
-        return(<div className="guideBox">
-            <p className="logoLetter" style={{fontSize: 'xx-large', color: 'black', fontWeight: 'bold'}}>Life Financial Planner User Guide</p>
-            {/*{loggedIn === true && (<button className="submitButton" onClick={gettingStart}>Getting Start</button>)}*/}
-            {/*{loggedIn === false && (<button className="submitButton" onClick={toLogin} >Sign in</button>)}*/}
-            {/*{loggedIn === false && (<button className="submitButton">Try as a guest</button>)}*/}
-            <p style={{paddingLeft: "100px", paddingRight: "100px"}}>1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.</p>
-        </div>)
-    }
-
-    function gettingStart(){
-        const scenarioId = localStorage.getItem("scenario");
-        console.log(scenarioId)
-        if (scenarioId) {
-            toInvestment();
-        }else{
-            toProfile();
+    function renderInstruction() {
+        switch (selectedInstruction) {
+            case "investment":
+                return instructionInvestment();
+            case "income":
+                return instructionIncomeEdit();
+            case "expense":
+                return instructionExpenseEdit();
+            case "invest":
+                return instructionInvestEdit();
+            case "withdrawal":
+                return instructionExpenseWithdrawal();
+            case "investEvent":
+                return instructionInvestEventEdit();
+            default:
+                return null;
         }
     }
 
-
     function handleLogout() {
         localStorage.removeItem("token");
-        localStorage.removeItem("scenario")
+        localStorage.removeItem("scenario");
         setLoggedIn(false);
-        navPage("/Homepage");
+        navigate("/Homepage");
     }
 
-    return (<div className="total">
-        <nav className="navBarTop">
-            <img src="/public/caffeineOverloadLogo.png" className="logoSize" alt="logo" />
-            <p className="logoLetter">Life Time Financial Planner</p>
-            {loggedIn === true && (<button className="commonButton" onClick={handleLogout}>Log Out</button>)}
-            {loggedIn === false && (<div></div>)}
-        </nav>
-        <nav className="navBarSub">
-            {/*{loggedIn === true && <button className="commonButton" onClick={popupMenu}>Menu</button>}*/}
-            {/*{sideElements()}*/}
-            {/*{loggedIn === true && (<button className="commonButton" onClick={toProfile}>*/}
-            {/* Scenario Setting*/}
-            {/*</button>)}*/}
-        </nav>
-        {homeManage()}
-    </div>);
+    return (
+        <div className="total">
+            <nav className="navBarTop">
+                <img src="/public/caffeineOverloadLogo.png" className="logoSize" alt="logo" />
+                <p className="logoLetter">Life Time Financial Planner</p>
+                {loggedIn && <button className="commonButton" onClick={handleLogout}>Log Out</button>}
+                <div></div>
+            </nav>
+            <nav className="navBarSub"></nav>
+            {homeManage()}
+            {renderInstruction()}
+        </div>
+    );
 }
-export default userGuidePage;
+
+export default UserGuidePage;

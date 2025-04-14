@@ -123,7 +123,7 @@ function InvestEventPage() {
 
     }, []);
 
-    //If there is any change in array!
+    //If there is any change in array
     useEffect(() => {
         if (formData.assetAllocations && Array.isArray(formData.assetAllocations)) {
             const newAllocationValues = {};
@@ -142,9 +142,10 @@ function InvestEventPage() {
     function sideElements() {
         return openSide && (
             <aside className="sidebar">
+                <button onClick={toInvestment}>Investment</button>
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
-                <button onClick={toInvest}>Invest Edit</button>
+                {/*<button onClick={toInvest}>Invest Edit</button>*/}
                 <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
                 <button onClick={toInvestEvent}>Invest Event Edit</button>
                 <button onClick={toSim} disabled>Scenario Simulation</button>
@@ -153,6 +154,9 @@ function InvestEventPage() {
         );
     }
 
+    function toInvestment(){
+        navPage('/Investment')
+    }
     function toWithDrawal(){
         navPage('/ExpenseW');
     }
