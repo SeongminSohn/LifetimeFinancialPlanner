@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface IncomeEventRepository extends JpaRepository<IncomeEvent, Long> {
-    List<IncomeEvent> findAllByScenarioId(Long scenarioId);
+    List<IncomeEvent> findAllByEventSeries_Scenario_Id(Long scenarioId);
 }
