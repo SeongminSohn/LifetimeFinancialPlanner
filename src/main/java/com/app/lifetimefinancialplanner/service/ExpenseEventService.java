@@ -2,7 +2,9 @@ package com.app.lifetimefinancialplanner.service;
 
 import com.app.lifetimefinancialplanner.domain.dto.ExpenseEventDTO;
 import com.app.lifetimefinancialplanner.domain.entity.ExpenseEvent;
+import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ExpenseEventService {
@@ -11,4 +13,5 @@ public interface ExpenseEventService {
     ExpenseEvent updateExpenseEvent(Long eventSeriesId, ExpenseEventDTO expenseEventDTO);
     void deleteExpenseEvent(Long eventSeriesId);
     List<ExpenseEventDTO> getExpenseEventsBySeriesId(Long seriesId);
+    BigDecimal calculateNonDiscretionaryExpense(Scenario scenario, int simulationYear, double inflationFactor);
 }
