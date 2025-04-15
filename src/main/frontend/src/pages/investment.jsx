@@ -67,7 +67,7 @@ function Investment() {
                 <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
                 <button onClick={toInvestEvent}>Invest Event Edit</button>
                 <button onClick={toSim} disabled>Scenario Simulation</button>
-                <button>Import & Export Data</button>
+                <button disabled>Import & Export Data</button>
             </aside>
         );
     }
@@ -201,27 +201,32 @@ function Investment() {
             item => item.investmentTypeId === investmentTypeId
         );
         if (!existingRecord) {
-            alert("Did not Exist");
+            alert("Data does not exist");
             return;
         }
-
         try {
-            const response = await axios.delete(
+            await axios.delete(
                 `http://localhost:10000/api/investments/${existingRecord.id}`,
                 { withCredentials: true }
             );
-            console.log("Deleted investment:", response.data);
+            console.log("Deleted investment:", existingRecord);
             setExistingInvestments(prev =>
                 prev.filter(item => item.id !== existingRecord.id)
             );
-            setInvestmentTypes(prev =>
-                prev.filter(item => item.id !== investmentTypeId)
-            );
+            if (selectedInvestment && selectedInvestment.id === investmentTypeId) {
+                setFormData({
+                    id: '',
+                    investmentTypeId: investmentTypeId,
+                    value: '',
+                    taxStatus: 'NON-RETIREMENT',
+                });
+            }
         } catch (error) {
             console.error("Error deleting investment:", error);
             alert("Fail to Delete");
         }
     }
+
 
 
 
