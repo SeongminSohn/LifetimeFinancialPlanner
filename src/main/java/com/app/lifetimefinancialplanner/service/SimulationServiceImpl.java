@@ -184,8 +184,7 @@ public class SimulationServiceImpl implements SimulationService {
             simulationYearDTOList.add(yearDTO);
 
             // Log a text entry for the current simulation year.
-            logService.writeTextLog(logFilePrefix + ".log",
-                    "Processed simulation year " + currentYear + " with total investments: " + yearDTO.getTotalInvestments());
+            logService.writeTextLog(logFilePrefix + ".log", "Full SimulationContext: " + context.toString());
         }
 
         Simulation simulation = Simulation.builder()

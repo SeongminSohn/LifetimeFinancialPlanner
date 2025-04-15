@@ -17,8 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 public class IncomeEventServiceImpl implements IncomeEventService {
+    private static final Logger log = LoggerFactory.getLogger(IncomeEventServiceImpl.class);
 
     private final IncomeEventRepository incomeEventRepository;
     private final EventSeriesRepository eventSeriesRepository;
@@ -162,37 +168,38 @@ public class IncomeEventServiceImpl implements IncomeEventService {
         List<IncomeEvent> incomeEventList;
         List<IncomeEvent> updatedIncomeEventList = new ArrayList<>();
 
-        // If currentYear is the actual current year, fetch IncomeEvents from DB
+        // Determine the source of IncomeEvents based on whether the current year equals the actual current year.
         if (currentYear == LocalDateTime.now().getYear()) {
             incomeEventList = incomeEventRepository.findAllByEventSeries_Scenario_Id(scenario.getId());
             if (incomeEventList == null || incomeEventList.isEmpty()) {
+                log.error("No IncomeEvent data found in DB for Scenario ID: {}", scenario.getId());
                 throw new IllegalArgumentException("There is no IncomeEvent Information and This is Scenario ID: " + scenario.getId());
             }
-        }
-        // Otherwise, get IncomeEvents from updatedIncomeEvents in context
-        else {
+            log.info("Current Year branch: Retrieved {} IncomeEvents from DB for Scenario ID: {}", incomeEventList.size(), scenario.getId());
+        } else {
             incomeEventList = context.getUpdatedIncomeEvents();
             if (incomeEventList == null || incomeEventList.isEmpty()) {
+                log.error("Updated IncomeEvent data is empty for Scenario ID: {}", scenario.getId());
                 throw new IllegalArgumentException("There is no updated IncomeEvent Information and This is Scenario ID: " + scenario.getId());
             }
+            log.info("Non-Current Year branch: Using {} updated IncomeEvents from context for Scenario ID: {}", incomeEventList.size(), scenario.getId());
         }
 
-        // Iterate over each IncomeEvent from the chosen list
+        // Process each IncomeEvent
         for (IncomeEvent incomeEvent : incomeEventList) {
-            // Get associated EventSeries for incomeEvent
             EventSeries incomeSeries = incomeEvent.getEventSeries();
-            int startYear = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getStartYear()));
+            int eventStartYear = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getStartYear()));
             int duration = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getDuration()));
-            int endYear = startYear + duration;
+            int eventEndYear = eventStartYear + duration;
+            log.info("IncomeEvent (ID: {}) - Sampled startYear: {}, duration: {}, computed endYear: {}, current simulation year: {}",
+                    incomeEvent.getEventSeriesId(), eventStartYear, duration, eventEndYear, currentYear);
 
-            // Process IncomeEvent only if currentYear is within event period
-            if (currentYear >= startYear && currentYear < endYear) {
-                // Sample annualChange and compute the current income amount
+            // Process the IncomeEvent if it is active in the current simulation year.
+            if (currentYear >= eventStartYear && currentYear < eventEndYear) {
                 BigDecimal annualChange = BigDecimal.valueOf(samplingService.sample(distributionService.convertEmbeddableToDTO(incomeEvent.getAnnualChange())));
-                BigDecimal initialAmount = BigDecimal.valueOf(incomeEvent.getInitialAmount());
-                BigDecimal currentAmount = initialAmount.add(annualChange);
+                BigDecimal baseAmount = BigDecimal.valueOf(incomeEvent.getInitialAmount());
+                BigDecimal currentAmount = baseAmount.add(annualChange);
 
-                // Apply inflation adjustment if enabled
                 if ("Y".equalsIgnoreCase(incomeEvent.getInflationAdjustment())) {
                     currentAmount = currentAmount.multiply(BigDecimal.valueOf(context.getInflationFactor()));
                 }
@@ -200,24 +207,26 @@ public class IncomeEventServiceImpl implements IncomeEventService {
                 double effectivePercentage = getEffectivePercentage(userAlive, spouseAlive, incomeEvent);
                 currentAmount = currentAmount.multiply(BigDecimal.valueOf(effectivePercentage));
 
-                // Update corresponding income type in context (regular income or social security)
                 if ("Y".equalsIgnoreCase(incomeEvent.getIsSocialSecurity())) {
                     context.setCurYearSS(context.getCurYearSS().add(currentAmount));
                 } else {
                     context.setCurYearIncome(context.getCurYearIncome().add(currentAmount));
                 }
 
-                // Create updated IncomeEvent with new computed initialAmount and add to updated list
                 IncomeEvent updatedIncomeEvent = incomeEvent.toBuilder()
                         .initialAmount(currentAmount.doubleValue())
                         .build();
                 updatedIncomeEventList.add(updatedIncomeEvent);
+                log.info("Processed IncomeEvent (ID: {}): Computed currentAmount = {}", incomeEvent.getEventSeriesId(), currentAmount);
+            } else {
+                log.info("Skipped IncomeEvent (ID: {}) because the event is not active in the current simulation year: {}", incomeEvent.getEventSeriesId(), currentYear);
             }
         }
 
-        // Update the context with the new list of updated IncomeEvents
         context.setUpdatedIncomeEvents(updatedIncomeEventList);
+        log.info("runIncomeEvents completed: updatedIncomeEvents list size = {}", context.getUpdatedIncomeEvents().size());
     }
+
 
     private static double getEffectivePercentage(Boolean userAlive, Boolean spouseAlive, IncomeEvent incomeEvent) {
         double userPercent = incomeEvent.getUserPercentage() != null ? incomeEvent.getUserPercentage() : 0.0;
