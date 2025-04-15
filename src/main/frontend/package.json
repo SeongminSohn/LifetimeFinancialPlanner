@@ -46,6 +46,7 @@
     "vite": "^6.1.0"
   },
   "jest": {
+    "verbose": true,
     "testEnvironment": "jsdom",
     "transform": {
       "^.+\\.(js|jsx)$": "babel-jest"
@@ -64,6 +65,12 @@
     ],
     "moduleNameMapper": {
       "\\.(css|less|sass|scss)$": "identity-obj-proxy"
-    }
+    },
+    "collectCoverage": true,
+    "coverageReporters": ["html", "text-summary", "lcov"],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}",
+      "!src/index.js"
+    ]
   }
 }
