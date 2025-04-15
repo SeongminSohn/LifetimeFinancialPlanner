@@ -457,7 +457,7 @@ function homePage(){
                 <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
                 <button onClick={toInvestEvent}>Invest Event Edit</button>
                 <button onClick={toSim} disabled>Scenario Simulation</button>
-                <button>Import & Export Data</button>
+                <button disabled>Import & Export Data</button>
             </aside>
         );
     }

@@ -14,6 +14,10 @@ function UserGuidePage() {
         }
     }, []);
 
+    function toHome(){
+        navigate("/Homepage")
+    }
+
     function instructionInvestment() {
         return (
             <div className = "instructions">
@@ -51,7 +55,7 @@ function UserGuidePage() {
                 <div>
                     <ul>
                         <li>On this page, the user can enter their expense information.</li>
-                        <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                        <li>The "Is Discretionary" option at the bottom always functions as "No."</li>
                     </ul>
                 </div>
             </div>
@@ -64,8 +68,11 @@ function UserGuidePage() {
                 <h2>Invest Edit Instruction</h2>
                 <div>
                     <ul>
-                        <li>On this page, the user can enter their income information.</li>
-                        <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                        <li>On this page, the user can enter their Invest information.</li>
+                       <li>Only the following selections are allowed:
+                           Cash → YES or NO
+                           S&P 500 → YES
+                           TAX-EXEMPT BONDS → NO</li>
                     </ul>
                 </div>
             </div>
@@ -78,8 +85,9 @@ function UserGuidePage() {
                 <h2>Expense Withdrawal Instruction</h2>
                 <div>
                     <ul>
-                        <li>On this page, the user can enter their income information.</li>
-                        <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                        <li>On this page, user can set the selling order of the investments you hold.</li>
+                        <li>When you click, the elements are stacked in the order you click them. If you want to remove an element from the list, simply find and click the name of the element you want to remove within the list.</li>
+                        <li>Only the elements for which value and tax status have been entered in the investment section will appear as selectable options.</li>
                     </ul>
                 </div>
             </div>
@@ -165,9 +173,9 @@ function UserGuidePage() {
     return (
         <div className="total">
             <nav className="navBarTop">
-                <img src="/public/caffeineOverloadLogo.png" className="logoSize" alt="logo" />
+                <img onClick={toHome} src="/public/caffeineOverloadLogo.png" className="logoSize" alt="logo" />
                 <p className="logoLetter">Life Time Financial Planner</p>
-                {loggedIn && <button className="commonButton" onClick={handleLogout}>Log Out</button>}
+                {/*{loggedIn && <button className="commonButton" onClick={handleLogout}>Log Out</button>}*/}
                 <div></div>
             </nav>
             <nav className="navBarSub"></nav>

@@ -34,7 +34,7 @@ function InvestEventPage() {
             mean: null,
             stDev: null
         }, // private DistributionDTO duration;
-        eventType: "", //private String eventType;                   // 'INCOME', 'EXPENSE', 'INVEST'
+        eventType: "INVESTMENT", //private String eventType;                   // 'INCOME', 'EXPENSE', 'INVEST'
         assetAllocations: [], //private List<AllocationDTO> assetAllocations;
         maxCash: "" //private Double maxCash;
     });
@@ -432,59 +432,32 @@ function InvestEventPage() {
         const scenarioId = localStorage.getItem("scenario");
         const check = localStorage.getItem("InvestEvent");
         const allocationSum = Object.values(allocationValues).reduce((acc, cur) => acc + cur, 0);
-        if (allocationSum !== 1) {console.log("This is Allocation Sum: ", allocationSum); alert("Sum of the values that you put must be 1."); return;
-        }
+        const forJavaCal = Math.round(allocationSum * 1e10) / 1e10;
+        if (forJavaCal !== 1) {console.log("This is Allocation Sum: ", allocationSum); alert("Sum of the values that you put must be 1."); return;}
         const updatedData = {
             ...formData,
             scenarioId,
             assetAllocations: formData.assetAllocations
-        };
-        console.log("This is Updated Data: ", updatedData);
+        }
+        // console.log("check!", check)
+        // console.log("This is Updated Data: ", updatedData);
         try {
-            if (check) {
+            if (check === "CHECK") {
+                console.log("Update!")
                 const response = await axios.put(
                     `http://localhost:10000/api/invest-events/1`,
                     updatedData,
                     { withCredentials: true, headers: { "Content-Type": "application/json" } }
                 );
-                console.log("Updated Investment!:", response.data);
             } else {
-                const response = await axios.post(
-                    `http://localhost:10000/api/invest-events`,
+                console.log("Create!")
+                localStorage.setItem("InvestEvent", "CHECK");
+                const response = await axios.post(`http://localhost:10000/api/invest-events`,
                     updatedData,
                     { withCredentials: true, headers: { "Content-Type": "application/json" } });
-                localStorage.setItem("InvestEvent", response.data.scenarioId);
                 console.log("Created Investment!:", response.data);
             }
             setSelectedInvestment(null);
-            // setFormData({
-            //     scenarioId: "",
-            //     // eventSeriesId: "",
-            //     // investmentId: '',
-            //     name: "",
-            //     startYear: {
-            //         amountOrPercent: "AMOUNT",
-            //         distributionType: "FIXED",
-            //         value: null,
-            //         lower: null,
-            //         upper: null,
-            //         mean: null,
-            //         stDev: null
-            //     },
-            //     duration: {
-            //         amountOrPercent: "AMOUNT",
-            //         distributionType: "FIXED",
-            //         value: null,
-            //         lower: null,
-            //         upper: null,
-            //         mean: null,
-            //         stDev: null
-            //     },
-            //     eventType: "",
-            //     assetAllocations: "",
-            //     maxCash: ""
-            // });
-            // setAllocationValues({});
         } catch (error) {
             console.error("Submit Error:", error);
             alert("Try again");
@@ -531,12 +504,12 @@ function InvestEventPage() {
                             <option value = "NORMAL">NORMAL</option>
                         </select></div>
                     {chooseKone()}
-                    <div className="login">
-                        <label htmlFor="eventType">Event Type: </label>
-                        <input
-                            type="text" id="eventType" name="eventType" value={formData.eventType}
-                            onChange={(e) => setFormData(prev => ({ ...prev, eventType: e.target.value }))} required/>
-                    </div>
+                    {/*<div className="login">*/}
+                    {/*    <label htmlFor="eventType">Event Type: </label>*/}
+                    {/*    <input*/}
+                    {/*        type="text" id="eventType" name="eventType" value={formData.eventType}*/}
+                    {/*        onChange={(e) => setFormData(prev => ({ ...prev, eventType: e.target.value }))} required/>*/}
+                    {/*</div>*/}
                     {setupAssetAllocation()}
                     <button type = "button" onClick={handleSaveList}>Save to List</button>
                     <div className="login">
@@ -545,7 +518,7 @@ function InvestEventPage() {
                     </div>
 
                 </form>
-                    <button type="Submit" onClick={handleSubmit}>Submit</button>
+                    <button type="button" onClick={handleSubmit}>Submit</button>
             </div>
         );
     }
