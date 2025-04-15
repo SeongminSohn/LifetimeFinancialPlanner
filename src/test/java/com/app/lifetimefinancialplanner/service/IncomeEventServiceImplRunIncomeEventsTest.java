@@ -71,7 +71,7 @@ class IncomeEventServiceImplRunIncomeEventsTest {
         when(distributionService.convertEmbeddableToDTO(any())).thenReturn(dummyDist);
         when(samplingService.sample(dummyDist))
                 .thenReturn((double)(now - 1), 3.0, 50.0);
-        when(incomeEventRepository.findAllByScenarioId(scenario.getId()))
+        when(incomeEventRepository.findAllByEventSeries_Scenario_Id(scenario.getId()))
                 .thenReturn(List.of(incomeEvent));
         incomeEventService.runIncomeEvents(scenario, context, true, true);
         assertEquals(1155.0, context.getCurYearIncome().doubleValue(), 1e-6);

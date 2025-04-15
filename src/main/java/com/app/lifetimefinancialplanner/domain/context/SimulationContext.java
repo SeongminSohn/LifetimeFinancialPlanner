@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -15,9 +16,9 @@ public class SimulationContext {
     private double inflationFactor;
     private double cumulativeInflation;
     private double adjustedAfterTaxContributionLimit;
-    private List<IncomeEvent> updatedIncomeEvents;
-    private List<Investment> updatedInvestments;
-    private List<Investment> investmentsPurchasingPrices;
+    private List<IncomeEvent> updatedIncomeEvents = new ArrayList<>();
+    private List<Investment> updatedInvestments = new ArrayList<>();
+    private List<Investment> investmentsPurchasingPrices = new ArrayList<>();
     // Current Year Variables
     private BigDecimal curYearIncome = BigDecimal.ZERO;
     private BigDecimal curYearSS = BigDecimal.ZERO;
