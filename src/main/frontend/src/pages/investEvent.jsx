@@ -442,7 +442,7 @@ function InvestEventPage() {
         // console.log("check!", check)
         // console.log("This is Updated Data: ", updatedData);
         try {
-            if (check !== "undefined") {
+            if (check === "CHECK") {
                 console.log("Update!")
                 const response = await axios.put(
                     `http://localhost:10000/api/invest-events/1`,
@@ -455,7 +455,7 @@ function InvestEventPage() {
                 const response = await axios.post(`http://localhost:10000/api/invest-events`,
                     updatedData,
                     { withCredentials: true, headers: { "Content-Type": "application/json" } });
-                // console.log("Created Investment!:", response.data);
+                console.log("Created Investment!:", response.data);
             }
             setSelectedInvestment(null);
         } catch (error) {
