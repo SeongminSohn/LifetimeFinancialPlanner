@@ -6,6 +6,8 @@ function UserGuidePage() {
     const navigate = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false);
     const [selectedInstruction, setSelectedInstruction] = useState(null);
+    const [openSide, setSide] = useState(false);
+    const navPage = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -14,9 +16,52 @@ function UserGuidePage() {
         }
     }, []);
 
+    function sideElements() {
+        return openSide && (
+            <aside className="sidebar">
+                <button onClick={toIncome}>Income Edit</button>
+                <button onClick={toExpense}>Expense Edit</button>
+                <button onClick={toInvest}>Invest Edit</button>
+                <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
+                <button onClick={toInvestEvent}>Invest Event Edit</button>
+                <button onClick={toSim}>Scenario Simulation</button>
+                <button disabled>Import & Export Data</button>
+            </aside>
+        );
+    }
+
+    function toWithDrawal(){
+        navPage('/ExpenseW');
+    }
+    function toIncome() {
+        navPage('/IncomePage');
+    }
+    function toExpense() {
+        navPage('/ExpenseEdit');
+    }
+    function toInvest() {
+        navPage('/InvestEdit');
+    }
+    function toSim() {
+        navPage('/simulationPage');
+    }
+    function toHome() {
+        navPage('/Homepage');
+    }
+    function toProfile() {
+        navPage('/Profset');
+    }
+    function toInvestEvent(){
+        navPage("/InvestEvent")
+    }
+
     function toHome(){
         navigate("/Homepage")
     }
+
+    const popupMenu = () => {
+        setSide(prev => !prev);
+    };
 
     function instructionInvestment() {
         return (
@@ -178,7 +223,10 @@ function UserGuidePage() {
                 {/*{loggedIn && <button className="commonButton" onClick={handleLogout}>Log Out</button>}*/}
                 <div></div>
             </nav>
-            <nav className="navBarSub"></nav>
+            <nav className="navBarSub">
+                <button className="commonButton" onClick={popupMenu}>Menu</button>
+                {sideElements()}
+            </nav>
             {homeManage()}
             {renderInstruction()}
         </div>

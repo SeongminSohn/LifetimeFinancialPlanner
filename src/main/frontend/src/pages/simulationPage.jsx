@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './common.css';
-import {useEffect} from "react";
-import axios from "axios";
-import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
 import Axios from "axios"
+import axios from "axios";
 
 function simulationPage(){
     useEffect(() => {
@@ -15,9 +13,12 @@ function simulationPage(){
     }, []);
 
     const [openSide, setSide] = useState(false);
-    const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
-    const [loggedIn, setLoggedIn] = useState(false)
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [formData, setFormData] = useState({
+        scenarioId: '', //private Long scenarioId;
+        simulationCount: ''//private Integer simulationCount;
+    });
 
     const popupMenu = () => {
         setSide(prevState => !prevState);
@@ -29,48 +30,77 @@ function simulationPage(){
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
                 <button onClick={toInvest}>Invest Edit</button>
-                <button onClick={toInvestment}>Investment</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button>Import & Export Date</button>
+                <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
+                <button onClick={toInvestEvent}>Invest Event Edit</button>
+                {/*<button onClick={toSim}>Scenario Simulation</button>*/}
+                <button disabled>Import & Export Data</button>
             </aside>
         )
     }
 
-    function toInvestment(){
-        navPage('/Investment')
-    }
-    function toHome(){
-        navPage('/HomePage')
+    function toUserGuide(){
+        navPage("/UserGuide")
     }
 
-    function toIncome(){
-        navPage('/IncomePage')
+    function toSimulationResult(){
+        navPage("/SimulationResult")
     }
-
-    function toExpense(){
+    function toWithDrawal(){
+        navPage('/ExpenseW');
+    }
+    function toIncome() {
+        navPage('/IncomePage');
+    }
+    function toExpense() {
         navPage('/ExpenseEdit');
     }
-
-    function toInvest(){
-        navPage('/InvestEdit')
+    function toInvest() {
+        navPage('/InvestEdit');
     }
-
-    function toSim(){
-        navPage('/SimulationPage')
+    function toSim() {
+        navPage('/simulationPage');
     }
-
-
-    function toProfile(){
+    function toHome() {
+        navPage('/Homepage');
+    }
+    function toProfile() {
         navPage('/Profset');
     }
-
-    function toLogin(){
-        navPage('/Loginpage');
+    function toInvestEvent(){
+        navPage("/InvestEvent")
     }
 
-    function homeManage(){
+    async function handleSubmit(){
+        formData.scenarioId = localStorage.getItem("scenario")
+        console.log(formData)
+        try {
+            const response = await axios.post("http://localhost:10000/api/simulations", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+            console.log("Data:", response.data);
+        } catch (error) {
+            console.error("log in Error:", error);
+            alert("Fail to Post Data");
+        }
+    }
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    function simulationSetting(){
         return(<div className="loginBox">
-            <></>
+            <p><strong>Enter Simulation Times</strong></p>
+            <input
+                type="number"
+                name="simulationCount"
+                id="simulationCount"
+                placeholder="Please specify the number of simulation runs."
+                onChange={handleChange}
+                value={formData.simulationCount}
+                style={{ width:"280px" }}
+                required
+            />
+            <button onClick = {handleSubmit}>Submit</button>
         </div>)
     }
 
@@ -78,7 +108,7 @@ function simulationPage(){
         <nav className="navBarTop">
             <img src ="/public/caffeineOverloadLogo.png" className = "logoSize" onClick={toHome}></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            <div></div>
+            <button onClick={toUserGuide}>User Guide</button>
         </nav>
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
@@ -87,7 +117,7 @@ function simulationPage(){
                 Scenario Setting
             </button>)}
         </nav>
-        {homeManage()}
+        {simulationSetting()}
     </div>);
 }
 export default simulationPage;

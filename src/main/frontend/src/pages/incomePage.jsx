@@ -13,19 +13,19 @@ function homePage(){
         }
     }, []);
 
-    useEffect(() => {
-        axios.get(`http://localhost:10000/api/income-events/2`)
-            .then(response => {
-                console.log("Existing IncomeEvents:", response.data);
-                setFormData(prevState => ({
-                    ...prevState,
-                    ...response.data
-                }));
-            })
-            .catch(error => {
-                console.error("Error fetching incomes:", error);
-            });
-    }, []);
+    // useEffect(() => {
+    //     axios.get(`http://localhost:10000/api/income-events/2`)
+    //         .then(response => {
+    //             console.log("Existing IncomeEvents:", response.data);
+    //             setFormData(prevState => ({
+    //                 ...prevState,
+    //                 ...response.data
+    //             }));
+    //         })
+    //         .catch(error => {
+    //             console.error("Error fetching incomes:", error);
+    //         });
+    // }, []);
 
     const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
@@ -75,6 +75,26 @@ function homePage(){
 
     async function handleSubmit(event) {
         event.preventDefault();
+
+
+        const { distributionType: distU, lower: lowU, upper: upU } = formData.startYear;
+        if (distU === "UNIFORM" && Number(upU) <= Number(lowU)) {
+            alert("Upper Value has to be greater than lower value for Start Year");
+            return;
+        }
+
+        const { distributionType: distI, lower: lowI, upper: upI } = formData.annualChange;
+        if (distI === "UNIFORM" && Number(upI) <= Number(lowI)) {
+            alert("Upper Value has to be greater than lower value for Annual Change.");
+            return;
+        }
+
+        const { distributionType: distD, lower: lowD, upper: upD } = formData.duration;
+        if (distD === "UNIFORM" && Number(upD) <= Number(lowD)){
+            alert("Upper Value has to be greater than lower value for Duration.");
+            return;
+        }
+
         formData.scenarioId = localStorage.getItem("scenario")
         console.log(formData)
         try {
@@ -158,7 +178,7 @@ function homePage(){
                         name="duration.value"
                         id="duration.FIXED"
                         placeholder="value"
-                        value={formData.duration.value || ""}
+                        value={formData.duration.value ?? ""}
                         onChange={handleChange}
                         required
                     />
@@ -170,7 +190,7 @@ function homePage(){
                             name="duration.lower"
                             id="duration.LOWER"
                             placeholder="Lower"
-                            value={formData.duration.lower || ""}
+                            value={formData.duration.lower ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -179,7 +199,7 @@ function homePage(){
                             name="duration.upper"
                             id="duration.UPPER"
                             placeholder="Upper"
-                            value={formData.duration.upper || ""}
+                            value={formData.duration.upper ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -192,7 +212,7 @@ function homePage(){
                             name="duration.mean"
                             id="duration.MEAN"
                             placeholder="mean"
-                            value={formData.duration.mean || ""}
+                            value={formData.duration.mean ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -201,7 +221,7 @@ function homePage(){
                             name="duration.stDev"
                             id="duration.STDEV"
                             placeholder="standard deviation"
-                            value={formData.duration.stDev || ""}
+                            value={formData.duration.stDev ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -220,7 +240,7 @@ function homePage(){
                         name="annualChange.value"
                         id="annualChange.FIXED"
                         placeholder="value"
-                        value={formData.annualChange.value || ""}
+                        value={formData.annualChange.value ?? ""}
                         onChange={handleChange}
                         required
                     />
@@ -232,7 +252,7 @@ function homePage(){
                             name="annualChange.lower"
                             id="annualChange.LOWER"
                             placeholder="Lower"
-                            value={formData.annualChange.lower || ""}
+                            value={formData.annualChange.lower ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -241,7 +261,7 @@ function homePage(){
                             name="annualChange.upper"
                             id="annualChange.UPPER"
                             placeholder="Upper"
-                            value={formData.annualChange.upper || ""}
+                            value={formData.annualChange.upper ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -254,7 +274,7 @@ function homePage(){
                             name="annualChange.mean"
                             id="annualChange.MEAN"
                             placeholder="mean"
-                            value={formData.annualChange.mean || ""}
+                            value={formData.annualChange.mean ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -263,7 +283,7 @@ function homePage(){
                             name="annualChange.stDev"
                             id="annualChange.STDEV"
                             placeholder="standard deviation"
-                            value={formData.annualChange.stDev || ""}
+                            value={formData.annualChange.stDev ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -293,7 +313,7 @@ function homePage(){
                     value={formData.startYear.amountOrPercent}
                     onChange={handleChange} required>
                     <option value = "AMOUNT">Amount</option>
-                    <option value = "PERCENT">Percent</option>
+                    {/*<option value = "PERCENT">Percent</option>*/}
                 </select></div>
             <div className="login"><label htmlFor="startYear.distributionType">Distribution Type </label>
                 <select name="startYear.distributionType" id="startYear.distributionType" value={formData.startYear.distributionType} onChange={handleChange} required>
@@ -394,6 +414,69 @@ function homePage(){
     function handleChange(e) {
         const { name, value } = e.target;
 
+        if (name === "startYear.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                startYear: {
+                    ...prev.startYear,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
+        if (name === "duration.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                duration: {
+                    ...prev.duration,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
+        if (name === "annualChange.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                annualChange: {
+                    ...prev.annualChange,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
+        if (name === "userPercentage") {
+            let numericValue = parseFloat(value);
+            if (isNaN(numericValue)) {
+                numericValue = 0;
+            }
+            if (numericValue < 0) numericValue = 0;
+            if (numericValue > 1) numericValue = 1;
+
+            setFormData(prev => ({
+                ...prev,
+                userPercentage: numericValue,
+            }));
+            return;
+        }
+
         if (name === "birthYearUser" || name === "birthYearSpouse") {
             const currentYear = new Date().getFullYear();
             const numericValue = parseInt(value, 10);
@@ -420,6 +503,25 @@ function homePage(){
 
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
+
+            if (
+                (parentKey === "startYear" || parentKey === "annualChange" || parentKey === "duration") &&
+                formData[parentKey].amountOrPercent === "PERCENT"
+            ) {
+                let num = parseFloat(value);
+                if (isNaN(num)) num = "";
+                else num = Math.max(0, Math.min(1, num));
+
+                setFormData(prev => ({
+                    ...prev,
+                    [parentKey]: {
+                        ...prev[parentKey],
+                        [childKey]: num
+                    }
+                }));
+                return;
+            }
+
             setFormData(prevState => ({
                 ...prevState,
                 [parentKey]: {
@@ -456,7 +558,7 @@ function homePage(){
                 {/*<button onClick={toInvest}>Invest Edit</button>*/}
                 <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
                 <button onClick={toInvestEvent}>Invest Event Edit</button>
-                <button onClick={toSim} disabled>Scenario Simulation</button>
+                <button onClick={toSim}>Scenario Simulation</button>
                 <button disabled>Import & Export Data</button>
             </aside>
         );

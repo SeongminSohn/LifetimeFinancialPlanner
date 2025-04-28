@@ -115,6 +115,52 @@ function profileSetting(){
 
     function handleChange(e) {
         const { name, value } = e.target;
+        if (name === "lifeExpectancyUser.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                lifeExpectancyUser: {
+                    ...prev.lifeExpectancyUser,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+        if (name === "lifeExpectancySpouse.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                lifeExpectancySpouse: {
+                    ...prev.lifeExpectancySpouse,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
+        if (name === "inflationAssumption.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                inflationAssumption: {
+                    ...prev.inflationAssumption,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
 
         if (name === "birthYearUser" || name === "birthYearSpouse") {
             const currentYear = new Date().getFullYear();
@@ -131,7 +177,7 @@ function profileSetting(){
         if (name === "financialGoal") {
             let numericValue = parseFloat(value);
             if (isNaN(numericValue)) numericValue = 1;
-            if (numericValue < 0) numericValue = 1;
+            // if (numericValue <= 0) numericValue = 1;
 
             setFormData(prev => ({
                 ...prev,
@@ -142,6 +188,23 @@ function profileSetting(){
 
         if (name.includes('.')) {
             const [parentKey, childKey] = name.split('.');
+            if (
+                (parentKey === "lifeExpectancyUser" || parentKey === "lifeExpectancySpouse" || parentKey === "inflationAssumption") &&
+                formData[parentKey].amountOrPercent === "PERCENT"
+            ) {
+                let num = parseFloat(value);
+                if (isNaN(num)) num = "";
+                else num = Math.max(0, Math.min(1, num));
+
+                setFormData(prev => ({
+                    ...prev,
+                    [parentKey]: {
+                        ...prev[parentKey],
+                        [childKey]: num
+                    }
+                }));
+                return;
+            }
             setFormData(prevState => ({
                 ...prevState,
                 [parentKey]: {
@@ -172,6 +235,25 @@ function profileSetting(){
 
     async function handleSubmit(event) {
         event.preventDefault();
+        const { distributionType: distU, lower: lowU, upper: upU } = formData.lifeExpectancyUser;
+        if (distU === "UNIFORM" && Number(upU) <= Number(lowU)) {
+            alert("Upper Value has to be greater than lower value for Life Expectancy");
+            return;
+        }
+        if (formData.maritalStatus === "Y") {
+            const { distributionType: distS, lower: lowS, upper: upS } = formData.lifeExpectancySpouse;
+            if (distS === "UNIFORM" && Number(upS) <= Number(lowS)) {
+                alert("Upper Value has to be greater than lower value for Spouse Year.");
+                return;
+            }
+        }
+        const { distributionType: distI, lower: lowI, upper: upI } = formData.inflationAssumption;
+        if (distI === "UNIFORM" && Number(upI) <= Number(lowI)) {
+            alert("Upper Value has to be greater than lower value for inflation Assumption.");
+            return;
+        }
+
+
         formData.userId = localStorage.getItem("token")
         const scenarioId =  localStorage.getItem("scenario")
         console.log("hi",scenarioId )
@@ -198,6 +280,7 @@ function profileSetting(){
     }
 
     function changerSpouse() {
+
         if (formData.maritalStatus === "Y") {
             setFormData(prev => ({
                 ...prev,
@@ -214,56 +297,56 @@ function profileSetting(){
         return (<div className="login">
                 <label htmlFor="stateOfResidence">State Selection</label>
                 <select name="stateOfResidence" id="stateOfResidence" value={formData.stateOfResidence} onChange={handleChange}>
-                    <option value="AL">AL</option>
-                    <option value="AK">AK</option>
-                    <option value="AZ">AZ</option>
-                    <option value="AR">AR</option>
-                    <option value="CA">CA</option>
-                    <option value="CO">CO</option>
+                    {/*<option value="AL">AL</option>*/}
+                    {/*<option value="AK">AK</option>*/}
+                    {/*<option value="AZ">AZ</option>*/}
+                    {/*<option value="AR">AR</option>*/}
+                    {/*<option value="CA">CA</option>*/}
+                    {/*<option value="CO">CO</option>*/}
                     <option value="CT">CT</option>
-                    <option value="DE">DE</option>
-                    <option value="FL">FL</option>
-                    <option value="GA">GA</option>
-                    <option value="HI">HI</option>
-                    <option value="ID">ID</option>
-                    <option value="IL">IL</option>
-                    <option value="IN">IN</option>
-                    <option value="IA">IA</option>
-                    <option value="KS">KS</option>
-                    <option value="KY">KY</option>
-                    <option value="LA">LA</option>
-                    <option value="ME">ME</option>
-                    <option value="MD">MD</option>
-                    <option value="MA">MA</option>
-                    <option value="MI">MI</option>
-                    <option value="MN">MN</option>
-                    <option value="MS">MS</option>
-                    <option value="MO">MO</option>
-                    <option value="MT">MT</option>
-                    <option value="NE">NE</option>
-                    <option value="NV">NV</option>
-                    <option value="NH">NH</option>
+                    {/*<option value="DE">DE</option>*/}
+                    {/*<option value="FL">FL</option>*/}
+                    {/*<option value="GA">GA</option>*/}
+                    {/*<option value="HI">HI</option>*/}
+                    {/*<option value="ID">ID</option>*/}
+                    {/*<option value="IL">IL</option>*/}
+                    {/*<option value="IN">IN</option>*/}
+                    {/*<option value="IA">IA</option>*/}
+                    {/*<option value="KS">KS</option>*/}
+                    {/*<option value="KY">KY</option>*/}
+                    {/*<option value="LA">LA</option>*/}
+                    {/*<option value="ME">ME</option>*/}
+                    {/*<option value="MD">MD</option>*/}
+                    {/*<option value="MA">MA</option>*/}
+                    {/*<option value="MI">MI</option>*/}
+                    {/*<option value="MN">MN</option>*/}
+                    {/*<option value="MS">MS</option>*/}
+                    {/*<option value="MO">MO</option>*/}
+                    {/*<option value="MT">MT</option>*/}
+                    {/*<option value="NE">NE</option>*/}
+                    {/*<option value="NV">NV</option>*/}
+                    {/*<option value="NH">NH</option>*/}
                     <option value="NJ">NJ</option>
-                    <option value="NM">NM</option>
+                    {/*<option value="NM">NM</option>*/}
                     <option value="NY">NY</option>
-                    <option value="NC">NC</option>
-                    <option value="ND">ND</option>
-                    <option value="OH">OH</option>
-                    <option value="OK">OK</option>
-                    <option value="OR">OR</option>
-                    <option value="PA">PA</option>
-                    <option value="RI">RI</option>
-                    <option value="SC">SC</option>
-                    <option value="SD">SD</option>
-                    <option value="TN">TN</option>
-                    <option value="TX">TX</option>
-                    <option value="UT">UT</option>
-                    <option value="VT">VT</option>
-                    <option value="VA">VA</option>
-                    <option value="WA">WA</option>
-                    <option value="WV">WV</option>
-                    <option value="WI">WI</option>
-                    <option value="WY">WY</option>
+                    {/*<option value="NC">NC</option>*/}
+                    {/*<option value="ND">ND</option>*/}
+                    {/*<option value="OH">OH</option>*/}
+                    {/*<option value="OK">OK</option>*/}
+                    {/*<option value="OR">OR</option>*/}
+                    {/*<option value="PA">PA</option>*/}
+                    {/*<option value="RI">RI</option>*/}
+                    {/*<option value="SC">SC</option>*/}
+                    {/*<option value="SD">SD</option>*/}
+                    {/*<option value="TN">TN</option>*/}
+                    {/*<option value="TX">TX</option>*/}
+                    {/*<option value="UT">UT</option>*/}
+                    {/*<option value="VT">VT</option>*/}
+                    {/*<option value="VA">VA</option>*/}
+                    {/*<option value="WA">WA</option>*/}
+                    {/*<option value="WV">WV</option>*/}
+                    {/*<option value="WI">WI</option>*/}
+                    {/*<option value="WY">WY</option>*/}
 
                 </select>
             </div>
@@ -402,7 +485,7 @@ function profileSetting(){
                         name="inflationAssumption.value"
                         id="distributionTypeinflationAssumptionFIXED"
                         placeholder="value"
-                        value={formData.inflationAssumption.value || ""}
+                        value={formData.inflationAssumption.value ?? ""}
                         onChange={handleChange}
                         required
                     />
@@ -414,7 +497,7 @@ function profileSetting(){
                             name="inflationAssumption.lower"
                             id="distributionTypeinflationAssumption_lower"
                             placeholder="Lower"
-                            value={formData.inflationAssumption.lower || ""}
+                            value={formData.inflationAssumption.lower ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -423,7 +506,7 @@ function profileSetting(){
                             name="inflationAssumption.upper"
                             id="distributionTypeinflationAssumption_upper"
                             placeholder="Upper"
-                            value={formData.inflationAssumption.upper || ""}
+                            value={formData.inflationAssumption.upper ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -436,7 +519,7 @@ function profileSetting(){
                             name="inflationAssumption.mean"
                             id="distributionTypeinflationAssumption_mean"
                             placeholder="mean"
-                            value={formData.inflationAssumption.mean || ""}
+                            value={formData.inflationAssumption.mean ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -445,7 +528,7 @@ function profileSetting(){
                             name="inflationAssumption.stDev"
                             id="distributionTypeinflationAssumption_stDev"
                             placeholder="standard deviation"
-                            value={formData.inflationAssumption.stDev || ""}
+                            value={formData.inflationAssumption.stDev ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -500,7 +583,6 @@ function profileSetting(){
             <div className="login"><label htmlFor="lifeExpectancyUseramountOrPercent">Life Expectancy User </label>
                 <select name="lifeExpectancyUser.amountOrPercent" id="lifeExpectancyUseramountOrPercent" value={formData.lifeExpectancyUser.amountOrPercent} onChange={handleChange} required>
                     <option value = "AMOUNT">Amount</option>
-                    <option value = "PERCENT">Percent</option>
                 </select></div>
             <div className="login"><label htmlFor="lifeExpectancyUserdistributionType">Distribution Type </label>
                 <select name="lifeExpectancyUser.distributionType" id="lifeExpectancyUserdistributionType" value={formData.lifeExpectancyUser.distributionType} onChange={handleChange}>
@@ -512,7 +594,6 @@ function profileSetting(){
             {formData.maritalStatus === "Y" && (<div className="login"><label htmlFor="lifeExpectancySpouse">Life Expectancy Spouse: </label>
                 <select name="lifeExpectancySpouse.amountOrPercent" id="lifeExpectancySpouseamountOrPercent" value={formData.lifeExpectancySpouse.amountOrPercent} onChange={handleChange} required>
                     <option value = "AMOUNT">Amount</option>
-                    <option value = "PERCENT">Percent</option>
                 </select></div>
             )}
             {formData.maritalStatus === "Y" && <div className="login"><label htmlFor="lifeExpectancySpousedistributionType">Distribution Type: </label>
