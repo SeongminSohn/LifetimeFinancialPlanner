@@ -6,21 +6,46 @@ import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.domain.entity.User;
 import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
 import com.app.lifetimefinancialplanner.repository.UserRepository;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Service
 public class ScenarioServiceImpl implements ScenarioService {
-
     private final ScenarioRepository scenarioRepository;
     private final UserRepository userRepository;
     private final DistributionService distributionService;
+    private final InvestmentTypeService investmentTypeService;
+    private final InvestmentService investmentService;
+    private final ExpenseWithdrawalStrategyService expenseWithdrawalStrategyService;
+    private final IncomeEventService incomeEventService;
+    private final ExpenseEventService expenseEventService;
+    private final InvestEventService investEventService;
+    private final YAMLMapper yamlMapper = new YAMLMapper();
 
-    public ScenarioServiceImpl(ScenarioRepository scenarioRepository, UserRepository userRepository, DistributionService distributionService) {
+    public ScenarioServiceImpl(ScenarioRepository scenarioRepository,
+                               UserRepository userRepository,
+                               DistributionService distributionService,
+                               InvestmentTypeService investmentTypeService,
+                               InvestmentService investmentService,
+                               ExpenseWithdrawalStrategyService expenseWithdrawalStrategyService,
+                               IncomeEventService incomeEventService,
+                               ExpenseEventService expenseEventService,
+                               InvestEventService investEventService
+    ) {
         this.scenarioRepository = scenarioRepository;
         this.userRepository = userRepository;
         this.distributionService = distributionService;
+        this.investmentTypeService = investmentTypeService;
+        this.investmentService = investmentService;
+        this.expenseWithdrawalStrategyService = expenseWithdrawalStrategyService;
+        this.incomeEventService = incomeEventService;
+        this.expenseEventService = expenseEventService;
+        this.investEventService = investEventService;
     }
 
     @Override
@@ -121,5 +146,11 @@ public class ScenarioServiceImpl implements ScenarioService {
                 .orElseThrow(() -> new RuntimeException("Scenario not found for deletion"));
 
         scenarioRepository.delete(scenario);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Resource exportScenarioYaml(Long scenarioId) throws IOException {
+        return null;
     }
 }

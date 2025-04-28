@@ -29,9 +29,8 @@ public class SimulationController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<SimulationDTO> runSimulation(@RequestParam Long scenarioId,
-                                                       @RequestParam Integer simulationCount) {
-        SimulationDTO simulationDTO = simulationService.runSimulation(scenarioId, simulationCount);
-        return ResponseEntity.ok(simulationDTO);
+    public ResponseEntity<SimulationDTO> runSimulation(@RequestBody SimulationDTO simulationDTO) {
+        SimulationDTO simulationDTOResult = simulationService.runSimulation(simulationDTO.getScenarioId(), simulationDTO.getSimulationCount());
+        return ResponseEntity.ok(simulationDTOResult);
     }
 }
