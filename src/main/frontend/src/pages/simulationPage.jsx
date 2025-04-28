@@ -1,8 +1,5 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './common.css';
-import {useEffect} from "react";
-import axios from "axios";
-import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
 import Axios from "axios"
 
@@ -15,7 +12,6 @@ function simulationPage(){
     }, []);
 
     const [openSide, setSide] = useState(false);
-    const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
     const navPage = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false)
 
@@ -29,48 +25,58 @@ function simulationPage(){
                 <button onClick={toIncome}>Income Edit</button>
                 <button onClick={toExpense}>Expense Edit</button>
                 <button onClick={toInvest}>Invest Edit</button>
-                <button onClick={toInvestment}>Investment</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button>Import & Export Date</button>
+                <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
+                <button onClick={toInvestEvent}>Invest Event Edit</button>
+                {/*<button onClick={toSim}>Scenario Simulation</button>*/}
+                <button disabled>Import & Export Data</button>
             </aside>
         )
     }
 
-    function toInvestment(){
-        navPage('/Investment')
-    }
-    function toHome(){
-        navPage('/HomePage')
+    function toUserGuide(){
+        navPage("/UserGuide")
     }
 
-    function toIncome(){
-        navPage('/IncomePage')
+    function toSimulationResult(){
+        navPage("/SimulationResult")
     }
-
-    function toExpense(){
+    function toWithDrawal(){
+        navPage('/ExpenseW');
+    }
+    function toIncome() {
+        navPage('/IncomePage');
+    }
+    function toExpense() {
         navPage('/ExpenseEdit');
     }
-
-    function toInvest(){
-        navPage('/InvestEdit')
+    function toInvest() {
+        navPage('/InvestEdit');
     }
-
-    function toSim(){
-        navPage('/SimulationPage')
+    function toSim() {
+        navPage('/simulationPage');
     }
-
-
-    function toProfile(){
+    function toHome() {
+        navPage('/Homepage');
+    }
+    function toProfile() {
         navPage('/Profset');
     }
-
-    function toLogin(){
-        navPage('/Loginpage');
+    function toInvestEvent(){
+        navPage("/InvestEvent")
     }
 
-    function homeManage(){
+    function simulationSetting(){
         return(<div className="loginBox">
-            <></>
+            <p><strong>Enter Simulation Times</strong></p>
+            <input
+                type="number"
+                name="simulationTime"
+                id="simulationTime"
+                placeholder="Please specify the number of simulation runs."
+                style = {{width:"280px"}}
+                required
+            />
+            <button onClick = {toSimulationResult}>Submit</button>
         </div>)
     }
 
@@ -78,7 +84,7 @@ function simulationPage(){
         <nav className="navBarTop">
             <img src ="/public/caffeineOverloadLogo.png" className = "logoSize" onClick={toHome}></img>
             <p className= "logoLetter">Life Time Financial Planner</p>
-            <div></div>
+            <button onClick={toUserGuide}>User Guide</button>
         </nav>
         <nav className= "navBarSub">
             <button className="commonButton" onClick={popupMenu}>Menu</button>
@@ -87,7 +93,7 @@ function simulationPage(){
                 Scenario Setting
             </button>)}
         </nav>
-        {homeManage()}
+        {simulationSetting()}
     </div>);
 }
 export default simulationPage;

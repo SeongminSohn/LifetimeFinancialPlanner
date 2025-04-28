@@ -129,7 +129,7 @@ function ExpenseWithdrawlPage() {
                 {/*<button onClick={toInvest}>Invest Edit</button>*/}
                 <button onClick={toInvestment}>Investment</button>
                 <button onClick={toInvestEvent}>Invest Event Edit</button>
-                <button onClick={toSim} disabled>Scenario Simulation</button>
+                <button onClick={toSim}>Scenario Simulation</button>
                 <button disabled>Import & Export Data</button>
             </aside>
         );

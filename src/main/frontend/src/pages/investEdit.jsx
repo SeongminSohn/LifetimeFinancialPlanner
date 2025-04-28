@@ -54,7 +54,7 @@ function investPage(){
                 {/*<button onClick={toInvest}>Invest Edit</button>*/}
                 <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
                 <button onClick={toInvestment}>Investment</button>
-                <button onClick={toSim} disabled>Scenario Simulation</button>
+                <button onClick={toSim}>Scenario Simulation</button>
                 <button disabled>Import & Export Data</button>
             </aside>
         );
@@ -90,6 +90,23 @@ function investPage(){
 
     async function handleSubmit(event) {
         event.preventDefault();
+        const { distributionType: distU, lower: lowU, upper: upU } = formData.expectedAnnualReturn;
+        if (distU === "UNIFORM" && Number(upU) <= Number(lowU)) {
+            alert("Upper Value has to be greater than lower value for Expected Annual Return");
+            return;
+        }
+        // if (formData.maritalStatus === "Y") {
+        //     const { distributionType: distS, lower: lowS, upper: upS } = formData.lifeExpectancySpouse;
+        //     if (distS === "UNIFORM" && Number(upS) <= Number(lowS)) {
+        //         alert("Upper Value has to be greater than lower value for Spouse Year.");
+        //         return;
+        //     }
+        // }
+        const { distributionType: distI, lower: lowI, upper: upI } = formData.expectedAnnualIncome;
+        if (distI === "UNIFORM" && Number(upI) <= Number(lowI)) {
+            alert("Upper Value has to be greater than lower value for Expected Annual Income.");
+            return;
+        }
         formData.scenarioId = localStorage.getItem("scenario")
         console.log(formData)
         try {
@@ -102,66 +119,135 @@ function investPage(){
         }
     }
 
+
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === "name") {
-            setFormData(prevState => {
-                let newState = {
-                    ...prevState,
-                    name: value,
-                };
-                if (value === "S&P 500") {
-                    newState.taxability = "Y";
-                } else if (value === "TAX-EXEMPT BONDS") {
-                    newState.taxability = "N";
+
+        if (name === "expectedAnnualReturn.amountOrPercent") {
+            setFormData(prev => ({
+                ...prev,
+                expectedAnnualReturn: {
+                    ...prev.expectedAnnualReturn,
+                    amountOrPercent: value,
+                    // 변경 시 기존 입력값 초기화
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
                 }
-                return newState;
+            }));
+            return;
+        }
+
+        if (name === "expectedAnnualReturn.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                expectedAnnualReturn: {
+                    ...prev.expectedAnnualReturn,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
+        if (name === "expectedAnnualIncome.amountOrPercent") {
+            setFormData(prev => ({
+                ...prev,
+                expectedAnnualIncome: {
+                    ...prev.expectedAnnualIncome,
+                    amountOrPercent: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
+        if (name === "expectedAnnualIncome.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                expectedAnnualIncome: {
+                    ...prev.expectedAnnualIncome,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
+        if (name === "name") {
+            setFormData(prev => {
+                const taxability =
+                    value === "S&P 500" ? "Y" :
+                        value === "TAX-EXEMPT BONDS" ? "N" :
+                            prev.taxability;
+                return { ...prev, name: value, taxability };
             });
             return;
         }
+
         if (name === "taxability") {
-            if (formData.name === "S&P 500" && value === "N") {
-                return;
-            }
-            if (formData.name === "TAX-EXEMPT BONDS" && value === "Y") {
-                return;
-            }
-            setFormData(prevState => ({
-                ...prevState,
-                taxability: value,
-            }));
+            // S&P 500은 Y만, TAX-EXEMPT BONDS는 N만 허용
+            if (
+                (formData.name === "S&P 500" && value === "N") ||
+                (formData.name === "TAX-EXEMPT BONDS" && value === "Y")
+            ) return;
+
+            setFormData(prev => ({ ...prev, taxability: value }));
             return;
         }
-        if (name === "expenseRatio") {
-            let numericValue = parseFloat(value);
-            if (isNaN(numericValue)) {
-                numericValue = 0;
-            }
-            if (numericValue < 0) numericValue = 0;
-            if (numericValue > 1) numericValue = 1;
 
+        if (name === "expenseRatio") {
+            let num = parseFloat(value);
+            if (isNaN(num)) num = 0;
+            num = Math.max(0, Math.min(1, num));
+            setFormData(prev => ({ ...prev, expenseRatio: num }));
+            return;
+        }
+
+        if (name.includes('.') && formData[name.split('.')[0]].amountOrPercent === "PERCENT") {
+            const [parent, child] = name.split('.');
+            let num = parseFloat(value);
+            if (isNaN(num)) num = "";
+            else num = Math.max(0, Math.min(1, num));
             setFormData(prev => ({
                 ...prev,
-                expenseRatio: numericValue,
+                [parent]: {
+                    ...prev[parent],
+                    [child]: num
+                }
             }));
             return;
         }
+
         if (name.includes('.')) {
-            const [parentKey, childKey] = name.split('.');
-            setFormData(prevState => ({
-                ...prevState,
-                [parentKey]: {
-                    ...prevState[parentKey],
-                    [childKey]: value
+            const [parent, child] = name.split('.');
+            setFormData(prev => ({
+                ...prev,
+                [parent]: {
+                    ...prev[parent],
+                    [child]: value
                 }
             }));
         } else {
-            setFormData(prevState => ({
-                ...prevState,
-                [name]: value
-            }));
+            setFormData(prev => ({ ...prev, [name]: value }));
         }
-    }
+    };
+
 
     function chooseMone() {
         return (
@@ -172,7 +258,7 @@ function investPage(){
                         name="expectedAnnualReturn.value"
                         id="expectedAnnualReturn.FIXED"
                         placeholder="value"
-                        value={formData.expectedAnnualReturn.value || ""}
+                        value={formData.expectedAnnualReturn.value ?? ""}
                         onChange={handleChange}
                         required
                     />
@@ -184,7 +270,7 @@ function investPage(){
                             name="expectedAnnualReturn.lower"
                             id="expectedAnnualReturn.LOWER"
                             placeholder="Lower"
-                            value={formData.expectedAnnualReturn.lower || ""}
+                            value={formData.expectedAnnualReturn.lower ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -193,7 +279,7 @@ function investPage(){
                             name="expectedAnnualReturn.upper"
                             id="expectedAnnualReturn.UPPER"
                             placeholder="Upper"
-                            value={formData.expectedAnnualReturn.upper || ""}
+                            value={formData.expectedAnnualReturn.upper ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -206,7 +292,7 @@ function investPage(){
                             name="expectedAnnualReturn.mean"
                             id="expectedAnnualReturn.MEAN"
                             placeholder="mean"
-                            value={formData.expectedAnnualReturn.mean || ""}
+                            value={formData.expectedAnnualReturn.mean ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -215,7 +301,7 @@ function investPage(){
                             name="expectedAnnualReturn.stDev"
                             id="expectedAnnualReturn.STDEV"
                             placeholder="standard deviation"
-                            value={formData.expectedAnnualReturn.stDev || ""}
+                            value={formData.expectedAnnualReturn.stDev ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -234,7 +320,7 @@ function investPage(){
                         name="expectedAnnualIncome.value"
                         id="expectedAnnualIncome.FIXED"
                         placeholder="value"
-                        value={formData.expectedAnnualIncome.value || ""}
+                        value={formData.expectedAnnualIncome.value ?? ""}
                         onChange={handleChange}
                         required
                     />
@@ -246,7 +332,7 @@ function investPage(){
                             name="expectedAnnualIncome.lower"
                             id="expectedAnnualIncome.LOWER"
                             placeholder="Lower"
-                            value={formData.expectedAnnualIncome.lower || ""}
+                            value={formData.expectedAnnualIncome.lower ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -255,7 +341,7 @@ function investPage(){
                             name="expectedAnnualIncome.upper"
                             id="expectedAnnualIncome.UPPER"
                             placeholder="Upper"
-                            value={formData.expectedAnnualIncome.upper || ""}
+                            value={formData.expectedAnnualIncome.upper ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -268,7 +354,7 @@ function investPage(){
                             name="expectedAnnualIncome.mean"
                             id="expectedAnnualIncome.MEAN"
                             placeholder="mean"
-                            value={formData.expectedAnnualIncome.mean || ""}
+                            value={formData.expectedAnnualIncome.mean ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -277,7 +363,7 @@ function investPage(){
                             name="expectedAnnualIncome.stDev"
                             id="expectedAnnualIncome.STDEV"
                             placeholder="standard deviation"
-                            value={formData.expectedAnnualIncome.stDev || ""}
+                            value={formData.expectedAnnualIncome.stDev ?? ""}
                             onChange={handleChange}
                             required
                         />
@@ -337,7 +423,7 @@ function investPage(){
                     style={{width: "140px"}}
                     required
                 /></div>
-            <div className="login"><label htmlFor="expectedAnnualIncome.amountOrPercent">Expected Annual Return</label>
+            <div className="login"><label htmlFor="expectedAnnualIncome.amountOrPercent">Expected Annual Income</label>
                 <select
                     name="expectedAnnualIncome.amountOrPercent"
                     id="expectedAnnualIncome.amountOrPercent"

@@ -9,6 +9,7 @@ function Investment() {
     const [selectedInvestment, setSelectedInvestment] = useState(null);
     const [loggedIn, setLoggedIn] = useState(false);
     const [openSide, setSide] = useState(false);
+    const [viewedId, setViewedId] = useState(null);
 
     const [formData, setFormData] = useState({
         id: '',
@@ -66,12 +67,15 @@ function Investment() {
                 {/*<button onClick={toInvest}>Invest Edit</button>*/}
                 <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
                 <button onClick={toInvestEvent}>Invest Event Edit</button>
-                <button onClick={toSim} disabled>Scenario Simulation</button>
+                <button onClick={toSim}>Scenario Simulation</button>
                 <button disabled>Import & Export Data</button>
             </aside>
         );
     }
 
+    function toUserGuide(){
+        navPage("/UserGuide")
+    }
     function toWithDrawal(){
         navPage('/ExpenseW');
     }
@@ -227,28 +231,47 @@ function Investment() {
         }
     }
 
-
-
+    function handleViewClick(id) {
+        setViewedId(prev => (prev === id ? null : id));
+    }
 
     function investEvents() {
         return (
             <div className="profileSetting">
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', margin:'10px'}}><p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px", marginRight: '50px'}}>Investments</p><button onClick={toInvest} className="addButton">+</button></div>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', margin:'10px'}}><p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px", marginRight: '50px'}}>Investments</p><button onClick={toInvest} className="addButton">Add Investment Type</button></div>
                 {investmentTypes.map((item, index) => (
                     <form key={item.id || index} className="investment-form">
                         <div className="login">
                             <label htmlFor={`name-${index}`}>Name:</label>
-                            <button
-                                type="button"
-                                id={`name-${index}`}
-                                name="name"
-                                onClick={() => handleButtonClick(item)}>
-                                {item.name}
+                            <button type="button" id={`name-${index}`} name="name" onClick={() => handleButtonClick(item)}>{item.name}
                             </button>
                             <button
-                                type="button" style={{ backgroundColor: "Black", color: "White" }} onClick={() => deleteButton(item.id)}>
-                                X
+                                type = "button"
+                                onClick={() => handleViewClick(item.id)}
+                                style={{ backgroundColor: "black", color: "white" }}>
+                                {viewedId === item.id ? "Hide Details" : "VIEW INVESTMENT TYPE"}
                             </button>
+
+                            {viewedId === item.id && (
+                                <div className="investment-details">
+                                    <p><strong>Description:</strong> {item.description}</p>
+                                    {item.expectedAnnualReturn.value !== null && (<p><strong>Expected Annual Return value:</strong> {item.expectedAnnualReturn.value}</p>)}
+                                    {item.expectedAnnualReturn.lower !== null && (<p><strong>Expected Annual Return lower value:</strong> {item.expectedAnnualReturn.lower}</p>)}
+                                    {item.expectedAnnualReturn.upper !== null && (<p><strong>Expected Annual Return upper value:</strong> {item.expectedAnnualReturn.upper}</p>)}
+                                    {item.expectedAnnualReturn.mean !== null && (<p><strong>Expected Annual Return mean:</strong> {item.expectedAnnualReturn.mean}</p>)}
+                                    {item.expectedAnnualReturn.stDev !== null && (<p><strong>Expected Annual Return standard deviation:</strong> {item.expectedAnnualReturn.stDev}</p>)}
+                                    <p><strong>Expense Ratio:</strong> {item.expenseRatio}</p>
+                                    {item.expectedAnnualIncome.value !== null && (<p><strong>Expected Annual Income value:</strong> {item.expectedAnnualIncome.value}</p>)}
+                                    {item.expectedAnnualIncome.lower !== null && (<p><strong>Expected Annual Income lower value:</strong> {item.expectedAnnualIncome.lower}</p>)}
+                                    {item.expectedAnnualIncome.upper !== null && (<p><strong>Expected Annual Income upper value:</strong> {item.expectedAnnualIncome.upper}</p>)}
+                                    {item.expectedAnnualIncome.mean !== null && (<p><strong>Expected Annual Income mean:</strong> {item.expectedAnnualIncome.mean}</p>)}
+                                    {item.expectedAnnualIncome.stDev !== null && (<p><strong>Expected Annual Income standard deviation:</strong> {item.expectedAnnualIncome.stDev}</p>)}
+                                    <p><strong>Tax ability:</strong> {item.taxability}</p>
+                                </div>)}
+
+                            {viewedId === null && (<button type="button" style={{ backgroundColor: "Black", color: "White" }} onClick={() => deleteButton(item.id)}>
+                                Edit Investment
+                            </button>)}
                         </div>
                     </form>
                 ))}
@@ -266,7 +289,7 @@ function Investment() {
             <nav className="navBarTop">
                 <img onClick={toHome} src="/public/caffeineOverloadLogo.png" alt="logo" className="logoSize" />
                 <p className="logoLetter">Life Time Financial Planner</p>
-                <div></div>
+                <button onClick={toUserGuide}>User Guide</button>
             </nav>
             <nav className="navBarSub">
                 <button className="commonButton" onClick={popupMenu}>Menu</button>

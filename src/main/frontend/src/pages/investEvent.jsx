@@ -148,7 +148,7 @@ function InvestEventPage() {
                 {/*<button onClick={toInvest}>Invest Edit</button>*/}
                 <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
                 <button onClick={toInvestEvent}>Invest Event Edit</button>
-                <button onClick={toSim} disabled>Scenario Simulation</button>
+                <button onClick={toSim}>Scenario Simulation</button>
                 <button>Import & Export Data</button>
             </aside>
         );

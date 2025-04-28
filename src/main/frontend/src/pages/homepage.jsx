@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import './common.css';
 import {useEffect} from "react";
 import axios from "axios";
-import profileImage from '/public/back.jpg';
 import { useNavigate } from 'react-router-dom';
 import Axios from "axios"
 
@@ -15,7 +14,7 @@ function homePage(){
   }, []);
 
   const [openSide, setSide] = useState(false);
-  const [pro, setPro] = useState([{name: '', profile: {profileImage}}]);
+
   const navPage = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false)
 
@@ -69,7 +68,7 @@ function homePage(){
       <p className="logoLetter" style={{fontSize: 'xx-large', color: 'black', fontWeight: 'bold'}}>Welcome to Life Financial Planner</p>
       {loggedIn === true && (<button className="submitButton" onClick={gettingStart}>Getting Start</button>)}
       {loggedIn === false && (<button className="submitButton" onClick={toLogin} >Sign in</button>)}
-      {loggedIn === false && (<button className="submitButton">Try as a guest</button>)}
+      {/*{loggedIn === false && (<button className="submitButton">Try as a guest</button>)}*/}
     </div>)
   }
 
@@ -85,10 +84,9 @@ function homePage(){
 
 
   function handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("scenario")
-    setLoggedIn(false);
-    navPage("/Homepage");
+      localStorage.clear();
+      setLoggedIn(false);
+      navPage("/Homepage");
   }
 
   return (<div className="total">
