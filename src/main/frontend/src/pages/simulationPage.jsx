@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './common.css';
 import { useNavigate } from 'react-router-dom';
 import Axios from "axios"
+import axios from "axios";
 
 function simulationPage(){
     useEffect(() => {
@@ -13,7 +14,11 @@ function simulationPage(){
 
     const [openSide, setSide] = useState(false);
     const navPage = useNavigate();
-    const [loggedIn, setLoggedIn] = useState(false)
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [formData, setFormData] = useState({
+        scenarioId: '', //private Long scenarioId;
+        simulationCount: ''//private Integer simulationCount;
+    });
 
     const popupMenu = () => {
         setSide(prevState => !prevState);
@@ -65,18 +70,37 @@ function simulationPage(){
         navPage("/InvestEvent")
     }
 
+    async function handleSubmit(){
+        formData.scenarioId = localStorage.getItem("scenario")
+        console.log(formData)
+        try {
+            const response = await axios.post("http://localhost:10000/api/simulations", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+            console.log("Data:", response.data);
+        } catch (error) {
+            console.error("log in Error:", error);
+            alert("Fail to Post Data");
+        }
+    }
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
     function simulationSetting(){
         return(<div className="loginBox">
             <p><strong>Enter Simulation Times</strong></p>
             <input
                 type="number"
-                name="simulationTime"
-                id="simulationTime"
+                name="simulationCount"
+                id="simulationCount"
                 placeholder="Please specify the number of simulation runs."
-                style = {{width:"280px"}}
+                onChange={handleChange}
+                value={formData.simulationCount}
+                style={{ width:"280px" }}
                 required
             />
-            <button onClick = {toSimulationResult}>Submit</button>
+            <button onClick = {handleSubmit}>Submit</button>
         </div>)
     }
 

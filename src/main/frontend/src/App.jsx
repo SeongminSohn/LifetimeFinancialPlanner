@@ -13,6 +13,8 @@ import InvestEvent from "./pages/investEvent.jsx"
 import ExpenseW from "./pages/expenseWithdrawl.jsx"
 import UserGuide from "./pages/userGuidePage.jsx"
 import SimulationResult from "./pages/simulationResult.jsx"
+import IncomeSetting from "./pages/incomeSetting.jsx"
+import ExpenseSetting from "./pages/expenseSetting.jsx"
 import "./App.css";
 import {useEffect} from "react";
 
@@ -49,6 +51,8 @@ function App() {
                     <Route path="/ExpenseW" element={<ExpenseW />} />
                     <Route path="/UserGuide" element={<UserGuide />} />
                     <Route path="/SimulationResult" element={<SimulationResult />} />
+                    <Route path="/IncomeSetting" element={<IncomeSetting />} />
+                    <Route path="/ExpenseSetting" element={<ExpenseSetting />} />
                 </Routes>
             </BrowserRouter>
         </>

@@ -132,7 +132,7 @@ export default function StackedBarChart() {
                     />
                 </label>
             </div>
-            <div style={{ width: "90vw", height: "50vh" }}>
+            <div style={{ width: "50vw", height: "50vh" }}>
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />

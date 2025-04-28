@@ -201,7 +201,6 @@ function investPage(){
         }
 
         if (name === "taxability") {
-            // S&P 500은 Y만, TAX-EXEMPT BONDS는 N만 허용
             if (
                 (formData.name === "S&P 500" && value === "N") ||
                 (formData.name === "TAX-EXEMPT BONDS" && value === "Y")
