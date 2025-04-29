@@ -99,6 +99,11 @@ public class SimulationServiceImpl implements SimulationService {
 
         List<SimulationYearDTO> simulationYearDTOList = new ArrayList<>();
         SimulationContext context = new SimulationContext();
+        Simulation simulation = Simulation.builder()
+                .scenario(scenario)
+                .simulationCount(simulationCount)
+                .build();
+        simulation = simulationRepository.save(simulation);
 
         for (int i = 0; i < numYears; i++) {
             int currentYear = startYear + i;
@@ -158,6 +163,7 @@ public class SimulationServiceImpl implements SimulationService {
 
             // Build and save SimulationYear entity
             SimulationYear simulationYear = SimulationYear.builder()
+                    .simulation(simulation)
                     .simulationIndex(i + 1)
                     .year(currentYear)
                     .totalInvestments(context.getTotalInvestments())
@@ -187,9 +193,8 @@ public class SimulationServiceImpl implements SimulationService {
             logService.writeTextLog(logFilePrefix + ".log", "Full SimulationContext: " + context.toString());
         }
 
-        Simulation simulation = Simulation.builder()
-                .scenario(scenario)
-                .simulationCount(simulationCount)
+        // Update the simulation result and save to database
+        simulation.toBuilder()
                 .result("Simulation completed")
                 .build();
         simulation = simulationRepository.save(simulation);
