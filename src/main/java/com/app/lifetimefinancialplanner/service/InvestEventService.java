@@ -4,6 +4,8 @@ import com.app.lifetimefinancialplanner.domain.dto.InvestEventDTO;
 import com.app.lifetimefinancialplanner.domain.entity.InvestEvent;
 import java.util.List;
 import java.util.Optional;
+import com.app.lifetimefinancialplanner.domain.entity.Scenario;
+import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
 
 public interface InvestEventService {
     InvestEvent createInvestEvent(InvestEventDTO dto);
@@ -11,4 +13,5 @@ public interface InvestEventService {
     InvestEvent updateInvestEvent(Long eventSeriesId, InvestEventDTO dto);
     void deleteInvestEvent(Long eventSeriesId);
     List<InvestEventDTO> getInvestEventsByScenarioId(Long scenarioId);
+    void runInvestEvents(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive);
 }

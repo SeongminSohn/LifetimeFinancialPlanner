@@ -2,6 +2,7 @@ package com.app.lifetimefinancialplanner.domain.context;
 
 import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.entity.Investment;
+import com.app.lifetimefinancialplanner.domain.entity.InvestEvent;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ public class SimulationContext {
     private double adjustedAfterTaxContributionLimit;
     private List<IncomeEvent> updatedIncomeEvents = new ArrayList<>();
     private List<Investment> updatedInvestments = new ArrayList<>();
+    private List<InvestEvent> updatedInvestEvents = new ArrayList<>();
     private List<Investment> investmentsPurchasingPrices = new ArrayList<>();
     // Current Year Variables
     private BigDecimal curYearIncome = BigDecimal.ZERO;

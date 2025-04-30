@@ -99,7 +99,7 @@ function InvestEventPage() {
                         setFormData(response.data[0]);
                         console.log("This data is from invest Event and Data: ", response.data);
                     }else{
-                        console.log("There is no DATA")
+                        console.log("There is no invest - event DATA")
                     }
                 })
                 .catch(error => {
@@ -451,11 +451,11 @@ function InvestEventPage() {
                 );
             } else {
                 console.log("Create!")
-                localStorage.setItem("InvestEvent", "CHECK");
                 const response = await axios.post(`http://localhost:10000/api/invest-events`,
                     updatedData,
                     { withCredentials: true, headers: { "Content-Type": "application/json" } });
                 console.log("Created Investment!:", response.data);
+                localStorage.setItem("InvestEvent", "CHECK");
             }
             setSelectedInvestment(null);
         } catch (error) {
