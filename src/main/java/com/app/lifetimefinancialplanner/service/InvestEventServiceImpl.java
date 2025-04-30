@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.service;
 
+import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
 import com.app.lifetimefinancialplanner.domain.dto.InvestEventDTO;
 import com.app.lifetimefinancialplanner.domain.embeddable.AllocationEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.EventSeries;
@@ -18,6 +19,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Service
 public class InvestEventServiceImpl implements InvestEventService {
 
@@ -28,19 +34,22 @@ public class InvestEventServiceImpl implements InvestEventService {
     private final ScenarioRepository scenarioRepository;
     private final DistributionService distributionService;
     private final AllocationService allocationService;
+    private final SamplingService samplingService;
 
     public InvestEventServiceImpl(InvestEventRepository investEventRepository,
                                   EventSeriesRepository eventSeriesRepository,
                                   InvestmentRepository investmentRepository,
                                   ScenarioRepository scenarioRepository,
                                   DistributionService distributionService,
-                                  AllocationService allocationService) {
+                                  AllocationService allocationService,
+                                  SamplingService samplingService) {
         this.investEventRepository = investEventRepository;
         this.eventSeriesRepository = eventSeriesRepository;
         this.investmentRepository = investmentRepository;
         this.scenarioRepository = scenarioRepository;
         this.distributionService = distributionService;
         this.allocationService = allocationService;
+        this.samplingService = samplingService;
     }
 
     @Override
@@ -132,6 +141,72 @@ public class InvestEventServiceImpl implements InvestEventService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+    @Override
+    @Transactional
+    public void runInvestEvents(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive){
+        int currentYear = context.getCurrentYear();
+        List<InvestEvent> investEventList;
+        List<InvestEvent> updatedInvestEventList = new ArrayList<>();
+
+        if (context.getUpdatedInvestEvents() == null || context.getUpdatedInvestEvents().isEmpty()) {
+            log.info("▶ runInvestEvents: loading from DB for Scenario ID={}", scenario.getId());
+            investEventList = investEventRepository.findAllByEventSeries_Scenario_Id(scenario.getId());
+            if (investEventList.isEmpty()) {
+                log.warn("No InvestEvent data found for Scenario ID={}", scenario.getId());
+                return;
+            }
+        } else {
+            log.info("▶ runInvestEvents: using updated events from context for Scenario ID={}", scenario.getId());
+            investEventList = context.getUpdatedInvestEvents();
+        }
+
+        for (InvestEvent ie : investEventList) {
+            EventSeries es = ie.getEventSeries();
+            // startYear, duration 샘플링
+            int startYear  = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(es.getStartYear()));
+            int duration   = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(es.getDuration()));
+            int endYear    = startYear + duration;
+
+            log.info("InvestEvent ID={} start={}, duration={}, end={}, simYear={}",
+                    ie.getEventSeriesId(), startYear, duration, endYear, currentYear);
+
+            if (currentYear >= startYear && currentYear < endYear) {
+                BigDecimal cashBalance = context.getCashBalance();
+                BigDecimal maxCash     = BigDecimal.valueOf(ie.getMaxCash());
+                BigDecimal excessCash  = cashBalance.subtract(maxCash);
+
+                if (excessCash.compareTo(BigDecimal.ZERO) > 0) {
+                    Map<Investment, BigDecimal> purchaseMap = new HashMap<>();
+                    double totalNonRetPct = 0.0;
+                    for (AllocationEmbeddable alloc : ie.getAssetAllocations()) {
+                        Investment inv = investmentRepository.findByScenarioAndNameAndTaxStatus(
+                                        scenario, alloc.getAssetName(), alloc.getTaxStatus())
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                        "Investment not found: " + alloc.getAssetName()));
+                        BigDecimal pct  = BigDecimal.valueOf(alloc.getPercentage()).divide(BigDecimal.valueOf(100));
+                        BigDecimal amt  = excessCash.multiply(pct);
+                        purchaseMap.put(inv, amt);
+
+                        if (inv.getTaxStatus() == TaxStatus.NON_RETIREMENT) {
+                            totalNonRetPct += alloc.getPercentage();
+                        }
+                    }
+
+                    double baseLimit      = scenario.getAfterTaxContributionLimit();
+                    double inflationRate  = context.getInflationFactor();
+                    int yearsSince        = currentYear - context.getCurrentYear();
+                    BigDecimal L = BigDecimal.valueOf(baseLimit)
+                            .multiply(BigDecimal.valueOf(Math.pow(1 + inflationRate, yearsSince)));
+                    BigDecimal B = purchaseMap.entrySet().stream()
+                            .filter(e -> e.getKey().getTaxStatus() == TaxStatus.AFTER_TAX)
+                            .map(Map.Entry::getValue)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                }
+            }
+
+
     }
 
 }

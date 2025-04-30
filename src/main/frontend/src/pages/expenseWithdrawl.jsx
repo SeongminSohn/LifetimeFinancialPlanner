@@ -104,7 +104,7 @@ function ExpenseWithdrawlPage() {
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
-            axios.get(`http://localhost:10000/api/expense-withdrawal-strategies/1`)
+            axios.get(`http://localhost:10000/api/expense-withdrawal-strategies/2`)
                 .then(response => {
                     setFormData(response.data);
                     console.log("This is Expense-withDrawlData: ", response.data)

@@ -36,7 +36,7 @@ function profileSetting(){
         },
         financialGoal: '',
         afterTaxContributionLimit: '',
-        stateOfResidence: 'AL',
+        stateOfResidence: 'CT',
         inflationAssumption: {
             amountOrPercent: "PERCENT",
             distributionType: "FIXED",

@@ -13,7 +13,7 @@ function InvestEventPage() {
     const [allocationValues, setAllocationValues] = useState({});
     const [formData, setFormData] = useState({
         scenarioId: "", //private Long scenarioId;
-        // eventSeriesId: "", //private Long eventSeriesId;
+        eventSeriesId: "", //private Long eventSeriesId;
         // investmentId: '', //private Long investmentId;
         name: "", //private String name;
         startYear: {
@@ -97,9 +97,9 @@ function InvestEventPage() {
                 .then(response => {
                     if(response.data[0] !== undefined){
                         setFormData(response.data[0]);
-                        console.log("This data is from invest Event and Data: ", response.data[0]);
+                        console.log("This data is from invest Event and Data: ", response.data);
                     }else{
-                        console.log("There is no DATA")
+                        console.log("There is no invest - event DATA")
                     }
                 })
                 .catch(error => {
@@ -445,17 +445,17 @@ function InvestEventPage() {
             if (check === "CHECK") {
                 console.log("Update!")
                 const response = await axios.put(
-                    `http://localhost:10000/api/invest-events/1`,
+                    `http://localhost:10000/api/invest-events/${updatedData.eventSeriesId}`,
                     updatedData,
                     { withCredentials: true, headers: { "Content-Type": "application/json" } }
                 );
             } else {
                 console.log("Create!")
-                localStorage.setItem("InvestEvent", "CHECK");
                 const response = await axios.post(`http://localhost:10000/api/invest-events`,
                     updatedData,
                     { withCredentials: true, headers: { "Content-Type": "application/json" } });
                 console.log("Created Investment!:", response.data);
+                localStorage.setItem("InvestEvent", "CHECK");
             }
             setSelectedInvestment(null);
         } catch (error) {
