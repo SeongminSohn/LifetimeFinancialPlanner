@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.math.MathContext;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -142,71 +143,86 @@ public class InvestEventServiceImpl implements InvestEventService {
                 })
                 .collect(Collectors.toList());
     }
-    @Override
-    @Transactional
-    public void runInvestEvents(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive){
+
+    public void runInvestEvents(Scenario scenario, SimulationContext context) {
         int currentYear = context.getCurrentYear();
-        List<InvestEvent> investEventList;
-        List<InvestEvent> updatedInvestEventList = new ArrayList<>();
+        List<InvestEvent> investEvents = currentYear == LocalDateTime.now().getYear()
+                ? investEventRepository.findAllByEventSeries_Scenario_Id(scenario.getId())
+                : context.getUpdatedInvestEvents();
+        if (investEvents == null || investEvents.isEmpty()) return;
 
-        if (context.getUpdatedInvestEvents() == null || context.getUpdatedInvestEvents().isEmpty()) {
-            log.info("▶ runInvestEvents: loading from DB for Scenario ID={}", scenario.getId());
-            investEventList = investEventRepository.findAllByEventSeries_Scenario_Id(scenario.getId());
-            if (investEventList.isEmpty()) {
-                log.warn("No InvestEvent data found for Scenario ID={}", scenario.getId());
-                return;
-            }
-        } else {
-            log.info("▶ runInvestEvents: using updated events from context for Scenario ID={}", scenario.getId());
-            investEventList = context.getUpdatedInvestEvents();
-        }
+        BigDecimal inflationFactor = BigDecimal.valueOf(context.getInflationFactor());
+        BigDecimal excessCash = context.getCashBalance();
 
-        for (InvestEvent ie : investEventList) {
-            EventSeries es = ie.getEventSeries();
-            // startYear, duration 샘플링
-            int startYear  = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(es.getStartYear()));
-            int duration   = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(es.getDuration()));
-            int endYear    = startYear + duration;
+        List<Investment> investments = investmentRepository.findAllByScenarioId(scenario.getId());
+        Map<String, Investment> invMap = investments.stream()
+                .collect(Collectors.toMap(
+                        inv -> inv.getInvestmentType().getName() + " " + inv.getTaxStatus(),
+                        inv -> inv
+                ));
 
-            log.info("InvestEvent ID={} start={}, duration={}, end={}, simYear={}",
-                    ie.getEventSeriesId(), startYear, duration, endYear, currentYear);
+        List<InvestEvent> updatedEvents = new ArrayList<>();
+        for (InvestEvent event : investEvents) {
+            int scheduledYear = (int) samplingService.sample(
+                    distributionService.convertEmbeddableToDTO(event.getEventSeries().getStartYear())
+            );
+            if (scheduledYear != currentYear) continue;
+            if (excessCash.compareTo(BigDecimal.ZERO) <= 0) break;
 
-            if (currentYear >= startYear && currentYear < endYear) {
-                BigDecimal cashBalance = context.getCashBalance();
-                BigDecimal maxCash     = BigDecimal.valueOf(ie.getMaxCash());
-                BigDecimal excessCash  = cashBalance.subtract(maxCash);
+            List<AllocationEmbeddable> allocations = event.getAssetAllocations();
+            BigDecimal totalRatio = allocations.stream()
+                    .map(a -> BigDecimal.valueOf(a.getRatio()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                if (excessCash.compareTo(BigDecimal.ZERO) > 0) {
-                    Map<Investment, BigDecimal> purchaseMap = new HashMap<>();
-                    double totalNonRetPct = 0.0;
-                    for (AllocationEmbeddable alloc : ie.getAssetAllocations()) {
-                        Investment inv = investmentRepository.findByScenarioAndNameAndTaxStatus(
-                                        scenario, alloc.getAssetName(), alloc.getTaxStatus())
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                        "Investment not found: " + alloc.getAssetName()));
-                        BigDecimal pct  = BigDecimal.valueOf(alloc.getPercentage()).divide(BigDecimal.valueOf(100));
-                        BigDecimal amt  = excessCash.multiply(pct);
-                        purchaseMap.put(inv, amt);
-
-                        if (inv.getTaxStatus() == TaxStatus.NON_RETIREMENT) {
-                            totalNonRetPct += alloc.getPercentage();
-                        }
-                    }
-
-                    double baseLimit      = scenario.getAfterTaxContributionLimit();
-                    double inflationRate  = context.getInflationFactor();
-                    int yearsSince        = currentYear - context.getCurrentYear();
-                    BigDecimal L = BigDecimal.valueOf(baseLimit)
-                            .multiply(BigDecimal.valueOf(Math.pow(1 + inflationRate, yearsSince)));
-                    BigDecimal B = purchaseMap.entrySet().stream()
-                            .filter(e -> e.getKey().getTaxStatus() == TaxStatus.AFTER_TAX)
-                            .map(Map.Entry::getValue)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
+            Map<AllocationEmbeddable, BigDecimal> toBuy = new LinkedHashMap<>();
+            BigDecimal B = BigDecimal.ZERO;
+            for (AllocationEmbeddable alloc : allocations) {
+                BigDecimal pct = BigDecimal.valueOf(alloc.getRatio())
+                        .divide(totalRatio, MathContext.DECIMAL128);
+                BigDecimal amount = excessCash.multiply(pct);
+                toBuy.put(alloc, amount);
+                if (alloc.getInvestmentKey().endsWith("AFTER-TAX-RETIREMENT")) {
+                    B = B.add(amount);
                 }
             }
 
+            BigDecimal L = BigDecimal.valueOf(context.getAdjustedAfterTaxContributionLimit())
+                    .multiply(inflationFactor);
+            if (B.compareTo(L) > 0) {
+                BigDecimal downFactor = L.divide(B, MathContext.DECIMAL128);
+                BigDecimal nonRetTotal = excessCash.subtract(B);
+                BigDecimal upFactor = nonRetTotal.compareTo(BigDecimal.ZERO) > 0
+                        ? excessCash.subtract(L).divide(nonRetTotal, MathContext.DECIMAL128)
+                        : BigDecimal.ZERO;
+                for (AllocationEmbeddable alloc : allocations) {
+                    BigDecimal amt = toBuy.get(alloc);
+                    amt = alloc.getInvestmentKey().endsWith("AFTER-TAX-RETIREMENT")
+                            ? amt.multiply(downFactor)
+                            : amt.multiply(upFactor);
+                    toBuy.put(alloc, amt);
+                }
+            }
 
+            BigDecimal spent = BigDecimal.ZERO;
+            for (Map.Entry<AllocationEmbeddable, BigDecimal> e : toBuy.entrySet()) {
+                AllocationEmbeddable alloc = e.getKey();
+                BigDecimal amount = e.getValue();
+                spent = spent.add(amount);
+                Investment inv = invMap.get(alloc.getInvestmentKey());
+                if (inv == null) {
+                    throw new IllegalArgumentException("No Investment for key " + alloc.getInvestmentKey());
+                }
+                Investment updated = inv.toBuilder()
+                        .value(inv.getValue() + amount.doubleValue())
+                        .build();
+                investmentRepository.save(updated);
+            }
+
+            excessCash = excessCash.subtract(spent);
+            updatedEvents.add(event);
+        }
+
+        context.setCashBalance(excessCash);
+        context.setUpdatedInvestEvents(updatedEvents);
     }
-
 }

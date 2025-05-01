@@ -3,7 +3,6 @@ package com.app.lifetimefinancialplanner.service;
 import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
 import com.app.lifetimefinancialplanner.domain.dto.SimulationDTO;
 import com.app.lifetimefinancialplanner.domain.dto.SimulationYearDTO;
-import com.app.lifetimefinancialplanner.domain.entity.Investment;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.domain.entity.Simulation;
 import com.app.lifetimefinancialplanner.domain.entity.SimulationYear;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -29,6 +27,7 @@ public class SimulationServiceImpl implements SimulationService {
     private final IncomeEventService incomeEventService;
     private final ExpenseEventService expenseEventService;
     private final InvestmentService investmentService;
+    private final InvestEventService investEventService;
     private final ExpenseWithdrawalStrategyService expenseWithdrawalStrategyService;
     private final SamplingService samplingService;
     private final DistributionService distributionService;
@@ -42,6 +41,7 @@ public class SimulationServiceImpl implements SimulationService {
                                  IncomeEventService incomeEventService,
                                  ExpenseEventService expenseEventService,
                                  InvestmentService investmentService,
+                                 InvestEventService investEventService,
                                  SamplingService samplingService,
                                  DistributionService distributionService,
                                  TaxService taxService,
@@ -52,6 +52,7 @@ public class SimulationServiceImpl implements SimulationService {
         this.incomeEventService = incomeEventService;
         this.expenseEventService = expenseEventService;
         this.investmentService = investmentService;
+        this.investEventService = investEventService;
         this.expenseWithdrawalStrategyService = expenseWithdrawalStrategyService;
         this.samplingService = samplingService;
         this.distributionService = distributionService;
@@ -149,13 +150,13 @@ public class SimulationServiceImpl implements SimulationService {
 
             /* --- Begin simulation for the current year ---
              * TODO: Call various service methods that process events:
-             * - runInvestEvents()
              * The results from these events should update local variables for SimulationYear
              * such as: totalInvestments, totalIncome, totalExpenses, totalTax, cashBalance.
              */
             incomeEventService.runIncomeEvents(scenario, context, userAlive, spouseAlive);
             investmentService.updateInvestmentValues(scenario, context);
             payExpenseAndTax(scenario, context, userAlive, spouseAlive);
+//            investEventService.runInvestEvents(scenario, context);
 
             String details = "Year " + currentYear + " processed with inflation factor " + cumulativeInflation;
             context.setDetails(details);

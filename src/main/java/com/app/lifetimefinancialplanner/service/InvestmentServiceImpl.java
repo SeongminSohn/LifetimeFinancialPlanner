@@ -23,11 +23,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class InvestmentServiceImpl implements InvestmentService {
+    private static final Logger log = LoggerFactory.getLogger(IncomeEventServiceImpl.class);
 
     private final InvestmentRepository investmentRepository;
     private final InvestmentTypeRepository investmentTypeRepository;
@@ -127,71 +130,64 @@ public class InvestmentServiceImpl implements InvestmentService {
     @Override
     @Transactional
     public void updateInvestmentValues(Scenario scenario, SimulationContext context) {
-        if (context.getCurrentYear() == LocalDateTime.now().getYear()) {
-            List<Investment> investmentList = investmentRepository.findAllByScenarioId(scenario.getId());
-            List<Investment> updatedInvestmentList = new ArrayList<>();
+        int currentYear = context.getCurrentYear();
+        List<Investment> investmentList;
+        List<Investment> updatedInvestmentList = new ArrayList<>();
+
+        if (currentYear == LocalDateTime.now().getYear()) {
+            investmentList = investmentRepository.findAllByScenarioId(scenario.getId());
             if (investmentList == null || investmentList.isEmpty()) {
                 throw new IllegalArgumentException("There is no Investment Information and This is Scenario ID: " + scenario.getId());
             }
-            for (Investment investment : investmentList) {
-                // 1. This is initial value
-                BigDecimal initialValue = BigDecimal.valueOf(investment.getValue());
-                // and this is initial generated Income
-                BigDecimal generatedIncome = BigDecimal.ZERO;
-                InvestmentType investType = investment.getInvestmentType();
-                if (investType == null) {
-                    throw new IllegalArgumentException("Can't find invest Info. investmentTypeId: " + investment.getInvestmentType());
-                }
-                generatedIncome = BigDecimal.valueOf((double) samplingService.sample(distributionService.convertEmbeddableToDTO(investType.getExpectedAnnualIncome())));
-                generatedIncome = generatedIncome.multiply(BigDecimal.valueOf(context.getInflationFactor()));
-                if ("NON-RETIREMENT".equalsIgnoreCase(investment.getTaxStatus()) && "Y".equalsIgnoreCase(investType.getTaxability())) {
-                    context.setCurYearIncome(context.getCurYearIncome().add(generatedIncome));
-                }
-
-                BigDecimal valueChange = BigDecimal.valueOf(samplingService.sample(distributionService.convertEmbeddableToDTO(investType.getExpectedAnnualReturn())));
-                BigDecimal newValue = initialValue.add(generatedIncome).add(valueChange);
-                BigDecimal averageValue = initialValue.add(newValue).divide(BigDecimal.valueOf(2), MathContext.DECIMAL128);
-                BigDecimal expense = BigDecimal.valueOf(investType.getExpenseRatio()).multiply(averageValue);
-                BigDecimal finalValue = newValue.subtract(expense);
-                Investment updatedInvestment = investment.toBuilder()
-                        .value(finalValue.doubleValue())
-                        .build();
-
-                updatedInvestmentList.add(updatedInvestment);
-            }
-            context.setUpdatedInvestments(updatedInvestmentList);
+            log.info("Current Year branch: Retrieved {} Investments from DB for Scenario ID: {}", investmentList.size(), scenario.getId());
         } else {
-            List<Investment> investmentList = context.getUpdatedInvestments();
-            List<Investment> updatedInvestmentList = new ArrayList<>();
+            investmentList = context.getUpdatedInvestments();
             if (investmentList == null || investmentList.isEmpty()) {
                 throw new IllegalArgumentException("There is no Investment Information and This is Scenario ID: " + scenario.getId());
             }
-            for (Investment investment : investmentList) {
-                // 1. This is initial value
-                BigDecimal initialValue = BigDecimal.valueOf(investment.getValue());
-                // and this is initial generated Income
-                BigDecimal generatedIncome = BigDecimal.ZERO;
-                InvestmentType investType = investment.getInvestmentType();
-                if (investType == null) {
-                    throw new IllegalArgumentException("Can't find invest Info. investmentTypeId: " + investment.getInvestmentType());
-                }
-                generatedIncome = BigDecimal.valueOf((double) samplingService.sample(distributionService.convertEmbeddableToDTO(investType.getExpectedAnnualIncome())));
-                generatedIncome = generatedIncome.multiply(BigDecimal.valueOf(context.getInflationFactor()));
-                if ("NON-RETIREMENT".equalsIgnoreCase(investment.getTaxStatus()) && "Y".equalsIgnoreCase(investType.getTaxability())) {
-                    context.setCurYearIncome(context.getCurYearIncome().add(generatedIncome));
-                }
-
-                BigDecimal valueChange = BigDecimal.valueOf(samplingService.sample(distributionService.convertEmbeddableToDTO(investType.getExpectedAnnualReturn())));
-                BigDecimal newValue = initialValue.add(generatedIncome).add(valueChange);
-                BigDecimal averageValue = initialValue.add(newValue).divide(BigDecimal.valueOf(2), MathContext.DECIMAL128);
-                BigDecimal expense = BigDecimal.valueOf(investType.getExpenseRatio()).multiply(averageValue);
-                BigDecimal finalValue = newValue.subtract(expense);
-                Investment updatedInvestment = investment.toBuilder()
-                        .value(finalValue.doubleValue())
-                        .build();
-                updatedInvestmentList.add(updatedInvestment);
-            }
-            context.setUpdatedInvestments(updatedInvestmentList);
+            log.info("Non-Current Year branch: Using {} updated Investments from context for Scenario ID: {}", investmentList.size(), scenario.getId()); // new log
         }
+
+        for (Investment investment : investmentList) {
+            // 1. This is initial value
+            BigDecimal initialValue = BigDecimal.valueOf(investment.getValue());
+            // and this is initial generated Income
+            BigDecimal generatedIncome = BigDecimal.ZERO;
+            InvestmentType investType = investment.getInvestmentType();
+            if (investType == null) {
+                log.error("Can't find invest Info. investmentId: {}", investment.getId());
+                throw new IllegalArgumentException("Can't find invest Info. investmentId: " + investment.getId());
+            }
+            generatedIncome = BigDecimal.valueOf((double) samplingService.sample(distributionService.convertEmbeddableToDTO(investType.getExpectedAnnualIncome())));
+            generatedIncome = generatedIncome.multiply(BigDecimal.valueOf(context.getInflationFactor()));
+            if ("NON-RETIREMENT".equalsIgnoreCase(investment.getTaxStatus()) && "Y".equalsIgnoreCase(investType.getTaxability())) {
+                context.setCurYearIncome(context.getCurYearIncome().add(generatedIncome));
+            }
+
+            BigDecimal valueChange = BigDecimal.valueOf(samplingService.sample(distributionService.convertEmbeddableToDTO(investType.getExpectedAnnualReturn())));
+            BigDecimal valueAfterReturn = initialValue.add(valueChange);
+            BigDecimal valueAfterIncome = valueAfterReturn.add(generatedIncome);
+
+            // Calculate average without including generatedIncome
+            BigDecimal averageValue = initialValue.add(valueAfterReturn)
+                    .divide(BigDecimal.valueOf(2), MathContext.DECIMAL128);
+            BigDecimal expense = BigDecimal.valueOf(investType.getExpenseRatio()).multiply(averageValue);
+            BigDecimal finalValue = valueAfterIncome.subtract(expense);
+
+            Investment updatedInvestment = investment.toBuilder()
+                    .value(finalValue.doubleValue())
+                    .build();
+
+            updatedInvestmentList.add(updatedInvestment);
+            log.info("Processed Investment ID: {}: finalValue={}", investment.getId(), finalValue);
+        }
+
+        BigDecimal totalInvestment = updatedInvestmentList.stream()
+                .map(inv -> BigDecimal.valueOf(inv.getValue()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        context.setTotalInvestments(totalInvestment);
+
+        context.setUpdatedInvestments(updatedInvestmentList);
+        log.info("updateInvestmentValues completed: updatedInvestmentList size = {}", updatedInvestmentList.size());
     }
 }
