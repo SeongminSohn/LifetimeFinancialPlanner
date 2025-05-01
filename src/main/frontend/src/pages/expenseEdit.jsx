@@ -5,6 +5,8 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
 function homePage(){
+    const currentYear = new Date().getFullYear();
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -37,7 +39,7 @@ function homePage(){
             mean: null,
             stDev: null
         },// private DistributionDTO duration;
-        eventType: '',// private String eventType;
+        eventType: 'EXPENSE',// private String eventType;
         initialAmount: '',// private Double initialAmount;
         annualChange: {
             amountOrPercent: "AMOUNT",
@@ -121,7 +123,8 @@ function homePage(){
                         type="number"
                         name="startYear.value"
                         id="startYear.FIXED"
-                        placeholder="value"
+                        placeholder="Current Year"
+                        min={currentYear}
                         value={formData.startYear.value || ""}
                         onChange={handleChange}
                         required
@@ -143,6 +146,7 @@ function homePage(){
                             name="startYear.upper"
                             id="startYear.UPPER"
                             placeholder="Upper"
+                            min={formData.startYear.lower ?? currentYear}
                             value={formData.startYear.upper || ""}
                             onChange={handleChange}
                             required
@@ -301,6 +305,84 @@ function homePage(){
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+
+        if (name === 'startYear.value') {
+            const raw = parseInt(value, 10);
+            const clamped = isNaN(raw) ? currentYear : Math.max(currentYear, raw);
+            setFormData(prev => ({
+                ...prev,
+                startYear: { ...prev.startYear, value: clamped }
+            }));
+            return;
+        }
+        if (name === 'startYear.lower') {
+            const raw = parseInt(value, 10);
+            const clamped = isNaN(raw) ? currentYear : Math.max(currentYear, raw);
+            setFormData(prev => ({
+                ...prev,
+                startYear: { ...prev.startYear, lower: clamped }
+            }));
+            return;
+        }
+        if (name === 'startYear.upper') {
+            const raw = parseInt(value, 10);
+            const minUpper = formData.startYear.lower ?? currentYear;
+            const clamped = isNaN(raw) ? '' : Math.max(raw, minUpper);
+            setFormData(prev => ({
+                ...prev,
+                startYear: { ...prev.startYear, upper: clamped }
+            }));
+            return;
+        }
+
+        if (name === "startYear.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                startYear: {
+                    ...prev.startYear,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
+        if (name === "duration.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                duration: {
+                    ...prev.duration,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
+        if (name === "annualChange.distributionType") {
+            setFormData(prev => ({
+                ...prev,
+                annualChange: {
+                    ...prev.annualChange,
+                    distributionType: value,
+                    value: null,
+                    lower: null,
+                    upper: null,
+                    mean: null,
+                    stDev: null
+                }
+            }));
+            return;
+        }
+
         if (name === "userPercentage") {
             let numericValue = parseFloat(value);
             if (isNaN(numericValue)) {
@@ -379,16 +461,16 @@ function homePage(){
                 </select></div>
             {chooseKone()}
 
-            <div className="login"><label htmlFor="eventType">Event Type </label>
-                <input
-                    type="text"
-                    id="eventType"
-                    name="eventType"
-                    value={formData.eventType}
-                    onChange={handleChange}
-                    placeholder="eventType"
-                    required
-                /></div>
+            {/*<div className="login"><label htmlFor="eventType">Event Type </label>*/}
+            {/*    <input*/}
+            {/*        type="text"*/}
+            {/*        id="eventType"*/}
+            {/*        name="eventType"*/}
+            {/*        value={formData.eventType}*/}
+            {/*        onChange={handleChange}*/}
+            {/*        placeholder="eventType"*/}
+            {/*        required*/}
+            {/*    /></div>*/}
 
             <div className="login"><label htmlFor="initialAmount">Initial Amount </label>
                 <input

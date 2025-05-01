@@ -90,6 +90,7 @@ function homePage(){
   }
 
   return (<div className="total">
+
         <nav className="navBarTop">
           <img src="/public/caffeineOverloadLogo.png" className="logoSize" alt="logo" />
           <p className="logoLetter">Life Time Financial Planner</p>
