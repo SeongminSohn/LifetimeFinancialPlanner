@@ -156,7 +156,7 @@ public class InvestmentServiceImpl implements InvestmentService {
             InvestmentType investType = investment.getInvestmentType();
             if (investType == null) {
                 log.error("Can't find invest Info. investmentId: {}", investment.getId());
-                throw new IllegalArgumentException("Can't find invest Info. investmentTypeId: " + investment.getInvestmentType().getId());
+                throw new IllegalArgumentException("Can't find invest Info. investmentId: " + investment.getId());
             }
             generatedIncome = BigDecimal.valueOf((double) samplingService.sample(distributionService.convertEmbeddableToDTO(investType.getExpectedAnnualIncome())));
             generatedIncome = generatedIncome.multiply(BigDecimal.valueOf(context.getInflationFactor()));
@@ -181,6 +181,12 @@ public class InvestmentServiceImpl implements InvestmentService {
             updatedInvestmentList.add(updatedInvestment);
             log.info("Processed Investment ID: {}: finalValue={}", investment.getId(), finalValue);
         }
+
+        BigDecimal totalInvestment = updatedInvestmentList.stream()
+                .map(inv -> BigDecimal.valueOf(inv.getValue()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        context.setTotalInvestments(totalInvestment);
+
         context.setUpdatedInvestments(updatedInvestmentList);
         log.info("updateInvestmentValues completed: updatedInvestmentList size = {}", updatedInvestmentList.size());
     }
