@@ -13,5 +13,5 @@ public interface InvestEventService {
     InvestEvent updateInvestEvent(Long eventSeriesId, InvestEventDTO dto);
     void deleteInvestEvent(Long eventSeriesId);
     List<InvestEventDTO> getInvestEventsByScenarioId(Long scenarioId);
-    void runInvestEvents(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive);
+    void runInvestEvents(Scenario scenario, SimulationContext context);
 }

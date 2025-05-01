@@ -7,6 +7,8 @@ import com.app.lifetimefinancialplanner.domain.entity.Investment;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.repository.ExpenseWithdrawalStrategyRepository;
 import com.app.lifetimefinancialplanner.repository.InvestmentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ import java.util.List;
 @Service
 public class ExpenseWithdrawalStrategyServiceImpl implements ExpenseWithdrawalStrategyService {
 
+    private static final Logger log = LoggerFactory.getLogger(InvestEventServiceImpl.class);
     private final ExpenseWithdrawalStrategyRepository strategyRepository;
     private final InvestmentRepository investmentRepository;
 
@@ -119,6 +122,7 @@ public class ExpenseWithdrawalStrategyServiceImpl implements ExpenseWithdrawalSt
         }
 
         List<Investment> updatedInvestmentsList = new ArrayList<>();
+        BigDecimal totalWithdrawn = BigDecimal.ZERO;
 
         // Process withdrawals by iterating sorted list of investments
         for (Investment investment : withdrawalInvestments) {
@@ -135,6 +139,10 @@ public class ExpenseWithdrawalStrategyServiceImpl implements ExpenseWithdrawalSt
 
             // Determine sell amount for capitalGains.
             BigDecimal sellAmount = (investmentValue.compareTo(withdrawalNeeded) >= 0) ? withdrawalNeeded : investmentValue;
+            totalWithdrawn = totalWithdrawn.add(sellAmount);
+            log.info("Withdrew {} for expenses from Investment ID: {}", sellAmount, investment.getId()); // new log
+
+
             BigDecimal preSaleValue = investmentValue;
             BigDecimal afterSaleValue = investmentValue.subtract(sellAmount);
 
@@ -191,11 +199,11 @@ public class ExpenseWithdrawalStrategyServiceImpl implements ExpenseWithdrawalSt
             updatedInvestmentsList.add(updatedInvestment);
         }
 
-        // Update simulation context with the new list of updated investments.
+        // Update simulation context
+        context.setTotalExpenses(totalWithdrawn);
         context.setUpdatedInvestments(updatedInvestmentsList);
-
-        // Also update the purchase price records in context.
         context.setInvestmentsPurchasingPrices(purchasePriceRecords);
+        log.info("Total expenses withdrawn this year: {}", totalWithdrawn);
     }
 
 }
