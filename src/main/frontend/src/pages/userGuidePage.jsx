@@ -153,6 +153,19 @@ function UserGuidePage() {
         );
     }
 
+    function instructionSimulation() {
+        return (
+            <div className = "instructions">
+                <h2>Run Simulation Page</h2>
+                <div>
+                    <ul>
+                        <li>Set how many times the simulation will be run.</li>
+                    </ul>
+                </div>
+            </div>
+        );
+    }
+
     function homeManage() {
         return (
             <div>
@@ -178,7 +191,7 @@ function UserGuidePage() {
                 <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "investEvent" ? null : "investEvent")}>
                     Invest Event Edit
                 </button>
-                <button className="guider" disabled style={{backgroundColor: 'grey'}}>
+                <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "Simulation" ? null : "Simulation")}>
                     Scenario Simulation
                 </button>
                 <button className="guider" disabled style={{backgroundColor: 'grey'}}>
@@ -203,6 +216,8 @@ function UserGuidePage() {
                 return instructionExpenseWithdrawal();
             case "investEvent":
                 return instructionInvestEventEdit();
+            case "Simulation":
+                return instructionSimulation();
             default:
                 return null;
         }
