@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface SimulationYearRepository extends JpaRepository<SimulationYear, Long> {
     List<SimulationYear> findBySimulationId(Long simulationId);
+    List<SimulationYear> findBySimulationIdOrderBySimulationIndexAsc(Long simulationId);
 }

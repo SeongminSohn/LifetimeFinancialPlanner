@@ -176,7 +176,7 @@ public class IncomeEventServiceImpl implements IncomeEventService {
             log.info("Current Year branch: Retrieved {} IncomeEvents from DB for Scenario ID: {}", incomeEventList.size(), scenario.getId());
         } else {
             incomeEventList = context.getUpdatedIncomeEvents();
-            if (incomeEventList == null || incomeEventList.isEmpty()) {
+            if (incomeEventList == null) {
                 log.error("Updated IncomeEvent data is empty for Scenario ID: {}", scenario.getId());
                 throw new IllegalArgumentException("There is no updated IncomeEvent Information and This is Scenario ID: " + scenario.getId());
             }
