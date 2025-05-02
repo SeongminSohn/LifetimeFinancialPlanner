@@ -32,7 +32,7 @@ function simulationPage(){
                 <button onClick={toInvest}>Invest Edit</button>
                 <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
                 <button onClick={toInvestEvent}>Invest Event Edit</button>
-                {/*<button onClick={toSim}>Scenario Simulation</button>*/}
+                <button onClick={toResult}>Scenario Simulation</button>
                 <button disabled>Import & Export Data</button>
             </aside>
         )
@@ -69,6 +69,9 @@ function simulationPage(){
     function toInvestEvent(){
         navPage("/InvestEvent")
     }
+    function toResult(){
+        navPage("/SimulationResult")
+    }
 
     async function handleSubmit(){
         formData.scenarioId = localStorage.getItem("scenario")
@@ -76,6 +79,7 @@ function simulationPage(){
         try {
             const response = await axios.post("http://localhost:10000/api/simulations", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Data:", response.data);
+            toResult()
         } catch (error) {
             console.error("log in Error:", error);
             alert("Fail to Post Data");
@@ -90,16 +94,14 @@ function simulationPage(){
     function simulationSetting(){
         return(<div className="loginBox">
             <p><strong>Enter Simulation Times</strong></p>
-            <input
-                type="number"
+            <input type="number"
                 name="simulationCount"
                 id="simulationCount"
                 placeholder="Please specify the number of simulation runs."
                 onChange={handleChange}
                 value={formData.simulationCount}
                 style={{ width:"280px" }}
-                required
-            />
+                required/>
             <button onClick = {handleSubmit}>Submit</button>
         </div>)
     }

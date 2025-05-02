@@ -15,6 +15,7 @@ import UserGuide from "./pages/userGuidePage.jsx"
 import SimulationResult from "./pages/simulationResult.jsx"
 import IncomeSetting from "./pages/incomeSetting.jsx"
 import ExpenseSetting from "./pages/expenseSetting.jsx"
+import SimulationManagement from "./pages/simluationManagement.jsx"
 import "./App.css";
 import {useEffect} from "react";
 
@@ -53,6 +54,7 @@ function App() {
                     <Route path="/SimulationResult" element={<SimulationResult />} />
                     <Route path="/IncomeSetting" element={<IncomeSetting />} />
                     <Route path="/ExpenseSetting" element={<ExpenseSetting />} />
+                    <Route path="/SimulationManagement" element={<SimulationManagement />} />
                 </Routes>
             </BrowserRouter>
         </>
