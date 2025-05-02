@@ -9,6 +9,8 @@ import com.app.lifetimefinancialplanner.domain.entity.SimulationYear;
 import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
 import com.app.lifetimefinancialplanner.repository.SimulationRepository;
 import com.app.lifetimefinancialplanner.repository.SimulationYearRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +20,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SimulationServiceImpl implements SimulationService {
+    private static final Logger log = LoggerFactory.getLogger(IncomeEventServiceImpl.class);
 
     private final SimulationRepository simulationRepository;
     private final SimulationYearRepository simulationYearRepository;
@@ -66,52 +70,50 @@ public class SimulationServiceImpl implements SimulationService {
     public SimulationDTO getSimulation(Long simulationId) {
         Simulation sim = simulationRepository.findById(simulationId)
                 .orElseThrow(() -> new EntityNotFoundException("Simulation not found: " + simulationId));
-
-        List<SimulationYear> years = simulationYearRepository
-                .findBySimulationIdOrderBySimulationIndexAsc(simulationId);
-
-        List<SimulationYearDTO> yearDTOList = new ArrayList<>();
-        for (SimulationYear y : years) {
-            SimulationYearDTO dto = new SimulationYearDTO();
-            dto.setId(y.getId());
-            dto.setSimulationId(y.getSimulation().getId());
-            dto.setSimulationIndex(y.getSimulationIndex());
-            dto.setYear(y.getYear());
-            dto.setTotalInvestments(y.getTotalInvestments());
-            dto.setTotalIncome(y.getTotalIncome());
-            dto.setTotalExpenses(y.getTotalExpenses());
-            dto.setTotalTax(y.getTotalTax());
-            dto.setCashBalance(y.getCashBalance());
-            dto.setDetails(y.getDetails());
-            dto.setCreatedAt(y.getCreatedAt());
-            yearDTOList.add(dto);
-        }
-
-        SimulationDTO result = new SimulationDTO();
-        result.setId(sim.getId());
-        result.setScenarioId(sim.getScenario().getId());
-        result.setSimulationCount(sim.getSimulationCount());
-        result.setResult(sim.getResult());
-        result.setCreatedAt(sim.getCreatedAt());
-        result.setSimulationYears(yearDTOList);
-        return result;
+        return convertSimulationToDto(sim);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SimulationDTO> getSimulationsByScenario(Long scenarioId) {
-        List<Simulation> sims = simulationRepository.findByScenarioIdOrderBySimulationCountAsc(scenarioId);
-        List<SimulationDTO> dtoList = new ArrayList<>();
-        for (Simulation sim : sims) {
-            SimulationDTO dto = new SimulationDTO();
-            dto.setId(sim.getId());
-            dto.setScenarioId(sim.getScenario().getId());
-            dto.setSimulationCount(sim.getSimulationCount());
-            dto.setResult(sim.getResult());
-            dto.setCreatedAt(sim.getCreatedAt());
-            dtoList.add(dto);
-        }
-        return dtoList;
+        return simulationRepository
+                .findByScenarioIdOrderBySimulationCountAsc(scenarioId)
+                .stream()
+                .map(this::convertSimulationToDto)
+                .collect(Collectors.toList());
+    }
+
+    // Create SimulationDTO and update the values
+    private SimulationDTO convertSimulationToDto(Simulation sim) {
+        SimulationDTO simulationDTO = new SimulationDTO();
+        simulationDTO.setId(sim.getId());
+        simulationDTO.setScenarioId(sim.getScenario().getId());
+        simulationDTO.setSimulationCount(sim.getSimulationCount());
+        simulationDTO.setResult(sim.getResult());
+        simulationDTO.setCreatedAt(sim.getCreatedAt());
+
+        List<SimulationYear> years = simulationYearRepository
+                .findBySimulationIdOrderBySimulationIndexAsc(sim.getId());
+        List<SimulationYearDTO> yearDTOList = years.stream()
+                .map(year -> {
+                    SimulationYearDTO simulationYearDTO = new SimulationYearDTO();
+                    simulationYearDTO.setId(year.getId());
+                    simulationYearDTO.setSimulationId(year.getSimulation().getId());
+                    simulationYearDTO.setSimulationIndex(year.getSimulationIndex());
+                    simulationYearDTO.setYear(year.getYear());
+                    simulationYearDTO.setTotalInvestments(year.getTotalInvestments());
+                    simulationYearDTO.setTotalIncome(year.getTotalIncome());
+                    simulationYearDTO.setTotalExpenses(year.getTotalExpenses());
+                    simulationYearDTO.setTotalTax(year.getTotalTax());
+                    simulationYearDTO.setCashBalance(year.getCashBalance());
+                    simulationYearDTO.setDetails(year.getDetails());
+                    simulationYearDTO.setCreatedAt(year.getCreatedAt());
+                    return simulationYearDTO;
+                })
+                .collect(Collectors.toList());
+        simulationDTO.setSimulationYears(yearDTOList);
+
+        return simulationDTO;
     }
 
     @Override
@@ -262,10 +264,10 @@ public class SimulationServiceImpl implements SimulationService {
         // CSV log data: first row is the header, followed by row data for each simulation year.
         List<String> csvRows = new ArrayList<>();
         String header = "Year,TotalInvestments,TotalIncome,TotalExpenses,TaxesPaid,CashBalance";
-        for (SimulationYearDTO dto : simulationYearDTOList) {
-            String row = dto.getYear() + "," + dto.getTotalInvestments() + "," +
-                    dto.getTotalIncome() + "," + dto.getTotalExpenses() + "," +
-                    dto.getTotalTax() + "," + dto.getCashBalance();
+        for (SimulationYearDTO simulationYearDTO : simulationYearDTOList) {
+            String row = simulationYearDTO.getYear() + "," + simulationYearDTO.getTotalInvestments() + "," +
+                    simulationYearDTO.getTotalIncome() + "," + simulationYearDTO.getTotalExpenses() + "," +
+                    simulationYearDTO.getTotalTax() + "," + simulationYearDTO.getCashBalance();
             csvRows.add(row);
         }
         logService.writeCsvLog(logFilePrefix + ".csv", header, csvRows);
