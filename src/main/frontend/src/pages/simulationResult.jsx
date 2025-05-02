@@ -16,13 +16,12 @@ function SimulationPage() {
 
     const navPage = useNavigate();
 
-    // 1) 로그인 상태 확인
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) setLoggedIn(true);
     }, []);
 
-    // 2) 시나리오 ID 기반으로 invest-event 와 simulation summary 동시에 불러오기
+    // get investEvent data and simulation data at once by simulation id
     useEffect(() => {
         const scenarioId = localStorage.getItem('scenario');
         if (!scenarioId) return;
@@ -40,7 +39,7 @@ function SimulationPage() {
             .catch(err => console.error(err));
     }, []);
 
-    // 3) formData.assetAllocations → { investmentKey: ratio } 매핑
+    // mapping the asset allocation Data to multiply each data
     useEffect(() => {
         const map = {};
         (formData.assetAllocations || []).forEach(a => {
@@ -49,7 +48,6 @@ function SimulationPage() {
         setAllocationValues(map);
     }, [formData.assetAllocations]);
 
-    // 사이드 메뉴
     const popupMenu = () => setSide(s => !s);
     const sideElements = () =>
         openSide && (
@@ -59,11 +57,15 @@ function SimulationPage() {
                 <button onClick={() => navPage('/InvestEdit')}>Invest Edit</button>
                 <button onClick={() => navPage('/ExpenseW')}>Withdrawal Edit</button>
                 <button onClick={() => navPage('/InvestEvent')}>Invest Event Edit</button>
+                <button onClick={toSim}>Scenario Simulation</button>
                 <button disabled>Import & Export Data</button>
             </aside>
         );
 
-    // 차트 토글 & 렌더링
+    function toSim() {
+        navPage('/simulationPage');
+    }
+
     const simulationSetting = () => (
         <div className="loginBox">
             <div style={{ marginBottom: '1rem' }}>
@@ -71,13 +73,8 @@ function SimulationPage() {
                     <button
                         key={item.id}
                         onClick={() =>
-                            setActiveEvent(prev =>
-                                prev && prev.id === item.id ? null : item
-                            )
-                        }>
+                            setActiveEvent(prev => prev && prev.id === item.id ? null : item)}>
                         Simulation {idx + 1}
-                        {/*({new Date(item.createdAt).toLocaleDateString()},{' '}*/}
-                        {/*{new Date(item.createdAt).toLocaleTimeString()})*/}
                     </button>))}
             </div>
 
@@ -90,12 +87,7 @@ function SimulationPage() {
                 </div>
             )}
 
-            <button
-                onClick={() => setActiveEvent(null)}
-                style={{ marginTop: '1vh' }}
-            >
-                {activeEvent ? 'Hide Chart' : 'Back to Simulation Setting'}
-            </button>
+            {activeEvent && (<button onClick={() => setActiveEvent(null)} style={{ marginTop: '1vh' }}>{activeEvent && "Hide chart"}</button>)}
         </div>
     );
 
