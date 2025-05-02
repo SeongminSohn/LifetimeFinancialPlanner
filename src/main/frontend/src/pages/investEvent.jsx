@@ -449,12 +449,14 @@ function InvestEventPage() {
                     updatedData,
                     { withCredentials: true, headers: { "Content-Type": "application/json" } }
                 );
+                alert("Updated")
             } else {
                 console.log("Create!")
                 const response = await axios.post(`http://localhost:10000/api/invest-events`,
                     updatedData,
                     { withCredentials: true, headers: { "Content-Type": "application/json" } });
                 console.log("Created Investment!:", response.data);
+                alert("Saved")
                 localStorage.setItem("InvestEvent", "CHECK");
             }
             setSelectedInvestment(null);

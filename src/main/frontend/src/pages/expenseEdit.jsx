@@ -66,7 +66,7 @@ function homePage(){
         try {
             const response = await axios.post("http://localhost:10000/api/expense-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Scenario ID:", response.data);
-            // navPage('/Investment')
+            alert("Saved")
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
