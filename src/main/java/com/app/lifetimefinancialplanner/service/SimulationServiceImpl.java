@@ -118,170 +118,177 @@ public class SimulationServiceImpl implements SimulationService {
 
     @Override
     @Transactional
-    public SimulationDTO runSimulation(Long scenarioId, Integer simulationCount) {
+    public List<SimulationDTO> runSimulation(Long scenarioId, Integer simulationCount) {
         Scenario scenario = scenarioRepository.findById(scenarioId)
                 .orElseThrow(() -> new IllegalArgumentException("Scenario not found with id: " + scenarioId));
 
-        // Create a log file name with username and timestamp
-        String userName = scenario.getUser().getName();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-        String timestamp = LocalDateTime.now().format(formatter);
-        String logFilePrefix = userName + "_" + timestamp;
+        List<SimulationDTO> resultList = new ArrayList<>();
+        for (int runIndex = 1; runIndex <= simulationCount; runIndex++) {
+            // Save new Simulation entity
+            Simulation simulation = Simulation.builder()
+                    .scenario(scenario)
+                    .simulationCount(runIndex)  // iteration number
+                    .build();
+            simulation = simulationRepository.save(simulation);
 
-        // Calculate user's current age and sample user's life expectancy
-        int startYear = LocalDateTime.now().getYear();
-        int currentUserAge = startYear - scenario.getBirthYearUser();
-        int userLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancyUser()));
-        int remainingUserYears = userLifeExpectancy - currentUserAge;
-        boolean userAlive = currentUserAge < userLifeExpectancy;
+            // Prepare context and DTO list
+            List<SimulationYearDTO> simulationYearDTOList = new ArrayList<>();
+            SimulationContext context = new SimulationContext();
 
-        // If scenario is for married couple, calculate spouse's age and life expectancy.
-        int remainingSpouseYears = 0;
-        boolean spouseAlive = false;
-        if ("Y".equalsIgnoreCase(scenario.getMaritalStatus()) && scenario.getBirthYearSpouse() != null) {
-            int currentSpouseAge = startYear - scenario.getBirthYearSpouse();
-            int spouseLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancySpouse()));
-            remainingSpouseYears = spouseLifeExpectancy - currentSpouseAge;
-            spouseAlive = currentSpouseAge < spouseLifeExpectancy;
-        }
+            // Create a log file name with username and timestamp
+            String userName = scenario.getUser().getName();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+            String timestamp = LocalDateTime.now().format(formatter);
+            String logFilePrefix = userName + "_" + timestamp;
 
-        // Update numYears by comparing user's and spouse's life expectancy
-        int numYears = scenario.getBirthYearSpouse() != null
-                ? Math.max(remainingUserYears, remainingSpouseYears)
-                : remainingUserYears;
+            // Calculate user's current age and sample user's life expectancy
+            int startYear = LocalDateTime.now().getYear();
+            int currentUserAge = startYear - scenario.getBirthYearUser();
+            int userLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancyUser()));
+            int remainingUserYears = userLifeExpectancy - currentUserAge;
+            boolean userAlive = currentUserAge < userLifeExpectancy;
 
-        // cumulative inflation rate across simulation
-        double cumulativeInflation = 1.0;
-
-        List<SimulationYearDTO> simulationYearDTOList = new ArrayList<>();
-        SimulationContext context = new SimulationContext();
-        Simulation simulation = Simulation.builder()
-                .scenario(scenario)
-                .simulationCount(simulationCount)
-                .build();
-        simulation = simulationRepository.save(simulation);
-
-        for (int i = 0; i < numYears; i++) {
-            int currentYear = startYear + i;
-
-            // Update simulation variables for each year
-            context.setCurrentYear(currentYear);
-
-            // Sample the current year's inflation rate and calculate inflation factor.
-            double currentInflationRate = samplingService.sample(
-                    distributionService.convertEmbeddableToDTO(scenario.getInflationAssumption())
-            );
-            context.setCurrentInflationRate(currentInflationRate);
-            double inflationFactor = 1 + currentInflationRate;
-            context.setInflationFactor(inflationFactor);
-
-            // Update cumulative inflation.
-            cumulativeInflation *= inflationFactor;
-            context.setCumulativeInflation(cumulativeInflation);
-
-            // Adjust retirement contribution limit.
-            double adjustedAfterTaxLimit = scenario.getAfterTaxContributionLimit() * inflationFactor;
-            context.setAdjustedAfterTaxContributionLimit(adjustedAfterTaxLimit);
-
-            if (i > 0) {
-                // Save current year results as previous year results for next year's iteration
-                context.setPrevYearIncome(context.getCurYearIncome());
-                context.setPrevYearSS(context.getCurYearSS());
-                context.setPrevYearGains(context.getCurYearGains());
-                context.setPrevYearEarlyWithdrawals(context.getCurYearEarlyWithdrawals());
-                context.setPrevTotalExpenses(context.getTotalExpenses());
-                context.setPrevTotalTax(context.getTotalTax());
-                context.setPrevCashBalance(context.getCashBalance());
+            // If scenario is for married couple, calculate spouse's age and life expectancy.
+            int remainingSpouseYears = 0;
+            boolean spouseAlive = false;
+            if ("Y".equalsIgnoreCase(scenario.getMaritalStatus()) && scenario.getBirthYearSpouse() != null) {
+                int currentSpouseAge = startYear - scenario.getBirthYearSpouse();
+                int spouseLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancySpouse()));
+                remainingSpouseYears = spouseLifeExpectancy - currentSpouseAge;
+                spouseAlive = currentSpouseAge < spouseLifeExpectancy;
             }
 
-            // At the beginning of each simulation year, reset per-year fields in SimulationContext
-            context.setCurYearIncome(BigDecimal.ZERO);
-            context.setCurYearSS(BigDecimal.ZERO);
-            context.setCurYearGains(BigDecimal.ZERO);
-            context.setCurYearEarlyWithdrawals(BigDecimal.ZERO);
-            context.setTotalExpenses(BigDecimal.ZERO);
-            context.setTotalTax(BigDecimal.ZERO);
-            context.setCashBalance(BigDecimal.ZERO);
+            // Update numYears by comparing user's and spouse's life expectancy
+            int numYears = scenario.getBirthYearSpouse() != null
+                    ? Math.max(remainingUserYears, remainingSpouseYears)
+                    : remainingUserYears;
 
-            /* --- Begin simulation for the current year ---
-             * The results from these events should update local variables for SimulationYear
-             * such as: totalInvestments, totalIncome, totalExpenses, totalTax, cashBalance.
-             */
-            incomeEventService.runIncomeEvents(scenario, context, userAlive, spouseAlive);
-            investmentService.updateInvestmentValues(scenario, context);
-            payExpenseAndTax(scenario, context, userAlive, spouseAlive);
-            investEventService.runInvestEvents(scenario, context);
+            // cumulative inflation rate across simulation
+            double cumulativeInflation = 1.0;
 
-            String details = "Year " + currentYear + " processed with inflation factor " + cumulativeInflation;
-            context.setDetails(details);
-            context.setTimestamp(LocalDateTime.now());
+            for (int i = 0; i < numYears; i++) {
+                int currentYear = startYear + i;
 
-            // Build and save SimulationYear entity
-            SimulationYear simulationYear = SimulationYear.builder()
-                    .simulation(simulation)
-                    .simulationIndex(i + 1)
-                    .year(currentYear)
-                    .totalInvestments(context.getTotalInvestments())
-                    .totalIncome(context.getCurYearIncome())
-                    .totalExpenses(context.getTotalExpenses())
-                    .totalTax(context.getTotalTax())
-                    .cashBalance(context.getCashBalance())
-                    .details(context.getDetails())
+                // Update simulation variables for each year
+                context.setCurrentYear(currentYear);
+
+                // Sample the current year's inflation rate and calculate inflation factor.
+                double currentInflationRate = samplingService.sample(
+                        distributionService.convertEmbeddableToDTO(scenario.getInflationAssumption())
+                );
+                context.setCurrentInflationRate(currentInflationRate);
+                double inflationFactor = 1 + currentInflationRate;
+                context.setInflationFactor(inflationFactor);
+
+                // Update cumulative inflation.
+                cumulativeInflation *= inflationFactor;
+                context.setCumulativeInflation(cumulativeInflation);
+
+                // Adjust retirement contribution limit.
+                double adjustedAfterTaxLimit = scenario.getAfterTaxContributionLimit() * inflationFactor;
+                context.setAdjustedAfterTaxContributionLimit(adjustedAfterTaxLimit);
+
+                if (i > 0) {
+                    // Save current year results as previous year results for next year's iteration
+                    context.setPrevYearIncome(context.getCurYearIncome());
+                    context.setPrevYearSS(context.getCurYearSS());
+                    context.setPrevYearGains(context.getCurYearGains());
+                    context.setPrevYearEarlyWithdrawals(context.getCurYearEarlyWithdrawals());
+                    context.setPrevTotalExpenses(context.getTotalExpenses());
+                    context.setPrevTotalTax(context.getTotalTax());
+                    context.setPrevCashBalance(context.getCashBalance());
+                }
+
+                // At the beginning of each simulation year, reset per-year fields in SimulationContext
+                context.setCurYearIncome(BigDecimal.ZERO);
+                context.setCurYearSS(BigDecimal.ZERO);
+                context.setCurYearGains(BigDecimal.ZERO);
+                context.setCurYearEarlyWithdrawals(BigDecimal.ZERO);
+                context.setTotalExpenses(BigDecimal.ZERO);
+                context.setTotalTax(BigDecimal.ZERO);
+                context.setCashBalance(BigDecimal.ZERO);
+
+                /* --- Begin simulation for the current year ---
+                 * The results from these events should update local variables for SimulationYear
+                 * such as: totalInvestments, totalIncome, totalExpenses, totalTax, cashBalance.
+                 */
+                incomeEventService.runIncomeEvents(scenario, context, userAlive, spouseAlive);
+                investmentService.updateInvestmentValues(scenario, context);
+                payExpenseAndTax(scenario, context, userAlive, spouseAlive);
+                investEventService.runInvestEvents(scenario, context);
+
+                String details = "Year " + currentYear + " processed with inflation factor " + cumulativeInflation;
+                context.setDetails(details);
+                context.setTimestamp(LocalDateTime.now());
+
+                // Build and save SimulationYear entity
+                SimulationYear simulationYear = SimulationYear.builder()
+                        .simulation(simulation)
+                        .simulationIndex(i + 1)
+                        .year(currentYear)
+                        .totalInvestments(context.getTotalInvestments())
+                        .totalIncome(context.getCurYearIncome())
+                        .totalExpenses(context.getTotalExpenses())
+                        .totalTax(context.getTotalTax())
+                        .cashBalance(context.getCashBalance())
+                        .details(context.getDetails())
+                        .build();
+                simulationYear = simulationYearRepository.save(simulationYear);
+
+                // Convert entity to DTO
+                SimulationYearDTO yearDTO = new SimulationYearDTO();
+                yearDTO.setId(simulationYear.getId());
+                yearDTO.setSimulationId(simulationYear.getId());
+                yearDTO.setSimulationIndex(simulationYear.getSimulationIndex());
+                yearDTO.setYear(simulationYear.getYear());
+                yearDTO.setTotalInvestments(simulationYear.getTotalInvestments());
+                yearDTO.setTotalIncome(simulationYear.getTotalIncome());
+                yearDTO.setTotalExpenses(simulationYear.getTotalExpenses());
+                yearDTO.setTotalTax(simulationYear.getTotalTax());
+                yearDTO.setCashBalance(simulationYear.getCashBalance());
+                yearDTO.setDetails(simulationYear.getDetails());
+                yearDTO.setCreatedAt(simulationYear.getCreatedAt());
+
+                simulationYearDTOList.add(yearDTO);
+
+                // Log a text entry for the current simulation year.
+                logService.writeTextLog(logFilePrefix + ".log", "Full SimulationContext: " + context.toString());
+            }
+
+            // Update the simulation result and save to database
+            SimulationYearDTO lastYearDTO = simulationYearDTOList.get(simulationYearDTOList.size() - 1);
+            BigDecimal endingNetWorth = lastYearDTO.getTotalInvestments().add(lastYearDTO.getCashBalance());
+            BigDecimal financialGoal = BigDecimal.valueOf(scenario.getFinancialGoal());
+            String resultValue = endingNetWorth.compareTo(financialGoal) >= 0 ? "SUCCESS" : "FAIL";
+
+            simulation = simulation.toBuilder()
+                    .result(resultValue)
                     .build();
-            simulationYear = simulationYearRepository.save(simulationYear);
+            simulation = simulationRepository.save(simulation);
 
-            // Convert entity to DTO
-            SimulationYearDTO yearDTO = new SimulationYearDTO();
-            yearDTO.setId(simulationYear.getId());
-            yearDTO.setSimulationId(simulationYear.getId());
-            yearDTO.setSimulationIndex(simulationYear.getSimulationIndex());
-            yearDTO.setYear(simulationYear.getYear());
-            yearDTO.setTotalInvestments(simulationYear.getTotalInvestments());
-            yearDTO.setTotalIncome(simulationYear.getTotalIncome());
-            yearDTO.setTotalExpenses(simulationYear.getTotalExpenses());
-            yearDTO.setTotalTax(simulationYear.getTotalTax());
-            yearDTO.setCashBalance(simulationYear.getCashBalance());
-            yearDTO.setDetails(simulationYear.getDetails());
-            yearDTO.setCreatedAt(simulationYear.getCreatedAt());
+            // CSV log data: first row is the header, followed by row data for each simulation year.
+            List<String> csvRows = new ArrayList<>();
+            String header = "Year,TotalInvestments,TotalIncome,TotalExpenses,TaxesPaid,CashBalance";
+            for (SimulationYearDTO simulationYearDTO : simulationYearDTOList) {
+                String row = simulationYearDTO.getYear() + "," + simulationYearDTO.getTotalInvestments() + "," +
+                        simulationYearDTO.getTotalIncome() + "," + simulationYearDTO.getTotalExpenses() + "," +
+                        simulationYearDTO.getTotalTax() + "," + simulationYearDTO.getCashBalance();
+                csvRows.add(row);
+            }
+            logService.writeCsvLog(logFilePrefix + ".csv", header, csvRows);
 
-            simulationYearDTOList.add(yearDTO);
+            // Build SimulationDTO
+            SimulationDTO simulationDTO = new SimulationDTO();
+            simulationDTO.setId(simulation.getId());
+            simulationDTO.setScenarioId(simulation.getScenario().getId());
+            simulationDTO.setSimulationCount(simulation.getSimulationCount());
+            simulationDTO.setResult(simulation.getResult());
+            simulationDTO.setCreatedAt(simulation.getCreatedAt());
+            simulationDTO.setSimulationYears(simulationYearDTOList);
 
-            // Log a text entry for the current simulation year.
-            logService.writeTextLog(logFilePrefix + ".log", "Full SimulationContext: " + context.toString());
+            resultList.add(simulationDTO);
         }
-
-        // Update the simulation result and save to database
-        SimulationYearDTO lastYearDTO = simulationYearDTOList.get(simulationYearDTOList.size() - 1);
-        BigDecimal endingNetWorth = lastYearDTO.getTotalInvestments().add(lastYearDTO.getCashBalance());
-        BigDecimal financialGoal = BigDecimal.valueOf(scenario.getFinancialGoal());
-        String resultValue = endingNetWorth.compareTo(financialGoal) >= 0 ? "SUCCESS" : "FAIL";
-
-        simulation = simulation.toBuilder()
-                .result(resultValue)
-                .build();
-        simulation = simulationRepository.save(simulation);
-
-        // CSV log data: first row is the header, followed by row data for each simulation year.
-        List<String> csvRows = new ArrayList<>();
-        String header = "Year,TotalInvestments,TotalIncome,TotalExpenses,TaxesPaid,CashBalance";
-        for (SimulationYearDTO simulationYearDTO : simulationYearDTOList) {
-            String row = simulationYearDTO.getYear() + "," + simulationYearDTO.getTotalInvestments() + "," +
-                    simulationYearDTO.getTotalIncome() + "," + simulationYearDTO.getTotalExpenses() + "," +
-                    simulationYearDTO.getTotalTax() + "," + simulationYearDTO.getCashBalance();
-            csvRows.add(row);
-        }
-        logService.writeCsvLog(logFilePrefix + ".csv", header, csvRows);
-
-        // Build SimulationDTO
-        SimulationDTO simulationDTO = new SimulationDTO();
-        simulationDTO.setId(simulation.getId());
-        simulationDTO.setScenarioId(simulation.getScenario().getId());
-        simulationDTO.setSimulationCount(simulation.getSimulationCount());
-        simulationDTO.setResult(simulation.getResult());
-        simulationDTO.setCreatedAt(simulation.getCreatedAt());
-        simulationDTO.setSimulationYears(simulationYearDTOList);
-
-        return simulationDTO;
+        return resultList;
     }
 
     @Override

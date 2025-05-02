@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/simulations")
 @Tag(name = "Simulation API", description = "Endpoints for running simulations and retrieving simulation results")
@@ -29,8 +31,8 @@ public class SimulationController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<SimulationDTO> runSimulation(@RequestBody SimulationDTO simulationDTO) {
-        SimulationDTO simulationDTOResult = simulationService.runSimulation(simulationDTO.getScenarioId(), simulationDTO.getSimulationCount());
+    public ResponseEntity<List<SimulationDTO>> runSimulation(@RequestBody SimulationDTO simulationDTO) {
+        List<SimulationDTO> simulationDTOResult = simulationService.runSimulation(simulationDTO.getScenarioId(), simulationDTO.getSimulationCount());
         return ResponseEntity.ok(simulationDTOResult);
     }
 }

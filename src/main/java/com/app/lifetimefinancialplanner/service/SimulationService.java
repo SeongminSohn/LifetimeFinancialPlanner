@@ -9,6 +9,6 @@ import java.util.List;
 public interface SimulationService {
     SimulationDTO getSimulation(Long simulationId);
     List<SimulationDTO> getSimulationsByScenario(Long scenarioId);
-    SimulationDTO runSimulation(Long scenarioId, Integer simulationCount);
+    List<SimulationDTO> runSimulation(Long scenarioId, Integer simulationCount);
     void payExpenseAndTax(Scenario scenario, SimulationContext context, Boolean userAlive, Boolean spouseAlive);
 }
