@@ -12,6 +12,7 @@ import com.app.lifetimefinancialplanner.repository.SimulationYearRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -60,6 +61,58 @@ public class SimulationServiceImpl implements SimulationService {
         this.logService = logService;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public SimulationDTO getSimulation(Long simulationId) {
+        Simulation sim = simulationRepository.findById(simulationId)
+                .orElseThrow(() -> new EntityNotFoundException("Simulation not found: " + simulationId));
+
+        List<SimulationYear> years = simulationYearRepository
+                .findBySimulationIdOrderBySimulationIndexAsc(simulationId);
+
+        List<SimulationYearDTO> yearDTOList = new ArrayList<>();
+        for (SimulationYear y : years) {
+            SimulationYearDTO dto = new SimulationYearDTO();
+            dto.setId(y.getId());
+            dto.setSimulationId(y.getSimulation().getId());
+            dto.setSimulationIndex(y.getSimulationIndex());
+            dto.setYear(y.getYear());
+            dto.setTotalInvestments(y.getTotalInvestments());
+            dto.setTotalIncome(y.getTotalIncome());
+            dto.setTotalExpenses(y.getTotalExpenses());
+            dto.setTotalTax(y.getTotalTax());
+            dto.setCashBalance(y.getCashBalance());
+            dto.setDetails(y.getDetails());
+            dto.setCreatedAt(y.getCreatedAt());
+            yearDTOList.add(dto);
+        }
+
+        SimulationDTO result = new SimulationDTO();
+        result.setId(sim.getId());
+        result.setScenarioId(sim.getScenario().getId());
+        result.setSimulationCount(sim.getSimulationCount());
+        result.setResult(sim.getResult());
+        result.setCreatedAt(sim.getCreatedAt());
+        result.setSimulationYears(yearDTOList);
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SimulationDTO> getSimulationsByScenario(Long scenarioId) {
+        List<Simulation> sims = simulationRepository.findByScenarioIdOrderBySimulationCountAsc(scenarioId);
+        List<SimulationDTO> dtoList = new ArrayList<>();
+        for (Simulation sim : sims) {
+            SimulationDTO dto = new SimulationDTO();
+            dto.setId(sim.getId());
+            dto.setScenarioId(sim.getScenario().getId());
+            dto.setSimulationCount(sim.getSimulationCount());
+            dto.setResult(sim.getResult());
+            dto.setCreatedAt(sim.getCreatedAt());
+            dtoList.add(dto);
+        }
+        return dtoList;
+    }
 
     @Override
     @Transactional
@@ -149,14 +202,13 @@ public class SimulationServiceImpl implements SimulationService {
             context.setCashBalance(BigDecimal.ZERO);
 
             /* --- Begin simulation for the current year ---
-             * TODO: Call various service methods that process events:
              * The results from these events should update local variables for SimulationYear
              * such as: totalInvestments, totalIncome, totalExpenses, totalTax, cashBalance.
              */
             incomeEventService.runIncomeEvents(scenario, context, userAlive, spouseAlive);
             investmentService.updateInvestmentValues(scenario, context);
             payExpenseAndTax(scenario, context, userAlive, spouseAlive);
-//            investEventService.runInvestEvents(scenario, context);
+            investEventService.runInvestEvents(scenario, context);
 
             String details = "Year " + currentYear + " processed with inflation factor " + cumulativeInflation;
             context.setDetails(details);
@@ -179,6 +231,8 @@ public class SimulationServiceImpl implements SimulationService {
             // Convert entity to DTO
             SimulationYearDTO yearDTO = new SimulationYearDTO();
             yearDTO.setId(simulationYear.getId());
+            yearDTO.setSimulationId(simulationYear.getId());
+            yearDTO.setSimulationIndex(simulationYear.getSimulationIndex());
             yearDTO.setYear(simulationYear.getYear());
             yearDTO.setTotalInvestments(simulationYear.getTotalInvestments());
             yearDTO.setTotalIncome(simulationYear.getTotalIncome());
@@ -195,8 +249,13 @@ public class SimulationServiceImpl implements SimulationService {
         }
 
         // Update the simulation result and save to database
-        simulation.toBuilder()
-                .result("Simulation completed")
+        SimulationYearDTO lastYearDTO = simulationYearDTOList.get(simulationYearDTOList.size() - 1);
+        BigDecimal endingNetWorth = lastYearDTO.getTotalInvestments().add(lastYearDTO.getCashBalance());
+        BigDecimal financialGoal = BigDecimal.valueOf(scenario.getFinancialGoal());
+        String resultValue = endingNetWorth.compareTo(financialGoal) >= 0 ? "SUCCESS" : "FAIL";
+
+        simulation = simulation.toBuilder()
+                .result(resultValue)
                 .build();
         simulation = simulationRepository.save(simulation);
 
