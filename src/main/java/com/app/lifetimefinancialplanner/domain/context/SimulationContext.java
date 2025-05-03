@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.domain.context;
 
+import com.app.lifetimefinancialplanner.domain.embeddable.AllocationEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.entity.Investment;
 import com.app.lifetimefinancialplanner.domain.entity.InvestEvent;
@@ -30,6 +31,8 @@ public class SimulationContext {
     private BigDecimal totalExpenses = BigDecimal.ZERO;
     private BigDecimal totalTax = BigDecimal.ZERO;
     private BigDecimal cashBalance = BigDecimal.ZERO;
+    // Save AssetAllocation for specification for Breakdown of investments
+    private List<AllocationEmbeddable> assetAllocations;
     // Previous Year Variables
     private BigDecimal prevYearIncome = BigDecimal.ZERO;
     private BigDecimal prevYearSS = BigDecimal.ZERO;

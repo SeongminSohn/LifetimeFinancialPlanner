@@ -231,6 +231,7 @@ public class SimulationServiceImpl implements SimulationService {
                         .totalExpenses(context.getTotalExpenses())
                         .totalTax(context.getTotalTax())
                         .cashBalance(context.getCashBalance())
+                        .assetAllocations(context.getAssetAllocations())
                         .details(context.getDetails())
                         .build();
                 simulationYear = simulationYearRepository.save(simulationYear);
