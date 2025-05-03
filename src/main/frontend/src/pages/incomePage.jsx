@@ -102,7 +102,7 @@ function homePage(){
         try {
             const response = await axios.post("http://localhost:10000/api/income-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Scenario ID:", response.data);
-            navPage("IncomeSetting")
+            navPage("/IncomeSetting")
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
@@ -632,8 +632,9 @@ function homePage(){
             <div></div>
         </nav>
         <nav className= "navBarSub">
-            <button className="commonButton" onClick={popupMenu}>Menu</button>
-            {sideElements()}
+            <div/>
+            {/*<button className="commonButton" onClick={popupMenu}>Menu</button>*/}
+            {/*{sideElements()}*/}
             {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
                 Scenario Setting
             </button>)}
