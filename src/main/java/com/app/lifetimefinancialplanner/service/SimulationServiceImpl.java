@@ -106,6 +106,7 @@ public class SimulationServiceImpl implements SimulationService {
                     simulationYearDTO.setTotalExpenses(year.getTotalExpenses());
                     simulationYearDTO.setTotalTax(year.getTotalTax());
                     simulationYearDTO.setCashBalance(year.getCashBalance());
+                    simulationYearDTO.setAssetAllocations(year.getAssetAllocations());
                     simulationYearDTO.setDetails(year.getDetails());
                     simulationYearDTO.setCreatedAt(year.getCreatedAt());
                     return simulationYearDTO;
@@ -240,13 +241,14 @@ public class SimulationServiceImpl implements SimulationService {
                 SimulationYearDTO yearDTO = new SimulationYearDTO();
                 yearDTO.setId(simulationYear.getId());
                 yearDTO.setSimulationId(simulationYear.getId());
-                yearDTO.setSimulationIndex(simulationYear.getSimulationIndex());
+                yearDTO.setSimulationIndex(i + 1);
                 yearDTO.setYear(simulationYear.getYear());
                 yearDTO.setTotalInvestments(simulationYear.getTotalInvestments());
                 yearDTO.setTotalIncome(simulationYear.getTotalIncome());
                 yearDTO.setTotalExpenses(simulationYear.getTotalExpenses());
                 yearDTO.setTotalTax(simulationYear.getTotalTax());
                 yearDTO.setCashBalance(simulationYear.getCashBalance());
+                yearDTO.setAssetAllocations(simulationYear.getAssetAllocations());
                 yearDTO.setDetails(simulationYear.getDetails());
                 yearDTO.setCreatedAt(simulationYear.getCreatedAt());
 
