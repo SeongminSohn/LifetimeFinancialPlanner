@@ -137,15 +137,9 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
     @Transactional
     public List<ExpenseEventDTO> getExpenseEventsByScenarioId(Long scenarioId) {
         return expenseEventRepository.findAll().stream()
-                .filter(expenseEvent -> {
-                    EventSeries es = expenseEvent.getEventSeries();
-                    if (es == null || es.getScenario() == null) {
-                        return false;
-                    }
-                    boolean matchScenario = scenarioId.equals(es.getScenario().getId());
-                    boolean matchEventType = "EXPENSE".equalsIgnoreCase(es.getEventType());
-                    return matchScenario && matchEventType;
-                })
+                .filter(expenseEvent -> expenseEvent.getEventSeries() != null
+                        && expenseEvent.getEventSeries().getScenario() != null
+                        && scenarioId.equals(expenseEvent.getEventSeries().getScenario().getId()))
                 .map(expenseEvent -> {
                     ExpenseEventDTO dto = new ExpenseEventDTO();
                     dto.setEventSeriesId(expenseEvent.getEventSeriesId());

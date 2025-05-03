@@ -95,11 +95,11 @@ public class IncomeEventController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/scenarios/{scenarioId}")
+    @GetMapping("/scenario/{scenarioId}")
     @Operation(
             summary = "Get Income Events by Scenario",
             description = "Retrieves all income events for the given scenario ID.\n" +
-                    "Example: GET /api/income-events/scenarios/1"
+                    "Example: GET /api/income-events/scenario/1"
     )
     @ApiResponse(
             responseCode = "200",
