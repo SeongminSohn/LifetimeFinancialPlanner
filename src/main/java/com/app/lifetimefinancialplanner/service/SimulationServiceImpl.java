@@ -215,7 +215,7 @@ public class SimulationServiceImpl implements SimulationService {
                 incomeEventService.runIncomeEvents(scenario, context, userAlive, spouseAlive);
                 investmentService.updateInvestmentValues(scenario, context);
                 payExpenseAndTax(scenario, context, userAlive, spouseAlive);
-                investEventService.runInvestEvents(scenario, context);
+//                investEventService.runInvestEvents(scenario, context);
 
                 String details = "Year " + currentYear + " processed with inflation factor " + cumulativeInflation;
                 context.setDetails(details);

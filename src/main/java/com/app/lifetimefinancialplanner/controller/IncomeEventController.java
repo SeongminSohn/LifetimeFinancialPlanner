@@ -4,12 +4,15 @@ import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.dto.IncomeEventDTO;
 import com.app.lifetimefinancialplanner.service.IncomeEventService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/income-events")
@@ -90,5 +93,25 @@ public class IncomeEventController {
     public ResponseEntity<Void> deleteIncomeEvent(@PathVariable Long eventSeriesId) {
         incomeEventService.deleteIncomeEvent(eventSeriesId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/scenarios/{scenarioId}")
+    @Operation(
+            summary = "Get Income Events by Scenario",
+            description = "Retrieves all income events for the given scenario ID.\n" +
+                    "Example: GET /api/income-events/scenarios/1"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Income events retrieved successfully",
+            content = @Content(
+                    mediaType = "application/json",
+                    array = @ArraySchema(schema = @Schema(implementation = IncomeEventDTO.class))
+            )
+    )
+    public ResponseEntity<List<IncomeEventDTO>> getIncomeEventsByScenario(
+            @PathVariable Long scenarioId) {
+        List<IncomeEventDTO> events = incomeEventService.getIncomeEventListByScenarioId(scenarioId);
+        return ResponseEntity.ok(events);
     }
 }

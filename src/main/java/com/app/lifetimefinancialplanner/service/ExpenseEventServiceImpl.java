@@ -81,29 +81,42 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
         ExpenseEvent existingExpenseEvent = expenseEventRepository.findById(eventSeriesId)
                 .orElseThrow(() -> new IllegalArgumentException("ExpenseEvent not found with id: " + eventSeriesId));
 
-        // Update associated EventSeries (if any fields are provided)
+        // Update associated EventSeries if information is changed
         EventSeries existingEventSeries = existingExpenseEvent.getEventSeries();
         EventSeries updatedEventSeries = existingEventSeries.toBuilder()
-                .name(expenseEventDTO.getName() != null ? expenseEventDTO.getName() : existingEventSeries.getName())
+                .name(expenseEventDTO.getName() != null
+                        ? expenseEventDTO.getName()
+                        : existingEventSeries.getName())
                 .startYear(expenseEventDTO.getStartYear() != null
                         ? distributionService.convertDTOToEmbeddable(expenseEventDTO.getStartYear())
                         : existingEventSeries.getStartYear())
                 .duration(expenseEventDTO.getDuration() != null
                         ? distributionService.convertDTOToEmbeddable(expenseEventDTO.getDuration())
                         : existingEventSeries.getDuration())
-                .eventType(expenseEventDTO.getEventType() != null ? expenseEventDTO.getEventType() : existingEventSeries.getEventType())
+                .eventType(expenseEventDTO.getEventType() != null
+                        ? expenseEventDTO.getEventType()
+                        : existingEventSeries.getEventType())
                 .build();
         updatedEventSeries = eventSeriesRepository.save(updatedEventSeries);
 
         // Update ExpenseEvent fields
         ExpenseEvent updatedExpenseEvent = existingExpenseEvent.toBuilder()
-                .initialAmount(expenseEventDTO.getInitialAmount() != null ? expenseEventDTO.getInitialAmount() : existingExpenseEvent.getInitialAmount())
+                .initialAmount(expenseEventDTO.getInitialAmount() != null
+                        ? expenseEventDTO.getInitialAmount()
+                        : existingExpenseEvent.getInitialAmount())
                 .annualChange(expenseEventDTO.getAnnualChange() != null
                         ? distributionService.convertDTOToEmbeddable(expenseEventDTO.getAnnualChange())
                         : existingExpenseEvent.getAnnualChange())
-                .inflationAdjustment(expenseEventDTO.getInflationAdjustment() != null ? expenseEventDTO.getInflationAdjustment() : existingExpenseEvent.getInflationAdjustment())
-                .userPercentage(expenseEventDTO.getUserPercentage() != null ? expenseEventDTO.getUserPercentage() : existingExpenseEvent.getUserPercentage())
-                .isDiscretionary(expenseEventDTO.getIsDiscretionary() != null ? expenseEventDTO.getIsDiscretionary() : existingExpenseEvent.getIsDiscretionary())
+                .inflationAdjustment(expenseEventDTO.getInflationAdjustment() != null
+                        ? expenseEventDTO.getInflationAdjustment()
+                        : existingExpenseEvent.getInflationAdjustment())
+                .userPercentage(expenseEventDTO.getUserPercentage() != null
+                        ? expenseEventDTO.getUserPercentage()
+                        : existingExpenseEvent.getUserPercentage())
+                .isDiscretionary(expenseEventDTO.getIsDiscretionary() != null
+                        ? expenseEventDTO.getIsDiscretionary()
+                        : existingExpenseEvent.getIsDiscretionary())
+                .eventSeries(updatedEventSeries)
                 .build();
 
         return expenseEventRepository.save(updatedExpenseEvent);

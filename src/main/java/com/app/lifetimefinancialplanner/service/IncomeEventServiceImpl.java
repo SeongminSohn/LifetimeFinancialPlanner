@@ -88,26 +88,39 @@ public class IncomeEventServiceImpl implements IncomeEventService {
         // Update associated EventSeries if information is changed
         EventSeries existingEventSeries = existingIncomeEvent.getEventSeries();
         EventSeries updatedEventSeries = existingEventSeries.toBuilder()
-                .name(incomeEventDTO.getName() != null ? incomeEventDTO.getName() : existingEventSeries.getName())
+                .name(incomeEventDTO.getName() != null
+                        ? incomeEventDTO.getName()
+                        : existingEventSeries.getName())
                 .startYear(incomeEventDTO.getStartYear() != null
                         ? distributionService.convertDTOToEmbeddable(incomeEventDTO.getStartYear())
                         : existingEventSeries.getStartYear())
                 .duration(incomeEventDTO.getDuration() != null
                         ? distributionService.convertDTOToEmbeddable(incomeEventDTO.getDuration())
                         : existingEventSeries.getDuration())
-                .eventType(incomeEventDTO.getEventType() != null ? incomeEventDTO.getEventType() : existingEventSeries.getEventType())
+                .eventType(incomeEventDTO.getEventType() != null
+                        ? incomeEventDTO.getEventType()
+                        : existingEventSeries.getEventType())
                 .build();
         updatedEventSeries = eventSeriesRepository.save(updatedEventSeries);
 
         // Update IncomeEvent fields using builder pattern
         IncomeEvent updatedIncomeEvent = existingIncomeEvent.toBuilder()
-                .initialAmount(incomeEventDTO.getInitialAmount() != null ? incomeEventDTO.getInitialAmount() : existingIncomeEvent.getInitialAmount())
+                .initialAmount(incomeEventDTO.getInitialAmount() != null
+                        ? incomeEventDTO.getInitialAmount()
+                        : existingIncomeEvent.getInitialAmount())
                 .annualChange(incomeEventDTO.getAnnualChange() != null
                         ? distributionService.convertDTOToEmbeddable(incomeEventDTO.getAnnualChange())
                         : existingIncomeEvent.getAnnualChange())
-                .inflationAdjustment(incomeEventDTO.getInflationAdjustment() != null ? incomeEventDTO.getInflationAdjustment() : existingIncomeEvent.getInflationAdjustment())
-                .userPercentage(incomeEventDTO.getUserPercentage() != null ? incomeEventDTO.getUserPercentage() : existingIncomeEvent.getUserPercentage())
-                .isSocialSecurity(incomeEventDTO.getIsSocialSecurity() != null ? incomeEventDTO.getIsSocialSecurity() : existingIncomeEvent.getIsSocialSecurity())
+                .inflationAdjustment(incomeEventDTO.getInflationAdjustment() != null
+                        ? incomeEventDTO.getInflationAdjustment()
+                        : existingIncomeEvent.getInflationAdjustment())
+                .userPercentage(incomeEventDTO.getUserPercentage() != null
+                        ? incomeEventDTO.getUserPercentage()
+                        : existingIncomeEvent.getUserPercentage())
+                .isSocialSecurity(incomeEventDTO.getIsSocialSecurity() != null
+                        ? incomeEventDTO.getIsSocialSecurity()
+                        : existingIncomeEvent.getIsSocialSecurity())
+                .eventSeries(updatedEventSeries)
                 .build();
 
         return incomeEventRepository.save(updatedIncomeEvent);
@@ -118,12 +131,11 @@ public class IncomeEventServiceImpl implements IncomeEventService {
     public void deleteIncomeEvent(Long eventSeriesId) {
         IncomeEvent existingIncomeEvent = incomeEventRepository.findById(eventSeriesId)
                 .orElseThrow(() -> new IllegalArgumentException("IncomeEvent not found with id: " + eventSeriesId));
+
         // Optionally delete the EventSeries as well if cascade is not enabled
         eventSeriesRepository.delete(existingIncomeEvent.getEventSeries());
         incomeEventRepository.delete(existingIncomeEvent);
     }
-
-
 
     @Override
     @Transactional(readOnly = true)
