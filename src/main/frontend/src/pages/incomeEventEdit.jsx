@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
-function homePage(){
+function IncomeEventEdit(){
     const currentYear = new Date().getFullYear();
 
     useEffect(() => {
@@ -641,4 +641,4 @@ function homePage(){
         {incomeManager()}
     </div>);
 }
-export default homePage;
+export default IncomeEventEdit;
