@@ -91,31 +91,54 @@ public class InvestEventServiceImpl implements InvestEventService {
     @Override
     @Transactional
     public InvestEvent updateInvestEvent(Long eventSeriesId, InvestEventDTO dto) {
-        InvestEvent existing = investEventRepository.findById(eventSeriesId)
+        // Retrieve existing InvestEvent
+        InvestEvent existingInvestEvent = investEventRepository.findById(eventSeriesId)
                 .orElseThrow(() -> new RuntimeException("InvestEvent not found with id: " + eventSeriesId));
-        log.info("Updating InvestEvent with id: " + eventSeriesId);
-        log.info("Existing InvestEvent: " + existing);
 
-        // Update assetAllocations and maxCash.
-        List<AllocationEmbeddable> updatedAllocations =
-                dto.getAssetAllocations() != null ?
-                        allocationService.convertDTOListToEmbeddableList(dto.getAssetAllocations()) : existing.getAssetAllocations();
-        log.info("Updated Allocation List:" + updatedAllocations);
-
-        InvestEvent updated = existing.toBuilder()
-                .maxCash(dto.getMaxCash() != null ? dto.getMaxCash() : existing.getMaxCash())
-                .assetAllocations(updatedAllocations)
+        // Update associated EventSeries if information is changed
+        EventSeries existingEventSeries = existingInvestEvent.getEventSeries();
+        EventSeries updatedEventSeries = existingEventSeries.toBuilder()
+                .name(dto.getName() != null
+                        ? dto.getName()
+                        : existingEventSeries.getName())
+                .startYear(dto.getStartYear() != null
+                        ? distributionService.convertDTOToEmbeddable(dto.getStartYear())
+                        : existingEventSeries.getStartYear())
+                .duration(dto.getDuration() != null
+                        ? distributionService.convertDTOToEmbeddable(dto.getDuration())
+                        : existingEventSeries.getDuration())
+                .eventType(dto.getEventType() != null
+                        ? dto.getEventType()
+                        : existingEventSeries.getEventType())
                 .build();
-        log.info("Updated InvestEvent: " + updated);
+        updatedEventSeries = eventSeriesRepository.save(updatedEventSeries);
 
-        return investEventRepository.save(updated);
+        // Determine updated asset allocations
+        List<AllocationEmbeddable> updatedAssetAllocations = dto.getAssetAllocations() != null
+                ? allocationService.convertDTOListToEmbeddableList(dto.getAssetAllocations())
+                : existingInvestEvent.getAssetAllocations();
+
+        // Build and save updated InvestEvent
+        InvestEvent updatedInvestEvent = existingInvestEvent.toBuilder()
+                .maxCash(dto.getMaxCash() != null
+                        ? dto.getMaxCash()
+                        : existingInvestEvent.getMaxCash())
+                .assetAllocations(updatedAssetAllocations)
+                .eventSeries(updatedEventSeries)
+                .build();
+
+        return investEventRepository.save(updatedInvestEvent);
     }
+
 
     @Override
     @Transactional
     public void deleteInvestEvent(Long eventSeriesId) {
         InvestEvent existing = investEventRepository.findById(eventSeriesId)
                 .orElseThrow(() -> new RuntimeException("InvestEvent not found with id: " + eventSeriesId));
+
+        // Optionally delete the EventSeries as well if cascade is not enabled
+        eventSeriesRepository.delete(existing.getEventSeries());
         investEventRepository.delete(existing);
     }
 
