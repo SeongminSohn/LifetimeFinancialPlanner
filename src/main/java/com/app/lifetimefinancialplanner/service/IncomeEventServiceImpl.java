@@ -123,6 +123,8 @@ public class IncomeEventServiceImpl implements IncomeEventService {
         incomeEventRepository.delete(existingIncomeEvent);
     }
 
+
+
     @Override
     @Transactional(readOnly = true)
     public List<IncomeEventDTO> getIncomeEventListByScenarioId(Long scenarioId) {

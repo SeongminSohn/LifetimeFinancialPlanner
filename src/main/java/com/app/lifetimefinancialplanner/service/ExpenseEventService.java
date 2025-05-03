@@ -12,6 +12,6 @@ public interface ExpenseEventService {
     ExpenseEvent getExpenseEvent(Long eventSeriesId);
     ExpenseEvent updateExpenseEvent(Long eventSeriesId, ExpenseEventDTO expenseEventDTO);
     void deleteExpenseEvent(Long eventSeriesId);
-    List<ExpenseEventDTO> getExpenseEventsBySeriesId(Long seriesId);
+    List<ExpenseEventDTO> getExpenseEventsByScenarioId(Long seriesId);
     BigDecimal calculateNonDiscretionaryExpense(Scenario scenario, int simulationYear, double inflationFactor);
 }

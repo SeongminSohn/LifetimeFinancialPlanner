@@ -1,5 +1,6 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
+import com.app.lifetimefinancialplanner.domain.embeddable.AllocationEmbeddable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity @Table(name = "TBL_SIMULATION_YEAR")
 @SequenceGenerator(name = "SEQ_SIMULATION_YEAR_GENERATOR", sequenceName = "SEQ_SIMULATION_YEAR", allocationSize = 1)
@@ -43,6 +45,13 @@ public class SimulationYear {
 
     @Column(name = "CASH_BALANCE", nullable = false)
     private BigDecimal cashBalance;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "TBL_SIMULATION_YEAR_ASSET_ALLOCATION",
+            joinColumns = @JoinColumn(name = "SIMULATION_ID")
+    )
+    private List<AllocationEmbeddable> assetAllocations;
 
     @Column(name = "DETAILS", columnDefinition = "CLOB")
     private String details;
