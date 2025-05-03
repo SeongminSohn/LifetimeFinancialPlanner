@@ -515,8 +515,9 @@ function InvestEventPage() {
                 <div></div>
             </nav>
             <nav className="navBarSub">
-                <button className="commonButton" onClick={popupMenu}>Menu</button>
-                {sideElements()}
+                <div/>
+                {/*<button className="commonButton" onClick={popupMenu}>Menu</button>*/}
+                {/*{sideElements()}*/}
                 {loggedIn && (
                     <button className="commonButton" onClick={() => navPage('/Profset')}>
                         Scenario Setting

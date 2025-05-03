@@ -67,6 +67,7 @@ function homePage(){
             const response = await axios.post("http://localhost:10000/api/expense-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Scenario ID:", response.data);
             alert("Saved")
+            navPage("/ExpenseSetting")
         } catch (error) {
             console.error("Scenario Error:", error);
             alert("Try again");
@@ -434,7 +435,7 @@ function homePage(){
                     value={formData.startYear.amountOrPercent}
                     onChange={handleChange} required>
                     <option value = "AMOUNT">Amount</option>
-                    <option value = "PERCENT">Percent</option>
+                    {/*<option value = "PERCENT">Percent</option>*/}
                 </select></div>
             <div className="login"><label htmlFor="startYear.distributionType">Distribution Type </label>
                 <select name="startYear.distributionType" id="startYear.distributionType" value={formData.startYear.distributionType} onChange={handleChange} required>
@@ -451,7 +452,7 @@ function homePage(){
                     value={formData.duration.amountOrPercent}
                     onChange={handleChange} required>
                     <option value = "AMOUNT">Amount</option>
-                    <option value = "PERCENT">Percent</option>
+                    {/*<option value = "PERCENT">Percent</option>*/}
                 </select></div>
             <div className="login"><label htmlFor="duration.distributionType">Distribution Type </label>
                 <select name="duration.distributionType" id="duration.distributionType" value={formData.duration.distributionType} onChange={handleChange} required>
@@ -544,8 +545,9 @@ function homePage(){
             <div></div>
         </nav>
         <nav className= "navBarSub">
-            <button className="commonButton" onClick={popupMenu}>Menu</button>
-            {sideElements()}
+            <div/>
+            {/*<button className="commonButton" onClick={popupMenu}>Menu</button>*/}
+            {/*{sideElements()}*/}
             {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
                 profile Setting
             </button>)}

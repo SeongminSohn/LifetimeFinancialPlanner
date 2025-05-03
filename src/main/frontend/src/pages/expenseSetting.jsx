@@ -23,18 +23,25 @@ function expenseManage() {
         }
     }, []);
 
+    // useEffect(() => {
+    //     const scenarioId = localStorage.getItem("scenario");
+    //     if (scenarioId) {
+    //         axios.get(`http://localhost:10000/api/expense-events/4`)
+    //             .then(res => res.data && console.log("The Data: ",res.data));
+    //     }
+    // }, []);
+
     const popupMenu = () => setSide(prev => !prev);
 
     function sideElements() {
         return openSide && (
             <aside className="sidebar">
-                <button onClick={() => navPage('/IncomePage')}>Income Edit</button>
-                <button onClick={() => navPage('/ExpenseEdit')}>Expense Edit</button>
-                <button onClick={() => navPage('/InvestEdit')}>Invest Edit</button>
+                <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
+                <button onClick={() => navPage('/ExpenseSetting')}>view Expense Status</button>
                 <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
-                <button onClick={() => navPage('/InvestEvent')}>Invest Event Edit</button>
+                <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
                 <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button disabled>Import & Export Data</button>
+                <button>Import & Export Data</button>
             </aside>
         );
     }
@@ -50,7 +57,7 @@ function expenseManage() {
                     <p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: '30px', marginRight: '50px' }}>
                         Expense Events
                     </p>
-                    <button onClick={() => navPage('/IncomePage')} className="addButton">
+                    <button onClick={() => navPage('/ExpenseEdit')} className="addButton">
                         Add Expense Event
                     </button>
                 </div>

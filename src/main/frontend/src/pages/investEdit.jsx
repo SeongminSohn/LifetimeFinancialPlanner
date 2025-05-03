@@ -459,8 +459,9 @@ function investPage(){
             <div></div>
         </nav>
         <nav className= "navBarSub">
-            <button className="commonButton" onClick={popupMenu}>Menu</button>
-            {sideElements()}
+            <div/>
+            {/*<button className="commonButton" onClick={popupMenu}>Menu</button>*/}
+            {/*{sideElements()}*/}
             {loggedIn === true && (<button className="commonButton" onClick={toProfile}>
                 Scenario Setting
             </button>)}
