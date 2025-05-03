@@ -99,23 +99,19 @@ public class ExpenseWithdrawalStrategyController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-//    @Operation(
-//            summary = "Get Expense Withdrawal Strategies by Scenario",
-//            description = "Retrieves all expense withdrawal strategies for a given scenario. Example: GET /api/expense-withdrawal-strategies/scenario/{scenarioId}"
-//    )
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "Expense withdrawal strategies retrieved successfully")
-//    })
-//    @GetMapping("/scenario/{scenarioId}")
-//    public ResponseEntity<List<ExpenseWithdrawalStrategyDTO>> getStrategiesByScenario(@PathVariable Long scenarioId) {
-//        List<ExpenseWithdrawalStrategy> strategies = strategyService.getExpenseWithdrawalStrategiesByScenarioId(scenarioId);
-//        List<ExpenseWithdrawalStrategyDTO> dtos = strategies.stream().map(strategy -> {
-//            ExpenseWithdrawalStrategyDTO dto = new ExpenseWithdrawalStrategyDTO();
-//            dto.setId(strategy.getId());
-//            dto.setScenarioId(strategy.getScenarioId());
-//            dto.setSellingOrder(strategy.getSellingOrder());
-//            return dto;
-//        }).collect(Collectors.toList());
-//        return new ResponseEntity<>(dtos, HttpStatus.OK);
-//    }
+    @Operation(
+            summary = "Get Expense Withdrawal Strategy by Scenario",
+            description = "Retrieves the expense withdrawal strategy for the given scenario ID.\n" +
+                    "Example: GET /api/expense-withdrawal-strategies/scenario/1"
+    )
+    @ApiResponse(responseCode = "200", description = "Expense withdrawal strategy retrieved successfully")
+    @GetMapping("/scenario/{scenarioId}")
+    public ResponseEntity<ExpenseWithdrawalStrategyDTO> getStrategyByScenario(@PathVariable Long scenarioId) {
+        ExpenseWithdrawalStrategy strategy = strategyService.getExpenseWithdrawalStrategyByScenarioId(scenarioId);
+        ExpenseWithdrawalStrategyDTO dto = new ExpenseWithdrawalStrategyDTO();
+        dto.setId(strategy.getId());
+        dto.setScenarioId(strategy.getScenarioId());
+        dto.setSellingOrder(strategy.getSellingOrder());
+        return ResponseEntity.ok(dto);
+    }
 }

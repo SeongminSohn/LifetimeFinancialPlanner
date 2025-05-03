@@ -144,15 +144,9 @@ public class IncomeEventServiceImpl implements IncomeEventService {
         return incomeEventRepository.findAll().stream()
                 // Citation: Got help from ChatGPT on filtering function
                 // Filtering IncomeEvent which has scenarioId && eventType("INCOME")
-                .filter(incomeEvent -> {
-                    EventSeries es = incomeEvent.getEventSeries();
-                    if (es == null || es.getScenario() == null) {
-                        return false;
-                    }
-                    boolean matchScenario = scenarioId.equals(es.getScenario().getId());
-                    boolean matchEventType = "INCOME".equalsIgnoreCase(es.getEventType());
-                    return matchScenario && matchEventType;
-                })
+                .filter(incomeEvent -> incomeEvent.getEventSeries() != null
+                        && incomeEvent.getEventSeries().getScenario() != null
+                        && scenarioId.equals(incomeEvent.getEventSeries().getScenario().getId()))
                 // IncomeEvent -> IncomeEventDTO
                 .map(incomeEvent -> {
                     IncomeEventDTO dto = new IncomeEventDTO();
