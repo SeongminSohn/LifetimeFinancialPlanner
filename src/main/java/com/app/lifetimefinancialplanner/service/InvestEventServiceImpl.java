@@ -23,7 +23,6 @@ import java.math.MathContext;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class InvestEventServiceImpl implements InvestEventService {
@@ -144,6 +143,8 @@ public class InvestEventServiceImpl implements InvestEventService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional
     public void runInvestEvents(Scenario scenario, SimulationContext context) {
         int currentYear = context.getCurrentYear();
         List<InvestEvent> investEvents = currentYear == LocalDateTime.now().getYear()
@@ -170,6 +171,7 @@ public class InvestEventServiceImpl implements InvestEventService {
             if (excessCash.compareTo(BigDecimal.ZERO) <= 0) break;
 
             List<AllocationEmbeddable> allocations = event.getAssetAllocations();
+            context.setAssetAllocations(allocations);
             BigDecimal totalRatio = allocations.stream()
                     .map(a -> BigDecimal.valueOf(a.getRatio()))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);

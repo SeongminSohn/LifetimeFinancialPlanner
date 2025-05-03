@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -128,7 +127,7 @@ public class ExpenseEventController {
             @ApiResponse(responseCode = "200", description = "Expense events retrieved successfully")
     })
     public ResponseEntity<List<ExpenseEventDTO>> getExpenseEventsByScenario(@PathVariable Long scenarioId) {
-        List<ExpenseEventDTO> list = expenseEventService.getExpenseEventsBySeriesId(scenarioId);
+        List<ExpenseEventDTO> list = expenseEventService.getExpenseEventsByScenarioId(scenarioId);
         return ResponseEntity.ok(list);
     }
 }

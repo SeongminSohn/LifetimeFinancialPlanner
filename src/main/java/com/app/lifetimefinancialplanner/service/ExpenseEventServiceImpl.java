@@ -121,7 +121,8 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
     }
 
     @Override
-    public List<ExpenseEventDTO> getExpenseEventsBySeriesId(Long scenarioId) {
+    @Transactional
+    public List<ExpenseEventDTO> getExpenseEventsByScenarioId(Long scenarioId) {
         return expenseEventRepository.findAll().stream()
                 .filter(expenseEvent -> {
                     EventSeries es = expenseEvent.getEventSeries();
