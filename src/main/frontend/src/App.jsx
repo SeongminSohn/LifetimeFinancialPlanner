@@ -2,7 +2,7 @@ import {BrowserRouter, Routes, Route, useLocation} from "react-router-dom";
 import Homepage from "./pages/homepage.jsx";
 import Profset from "./pages/profileSetting.jsx"
 import Loginpage from "./pages/logInpage.jsx"
-import Taxm from "./pages/taxManagement.jsx"
+import ImportExp from "./pages/impExp.jsx"
 import IncomePage from "./pages/incomePage.jsx"
 import InvestEdit from "./pages/investEdit.jsx"
 import ExpenseEdit from "./pages/expenseEdit.jsx"
@@ -16,6 +16,9 @@ import SimulationResult from "./pages/simulationResult.jsx"
 import IncomeSetting from "./pages/incomeSetting.jsx"
 import ExpenseSetting from "./pages/expenseSetting.jsx"
 import SimulationManagement from "./pages/simluationManagement.jsx"
+import InvestEventEditPage from "./pages/investEventEditPage.jsx";
+import IncomeEventEdit from "./pages/incomeEventEdit.jsx";
+import ExpenseEventEdit from "./pages/expenseEventEditPage.jsx"
 import "./App.css";
 import {useEffect} from "react";
 
@@ -41,7 +44,7 @@ function App() {
                     <Route path="/Homepage" element={<Homepage />} />
                     <Route path="/Profset" element={<Profset />} />
                     <Route path="/Loginpage" element={<Loginpage />} />
-                    <Route path="/Taxm" element={<Taxm />} />
+                    <Route path="/ImportExp" element={<ImportExp />} />
                     <Route path="/IncomePage" element={<IncomePage />} />
                     <Route path="/InvestEdit" element={<InvestEdit />} />
                     <Route path="/Investment" element={<Investment />} />
@@ -55,6 +58,9 @@ function App() {
                     <Route path="/IncomeSetting" element={<IncomeSetting />} />
                     <Route path="/ExpenseSetting" element={<ExpenseSetting />} />
                     <Route path="/SimulationManagement" element={<SimulationManagement />} />
+                    <Route path="/invest-events/edit/:id" element={<InvestEventEditPage />} />
+                    <Route path="/income-events/edit/:id" element={<IncomeEventEdit />} />
+                    <Route path="/expense-events/edit/:id" element={<ExpenseEventEdit />} />
                 </Routes>
             </BrowserRouter>
         </>

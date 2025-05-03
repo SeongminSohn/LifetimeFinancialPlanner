@@ -19,7 +19,7 @@ function Investment() {
     });
 
     const navPage = useNavigate();
-
+    //check login
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -27,6 +27,7 @@ function Investment() {
         }
     }, []);
 
+    //get investment Data
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
@@ -41,6 +42,7 @@ function Investment() {
         }
     }, []);
 
+    //get investment Type Data
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
@@ -282,7 +284,6 @@ function Investment() {
             </div>
         );
     }
-
 
     return (
         <div className="total">
