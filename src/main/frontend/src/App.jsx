@@ -2,7 +2,7 @@ import {BrowserRouter, Routes, Route, useLocation} from "react-router-dom";
 import Homepage from "./pages/homepage.jsx";
 import Profset from "./pages/profileSetting.jsx"
 import Loginpage from "./pages/logInpage.jsx"
-import Taxm from "./pages/taxManagement.jsx"
+import ImportExp from "./pages/impExp.jsx"
 import IncomePage from "./pages/incomePage.jsx"
 import InvestEdit from "./pages/investEdit.jsx"
 import ExpenseEdit from "./pages/expenseEdit.jsx"
@@ -41,7 +41,7 @@ function App() {
                     <Route path="/Homepage" element={<Homepage />} />
                     <Route path="/Profset" element={<Profset />} />
                     <Route path="/Loginpage" element={<Loginpage />} />
-                    <Route path="/Taxm" element={<Taxm />} />
+                    <Route path="/ImportExp" element={<ImportExp />} />
                     <Route path="/IncomePage" element={<IncomePage />} />
                     <Route path="/InvestEdit" element={<InvestEdit />} />
                     <Route path="/Investment" element={<Investment />} />

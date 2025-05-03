@@ -72,10 +72,6 @@ function InvestEventPage() {
         }
     }, [formData.assetAllocations]);
 
-
-
-
-
     // useEffect(() => {
     //     const scenarioId = localStorage.getItem("scenario");
     //     if (scenarioId) {
@@ -90,23 +86,23 @@ function InvestEventPage() {
     //     }
     // }, []);
 
-    useEffect(() => {
-        const scenarioId = localStorage.getItem("scenario");
-        if (scenarioId) {
-            axios.get(`http://localhost:10000/api/invest-events/scenario/${scenarioId}`)
-                .then(response => {
-                    if(response.data[0] !== undefined){
-                        setFormData(response.data[0]);
-                        console.log("This data is from invest Event and Data: ", response.data);
-                    }else{
-                        console.log("There is no invest - event DATA")
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching invest Event:", error);
-                });
-        }
-    }, []);
+    // useEffect(() => {
+    //     const scenarioId = localStorage.getItem("scenario");
+    //     if (scenarioId) {
+    //         axios.get(`http://localhost:10000/api/invest-events/scenario/${scenarioId}`)
+    //             .then(response => {
+    //                 if(response.data[0] !== undefined){
+    //                     setFormData(response.data[0]);
+    //                     console.log("This data is from invest Event and Data: ", response.data);
+    //                 }else{
+    //                     console.log("There is no invest - event DATA")
+    //                 }
+    //             })
+    //             .catch(error => {
+    //                 console.error("Error fetching invest Event:", error);
+    //             });
+    //     }
+    // }, []);
 
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
@@ -375,27 +371,33 @@ function InvestEventPage() {
                         <form key={item.investmentTypeId || index} className="investment-form">
                             <div className="login">
                                 <label htmlFor={`name-${index}`}></label>
-                                <button
-                                    type="button"
-                                    id={`name-${index}`}
-                                    name="name"
-                                    onClick={() => handleButtonClick(item)}>
-                                    {matchedType ? <span>{matchedType.name}</span> : null}
-                                    {" "}
-                                    {item.taxStatus}
-                                    <input
-                                        type="number"
-                                        step="any"
-                                        value={allocationValues[allocationKey] !== undefined ? allocationValues[allocationKey] : ""}
-                                        onChange={(e) => {
-                                            const val = parseFloat(e.target.value);
-                                            setAllocationValues(prev => ({
-                                                ...prev,
-                                                [allocationKey]: isNaN(val) ? 0 : val
-                                            }));
-                                        }}
-                                    />
-                                </button>
+                                {!(matchedType && matchedType.name === "CASH") && (
+                                    <button
+                                        type="button"
+                                        id={`name-${index}`}
+                                        name="name"
+                                        onClick={() => handleButtonClick(item)}
+                                    >
+                                        <span>{matchedType ? matchedType.name : ""} </span>
+                                        {item.taxStatus}
+                                        <input
+                                            type="number"
+                                            step="any"
+                                            value={
+                                                allocationValues[allocationKey] !== undefined
+                                                    ? allocationValues[allocationKey]
+                                                    : ""
+                                            }
+                                            onChange={(e) => {
+                                                const val = parseFloat(e.target.value);
+                                                setAllocationValues(prev => ({
+                                                    ...prev,
+                                                    [allocationKey]: isNaN(val) ? 0 : val
+                                                }));
+                                            }}
+                                        />
+                                    </button>
+                                )}
                             </div>
                         </form>
                     );
@@ -425,6 +427,7 @@ function InvestEventPage() {
             assetAllocations: savedList
         }));
         console.log("Saved List:", savedList);
+        alert("List is Saved!");
     }
 
 
@@ -442,23 +445,23 @@ function InvestEventPage() {
         // console.log("check!", check)
         // console.log("This is Updated Data: ", updatedData);
         try {
-            if (check === "CHECK") {
-                console.log("Update!")
-                const response = await axios.put(
-                    `http://localhost:10000/api/invest-events/${updatedData.eventSeriesId}`,
-                    updatedData,
-                    { withCredentials: true, headers: { "Content-Type": "application/json" } }
-                );
-                alert("Updated")
-            } else {
-                console.log("Create!")
-                const response = await axios.post(`http://localhost:10000/api/invest-events`,
-                    updatedData,
-                    { withCredentials: true, headers: { "Content-Type": "application/json" } });
-                console.log("Created Investment!:", response.data);
-                alert("Saved")
-                localStorage.setItem("InvestEvent", "CHECK");
-            }
+            // if (check === "CHECK") {
+            //     console.log("Update!")
+            //     const response = await axios.put(
+            //         `http://localhost:10000/api/invest-events/${updatedData.eventSeriesId}`,
+            //         updatedData,
+            //         { withCredentials: true, headers: { "Content-Type": "application/json" } }
+            //     );
+            //     alert("Updated")
+            // } else {
+            console.log("Create!")
+            const response = await axios.post(`http://localhost:10000/api/invest-events`,
+                updatedData,
+                { withCredentials: true, headers: { "Content-Type": "application/json" } });
+            console.log("Created Investment!:", response.data);
+            alert("Saved")
+                // localStorage.setItem("InvestEvent", "CHECK");
+            // }
             setSelectedInvestment(null);
         } catch (error) {
             console.error("Submit Error:", error);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './common.css';
+import backGround from '../assets/colBackGround.png';
 import {useEffect} from "react";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
@@ -89,7 +90,16 @@ function homePage(){
       navPage("/Homepage");
   }
 
-  return (<div className="total">
+  return (<div className="total"
+               // style={{
+               //     backgroundImage: `url(${backGround})`,
+               //     backgroundSize: 'cover',
+               //     backgroundPosition: 'center',
+               //     backgroundRepeat: 'no-repeat',
+               //     height: '100vh',
+               //     width: '100vw'
+               // }}
+  >
 
         <nav className="navBarTop">
           <img src="/public/caffeineOverloadLogo.png" className="logoSize" alt="logo" />
