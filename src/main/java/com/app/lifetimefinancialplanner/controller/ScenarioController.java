@@ -1,6 +1,7 @@
 package com.app.lifetimefinancialplanner.controller;
 
 import com.app.lifetimefinancialplanner.domain.dto.ScenarioDTO;
+import com.app.lifetimefinancialplanner.domain.dto.ScenarioYamlDTO;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.service.DistributionService;
 import com.app.lifetimefinancialplanner.service.ScenarioService;
@@ -16,8 +17,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/scenarios")
@@ -136,6 +139,55 @@ public class ScenarioController {
     public ResponseEntity<Void> deleteScenario(@PathVariable Long id) {
         scenarioService.deleteScenario(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    @Operation(
+            summary = "Get Scenarios by User",
+            description = "Retrieves all scenarios for the given userId. Example: GET /api/scenarios?userId=1\n" +
+                    "Response JSON:\n" +
+                    "[\n" +
+                    "  {\n" +
+                    "    \"userId\": 1,\n" +
+                    "    \"scenarioId\": 42,\n" +
+                    "    \"name\": \"Retirement Plan\",\n" +
+                    "    \"maritalStatus\": \"couple\",\n" +
+                    "    \"birthYearUser\": 1985,\n" +
+                    "    \"birthYearSpouse\": 1987,\n" +
+                    "    \"lifeExpectancyUser\": {\"amountOrPercent\": \"AMOUNT\", \"distributionType\": \"FIXED\", \"value\": 80},\n" +
+                    "    \"lifeExpectancySpouse\": {\"amountOrPercent\": \"AMOUNT\", \"distributionType\": \"NORMAL\", \"mean\": 82, \"stDev\": 3},\n" +
+                    "    \"financialGoal\": 10000.0,\n" +
+                    "    \"afterTaxContributionLimit\": 7000.0,\n" +
+                    "    \"stateOfResidence\": \"NY\",\n" +
+                    "    \"inflationAssumption\": {\"amountOrPercent\": \"PERCENT\", \"distributionType\": \"FIXED\", \"value\": 0.03}\n" +
+                    "  },\n" +
+                    "  { /* additional scenarios */ }\n" +
+                    "]"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Scenarios retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<List<ScenarioDTO>> getByUserId(@RequestParam("userId") Long userId) {
+        List<ScenarioDTO> list = scenarioService.getScenariosByUserId(userId);
+        return ResponseEntity.ok(list);
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(
+            summary = "Import Scenario from YAML",
+            description = "Uploads a scenario.yaml file together with a userId to create a new scenario with all contained data.\n" +
+                    "Example form-data fields:\n" +
+                    "  file: (binary) the scenario.yaml file\n" +
+                    "  userId: 1"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Scenario imported successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid YAML format or data")
+    })
+    public ResponseEntity<ScenarioYamlDTO> importScenario(@RequestPart("file") MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
+        ScenarioYamlDTO result = scenarioService.importScenarioYaml(file, userId);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}/export")
