@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/investment-types")
@@ -47,22 +48,22 @@ public class InvestmentTypeController {
     public ResponseEntity<InvestmentTypeDTO> createInvestmentType(@RequestBody InvestmentTypeDTO investmentTypeDTO) {
         InvestmentType investmentType = investmentTypeService.createInvestmentType(investmentTypeDTO);
 
-        InvestmentTypeDTO responseDto = new InvestmentTypeDTO();
-        responseDto.setId(investmentType.getId());
-        responseDto.setName(investmentType.getName());
-        responseDto.setDescription(investmentType.getDescription());
-        responseDto.setExpenseRatio(investmentType.getExpenseRatio());
-        responseDto.setTaxability(investmentType.getTaxability());
+        InvestmentTypeDTO responseDTO = new InvestmentTypeDTO();
+        responseDTO.setId(investmentType.getId());
+        responseDTO.setName(investmentType.getName());
+        responseDTO.setDescription(investmentType.getDescription());
+        responseDTO.setExpenseRatio(investmentType.getExpenseRatio());
+        responseDTO.setTaxability(investmentType.getTaxability());
 
         // Convert Embeddable to DTO
         if (investmentType.getExpectedAnnualReturn() != null) {
-            responseDto.setExpectedAnnualReturn(distributionService.convertEmbeddableToDTO(investmentType.getExpectedAnnualReturn()));
+            responseDTO.setExpectedAnnualReturn(distributionService.convertEmbeddableToDTO(investmentType.getExpectedAnnualReturn()));
         }
         if (investmentType.getExpectedAnnualIncome() != null) {
-            responseDto.setExpectedAnnualIncome(distributionService.convertEmbeddableToDTO(investmentType.getExpectedAnnualIncome()));
+            responseDTO.setExpectedAnnualIncome(distributionService.convertEmbeddableToDTO(investmentType.getExpectedAnnualIncome()));
         }
 
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/{id}")
@@ -75,7 +76,34 @@ public class InvestmentTypeController {
             @ApiResponse(responseCode = "404", description = "Investment type not found")
     })
     public ResponseEntity<InvestmentTypeDTO> getInvestmentType(@PathVariable Long id) {
-        return null;
+        Optional<InvestmentType> optional = investmentTypeService.getInvestmentType(id);
+        // Raise 404 Error if not found
+        if (optional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        InvestmentType investmentType = optional.get();
+
+        // Convert to DTO
+        InvestmentTypeDTO responseDTO = new InvestmentTypeDTO();
+        responseDTO.setId(investmentType.getId());
+        responseDTO.setName(investmentType.getName());
+        responseDTO.setDescription(investmentType.getDescription());
+        responseDTO.setExpenseRatio(investmentType.getExpenseRatio());
+        responseDTO.setTaxability(investmentType.getTaxability());
+
+        // Convert Embeddable to DTO
+        if (investmentType.getExpectedAnnualReturn() != null) {
+            responseDTO.setExpectedAnnualReturn(
+                    distributionService.convertEmbeddableToDTO(investmentType.getExpectedAnnualReturn())
+            );
+        }
+        if (investmentType.getExpectedAnnualIncome() != null) {
+            responseDTO.setExpectedAnnualIncome(
+                    distributionService.convertEmbeddableToDTO(investmentType.getExpectedAnnualIncome())
+            );
+        }
+
+        return ResponseEntity.ok(responseDTO);
     }
 
     @PutMapping("/{id}")
@@ -90,22 +118,22 @@ public class InvestmentTypeController {
     public ResponseEntity<InvestmentTypeDTO> updateInvestmentType(@PathVariable Long id, @RequestBody InvestmentTypeDTO investmentTypeDTO) {
         InvestmentType updated = investmentTypeService.updateInvestmentType(id, investmentTypeDTO);
 
-        InvestmentTypeDTO responseDto = new InvestmentTypeDTO();
-        responseDto.setId(updated.getId());
-        responseDto.setName(updated.getName());
-        responseDto.setDescription(updated.getDescription());
-        responseDto.setExpenseRatio(updated.getExpenseRatio());
-        responseDto.setTaxability(updated.getTaxability());
+        InvestmentTypeDTO responseDTO = new InvestmentTypeDTO();
+        responseDTO.setId(updated.getId());
+        responseDTO.setName(updated.getName());
+        responseDTO.setDescription(updated.getDescription());
+        responseDTO.setExpenseRatio(updated.getExpenseRatio());
+        responseDTO.setTaxability(updated.getTaxability());
 
         // Convert Embeddable to DTO
         if (updated.getExpectedAnnualReturn() != null) {
-            responseDto.setExpectedAnnualReturn(distributionService.convertEmbeddableToDTO(updated.getExpectedAnnualReturn()));
+            responseDTO.setExpectedAnnualReturn(distributionService.convertEmbeddableToDTO(updated.getExpectedAnnualReturn()));
         }
         if (updated.getExpectedAnnualIncome() != null) {
-            responseDto.setExpectedAnnualIncome(distributionService.convertEmbeddableToDTO(updated.getExpectedAnnualIncome()));
+            responseDTO.setExpectedAnnualIncome(distributionService.convertEmbeddableToDTO(updated.getExpectedAnnualIncome()));
         }
 
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping("/{id}")
