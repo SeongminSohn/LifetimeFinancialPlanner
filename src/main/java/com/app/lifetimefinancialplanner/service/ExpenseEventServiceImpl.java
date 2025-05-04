@@ -187,6 +187,7 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
                 eventExpense = eventExpense.multiply(BigDecimal.valueOf(event.getUserPercentage()));
                 ExpenseEmbeddable expenseEmbeddable = new ExpenseEmbeddable();
                 expenseEmbeddable.setEventSeriesId(event.getEventSeries().getId());
+                expenseEmbeddable.setName(event.getEventSeries().getName());
                 expenseEmbeddable.setAmount(eventExpense);
                 context.getExpenseBreakdowns().add(expenseEmbeddable);
                 totalExpense = totalExpense.add(eventExpense);

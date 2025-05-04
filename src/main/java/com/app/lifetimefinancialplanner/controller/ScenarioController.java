@@ -11,8 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/scenarios")
@@ -131,5 +136,24 @@ public class ScenarioController {
     public ResponseEntity<Void> deleteScenario(@PathVariable Long id) {
         scenarioService.deleteScenario(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/export")
+    // Endpoint for exporting a scenario to YAML
+    @Operation(
+            summary = "Export Scenario as YAML",
+            description = "Exports the specified scenario and all related data as a downloadable YAML file. " +
+                    "Example: GET /api/scenarios/1/export"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "YAML file generated successfully"),
+            @ApiResponse(responseCode = "404", description = "Scenario not found")
+    })
+    public ResponseEntity<Resource> exportYaml(@PathVariable Long id) throws IOException {
+        Resource yaml = scenarioService.exportScenarioYaml(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"scenario.yaml\"")
+                .contentType(MediaType.parseMediaType("application/x-yaml"))
+                .body(yaml);
     }
 }

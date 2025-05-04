@@ -9,5 +9,6 @@ import java.math.BigDecimal;
 @Embeddable
 public class ExpenseEmbeddable {
     private Long eventSeriesId;
+    private String name;
     private BigDecimal amount;
 }
