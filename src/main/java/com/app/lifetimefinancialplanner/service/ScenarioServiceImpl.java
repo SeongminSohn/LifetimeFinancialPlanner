@@ -12,6 +12,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
@@ -159,6 +160,140 @@ public class ScenarioServiceImpl implements ScenarioService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ScenarioDTO> getScenariosByUserId(Long userId) {
+        // Validate the userId
+        userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+
+        // Get All Scenarios and convert to DTO List
+        return scenarioRepository.findAll().stream()
+                .filter(s -> s.getUser().getId().equals(userId))
+                .map(s -> {
+                    ScenarioDTO dto = new ScenarioDTO();
+                    dto.setUserId(userId);
+                    dto.setScenarioId(s.getId());
+                    dto.setName(s.getName());
+                    dto.setMaritalStatus(s.getMaritalStatus());
+                    dto.setBirthYearUser(s.getBirthYearUser());
+                    dto.setBirthYearSpouse(s.getBirthYearSpouse());
+                    dto.setLifeExpectancyUser(distributionService.convertEmbeddableToDTO(s.getLifeExpectancyUser()));
+                    dto.setLifeExpectancySpouse(
+                            s.getLifeExpectancySpouse() != null
+                                    ? distributionService.convertEmbeddableToDTO(s.getLifeExpectancySpouse())
+                                    : null
+                    );
+                    dto.setFinancialGoal(s.getFinancialGoal());
+                    dto.setAfterTaxContributionLimit(s.getAfterTaxContributionLimit());
+                    dto.setStateOfResidence(s.getStateOfResidence());
+                    dto.setInflationAssumption(distributionService.convertEmbeddableToDTO(s.getInflationAssumption()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public ScenarioYamlDTO importScenarioYaml(MultipartFile file, Long userId) throws IOException {
+        // Parse the uploaded YAML into ScenarioYamlDTO
+        ScenarioYamlDTO yamlDTO = yamlMapper.readValue(file.getInputStream(), ScenarioYamlDTO.class);
+
+        // Build and save base Scenario via ScenarioDTO
+        ScenarioDTO scenarioDTO = new ScenarioDTO();
+        scenarioDTO.setUserId(userId);
+        scenarioDTO.setName(yamlDTO.getName());
+        scenarioDTO.setMaritalStatus("couple".equals(yamlDTO.getMaritalStatus()) ? "Y" : "N");
+        scenarioDTO.setBirthYearUser(yamlDTO.getBirthYears().get(0));
+        scenarioDTO.setBirthYearSpouse(yamlDTO.getBirthYears().size() > 1
+                ? yamlDTO.getBirthYears().get(1) : null);
+        scenarioDTO.setLifeExpectancyUser(yamlDTO.getLifeExpectancy().get(0));
+        scenarioDTO.setLifeExpectancySpouse(yamlDTO.getLifeExpectancy().size() > 1
+                ? yamlDTO.getLifeExpectancy().get(1) : null);
+        scenarioDTO.setFinancialGoal(yamlDTO.getFinancialGoal());
+        scenarioDTO.setAfterTaxContributionLimit(yamlDTO.getAfterTaxContributionLimit());
+        scenarioDTO.setStateOfResidence(yamlDTO.getStateOfResidence());
+        scenarioDTO.setInflationAssumption(yamlDTO.getInflationAssumption());
+        Scenario created = createScenario(scenarioDTO);
+        Long newScenarioId = created.getId();
+
+        // InvestmentTypes
+        for (InvestmentTypeDTO investmentTypeDTO : yamlDTO.getInvestmentTypes()) {
+            investmentTypeDTO.setScenarioId(newScenarioId);
+            investmentTypeService.createInvestmentType(investmentTypeDTO);
+        }
+
+        // Investments
+        for (InvestmentDTO investmentDTO : yamlDTO.getInvestments()) {
+            investmentDTO.setScenarioId(newScenarioId);
+            investmentService.createInvestment(investmentDTO);
+        }
+
+        // EventSeries (Income / Expense / Invest)
+        for (EventSeriesDTO eventSeriesDTO : yamlDTO.getEventSeries()) {
+            switch (eventSeriesDTO.getType()) {
+                case "INCOME":
+                    IncomeEventDTO incomeEventDTO = new IncomeEventDTO();
+                    incomeEventDTO.setScenarioId(newScenarioId);
+                    incomeEventDTO.setName(eventSeriesDTO.getName());
+                    incomeEventDTO.setStartYear(eventSeriesDTO.getStart());
+                    incomeEventDTO.setDuration(eventSeriesDTO.getDuration());
+                    incomeEventDTO.setEventType("INCOME");
+                    incomeEventDTO.setInitialAmount(eventSeriesDTO.getInitialAmount());
+                    incomeEventDTO.setAnnualChange(eventSeriesDTO.getChangeDistribution());
+                    incomeEventDTO.setInflationAdjustment(eventSeriesDTO.getInflationAdjusted() ? "Y" : "N");
+                    incomeEventDTO.setUserPercentage(eventSeriesDTO.getUserFraction());
+                    incomeEventDTO.setIsSocialSecurity(eventSeriesDTO.getSocialSecurity() ? "Y" : "N");
+                    incomeEventService.createIncomeEvent(incomeEventDTO);
+                    break;
+
+                case "EXPENSE":
+                    ExpenseEventDTO expenseEventDTO = new ExpenseEventDTO();
+                    expenseEventDTO.setScenarioId(newScenarioId);
+                    expenseEventDTO.setName(eventSeriesDTO.getName());
+                    expenseEventDTO.setStartYear(eventSeriesDTO.getStart());
+                    expenseEventDTO.setDuration(eventSeriesDTO.getDuration());
+                    expenseEventDTO.setEventType("EXPENSE");
+                    expenseEventDTO.setInitialAmount(eventSeriesDTO.getInitialAmount());
+                    expenseEventDTO.setAnnualChange(eventSeriesDTO.getChangeDistribution());
+                    expenseEventDTO.setInflationAdjustment(eventSeriesDTO.getInflationAdjusted() ? "Y" : "N");
+                    expenseEventDTO.setUserPercentage(eventSeriesDTO.getUserFraction());
+                    expenseEventDTO.setIsDiscretionary(eventSeriesDTO.getDiscretionary() ? "Y" : "N");
+                    expenseEventService.createExpenseEvent(expenseEventDTO);
+                    break;
+
+                case "INVEST":
+                    InvestEventDTO investEventDTO = new InvestEventDTO();
+                    investEventDTO.setScenarioId(newScenarioId);
+                    investEventDTO.setName(eventSeriesDTO.getName());
+                    investEventDTO.setStartYear(eventSeriesDTO.getStart());
+                    investEventDTO.setDuration(eventSeriesDTO.getDuration());
+                    investEventDTO.setEventType("INVEST");
+                    List<AllocationDTO> assetAllocations = eventSeriesDTO.getAssetAllocation().entrySet().stream()
+                            .map(e -> {
+                                AllocationDTO a = new AllocationDTO();
+                                a.setInvestmentKey(e.getKey());
+                                a.setRatio(e.getValue());
+                                return a;
+                            }).collect(Collectors.toList());
+                    investEventDTO.setAssetAllocations(assetAllocations);
+                    investEventDTO.setMaxCash(eventSeriesDTO.getMaxCash());
+                    investEventService.createInvestEvent(investEventDTO);
+                    break;
+            }
+        }
+
+        // ExpenseWithdrawalStrategy
+        ExpenseWithdrawalStrategyDTO expenseWithdrawalStrategyDTO = new ExpenseWithdrawalStrategyDTO();
+        expenseWithdrawalStrategyDTO.setScenarioId(newScenarioId);
+        expenseWithdrawalStrategyDTO.setSellingOrder(yamlDTO.getExpenseWithdrawalStrategy());
+        expenseWithdrawalStrategyService.createExpenseWithdrawalStrategy(expenseWithdrawalStrategyDTO);
+
+        // Return the original parsed DTO
+        return yamlDTO;
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
     public Resource exportScenarioYaml(Long scenarioId) throws IOException {
         Scenario scenario = scenarioRepository.findById(scenarioId)
                 .orElseThrow(() -> new IllegalArgumentException("Scenario not found: " + scenarioId));
@@ -197,22 +332,22 @@ public class ScenarioServiceImpl implements ScenarioService {
         }
 
         // Create ScenarioYamlDTO
-        ScenarioYamlDTO yamlDto = new ScenarioYamlDTO();
-        yamlDto.setName(scenario.getName());
-        yamlDto.setMaritalStatus("Y".equals(scenario.getMaritalStatus()) ? "couple" : "individual");
-        yamlDto.setBirthYears(List.of(scenario.getBirthYearUser(), scenario.getBirthYearSpouse()));
-        yamlDto.setLifeExpectancy(List.of(
+        ScenarioYamlDTO yamlDTO = new ScenarioYamlDTO();
+        yamlDTO.setName(scenario.getName());
+        yamlDTO.setMaritalStatus("Y".equals(scenario.getMaritalStatus()) ? "couple" : "individual");
+        yamlDTO.setBirthYears(List.of(scenario.getBirthYearUser(), scenario.getBirthYearSpouse()));
+        yamlDTO.setLifeExpectancy(List.of(
                 distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancyUser()),
                 distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancySpouse())
         ));
-        yamlDto.setInvestmentTypes(investmentTypes);
-        yamlDto.setInvestments(investments);
-        yamlDto.setEventSeries(events);
-        yamlDto.setInflationAssumption(distributionService.convertEmbeddableToDTO(scenario.getInflationAssumption()));
-        yamlDto.setAfterTaxContributionLimit(scenario.getAfterTaxContributionLimit());
-        yamlDto.setExpenseWithdrawalStrategy(withdrawDto.getSellingOrder());
-        yamlDto.setFinancialGoal(scenario.getFinancialGoal());
-        yamlDto.setStateOfResidence(scenario.getStateOfResidence());
+        yamlDTO.setInvestmentTypes(investmentTypes);
+        yamlDTO.setInvestments(investments);
+        yamlDTO.setEventSeries(events);
+        yamlDTO.setInflationAssumption(distributionService.convertEmbeddableToDTO(scenario.getInflationAssumption()));
+        yamlDTO.setAfterTaxContributionLimit(scenario.getAfterTaxContributionLimit());
+        yamlDTO.setExpenseWithdrawalStrategy(withdrawDto.getSellingOrder());
+        yamlDTO.setFinancialGoal(scenario.getFinancialGoal());
+        yamlDTO.setStateOfResidence(scenario.getStateOfResidence());
 
         // Citation: GPT helped me how to configure Yaml formatting
         DumperOptions options = new DumperOptions();
@@ -224,7 +359,7 @@ public class ScenarioServiceImpl implements ScenarioService {
         Yaml snake = new Yaml(new Representer(), options);
 
         // Dump the DTO to a flow-style YAML string
-        String yamlString = snake.dump(yamlDto);
+        String yamlString = snake.dump(yamlDTO);
 
         // Convert to bytes and wrap in Resource
         byte[] yamlBytes = yamlString.getBytes(StandardCharsets.UTF_8);
