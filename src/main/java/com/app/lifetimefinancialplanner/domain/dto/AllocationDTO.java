@@ -6,5 +6,4 @@ import lombok.Data;
 public class AllocationDTO {
     private String investmentKey;
     private Double ratio;
-
 }
