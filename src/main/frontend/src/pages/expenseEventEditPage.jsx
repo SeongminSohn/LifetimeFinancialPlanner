@@ -193,6 +193,9 @@ function expensePage() {
         e.preventDefault()
         const payload = {
             eventSeriesId: formData.eventSeriesId,
+            startYear: formData.startYear,
+            duration: formData.duration,
+            name: formData.name,
             initialAmount: formData.initialAmount,
             annualChange: formData.annualChange,
             inflationAdjustment: formData.inflationAdjustment,
@@ -205,6 +208,7 @@ function expensePage() {
             { withCredentials: true, headers: { 'Content-Type': 'application/json' } }
         )
         alert('Updated successfully')
+        console.log(payload)
         navPage('/ExpenseSetting')
     }
 

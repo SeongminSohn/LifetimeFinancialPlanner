@@ -19,7 +19,7 @@ function incomeEventManagement() {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
             axios
-                .get(`http://localhost:10000/api/income-events/scenarios/${scenarioId}`)
+                .get(`http://localhost:10000/api/income-events/scenario/${scenarioId}`)
                 .then(res => res.data && setEvents(res.data));
         }
     }, []);
@@ -34,7 +34,7 @@ function incomeEventManagement() {
                 <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
                 <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
                 <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button>Import & Export Data</button>
+                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
             </aside>
         );
     }

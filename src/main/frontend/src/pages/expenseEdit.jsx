@@ -77,13 +77,12 @@ function homePage(){
     function sideElements() {
         return openSide && (
             <aside className="sidebar">
-                <button onClick={toIncome}>Income Edit</button>
-                <button onClick={toInvestment}>Investment</button>
-                {/*<button onClick={toInvest}>Invest Edit</button>*/}
-                <button onClick={toWithDrawal}>Expense Withdrawal Edit</button>
-                <button onClick={toInvestEvent}>Invest Event Edit</button>
-                <button onClick={toSim}>Scenario Simulation</button>
-                <button disabled>Import & Export Data</button>
+                <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
+                <button onClick={() => navPage('/ExpenseSetting')}>view Expense Status</button>
+                <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
+                <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
+                <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
+                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
             </aside>
         );
     }

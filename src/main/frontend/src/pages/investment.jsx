@@ -69,7 +69,7 @@ function Investment() {
                 <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
                 <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
                 <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button>Import & Export Data</button>
+                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
             </aside>
         );
     }
@@ -270,8 +270,8 @@ function Investment() {
                                     <p><strong>Tax ability:</strong> {item.taxability}</p>
                                 </div>)}
 
-                            {viewedId === null && (<button type="button" style={{ backgroundColor: "Black", color: "White" }} onClick={() => deleteButton(item.id)}>
-                                Edit Investment
+                            {viewedId === null && (<button type="button" style={{ backgroundColor: "Black", color: "White" }}  onClick={() => navPage(`/investment-types/edit/${item.id}`)}>
+                                Edit Investment type
                             </button>)}
                         </div>
                     </form>

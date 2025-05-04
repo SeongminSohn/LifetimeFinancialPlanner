@@ -104,7 +104,7 @@ function ExpenseWithdrawlPage() {
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
-            axios.get(`http://localhost:10000/api/expense-withdrawal-strategies/2`)
+            axios.get(`http://localhost:10000/api/expense-withdrawal-strategies/scenario/${scenarioId}`)
                 .then(response => {
                     setFormData(response.data);
                     console.log("This is Expense-withDrawlData: ", response.data)
@@ -129,7 +129,7 @@ function ExpenseWithdrawlPage() {
                 <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
                 <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
                 <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button>Import & Export Data</button>
+                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
             </aside>
         );
     }
