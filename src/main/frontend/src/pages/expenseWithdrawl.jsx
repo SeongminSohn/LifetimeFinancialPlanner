@@ -25,17 +25,17 @@ function ExpenseWithdrawlPage() {
 
     async function postArray() {
         console.log("FormData length: ", clickedItems.length);
-        if (clickedItems.length < existingInvestments.length) {
-            alert("Put all elements into the array!");
-            return;
-        }
+        // if (clickedItems.length < existingInvestments.length) {
+        //     alert("Put all elements into the array!");
+        //     return;
+        // }
         const scenarioId = localStorage.getItem("scenario");
         const updatedFormData = {
             ...formData,
             scenarioId: scenarioId,
             sellingOrder: clickedItems
         };
-        console.log(updatedFormData);
+        console.log("check there is updated formdata or not",updatedFormData.id);
         try {
             if (updatedFormData.id) {
                 const response = await axios.put(
@@ -208,12 +208,22 @@ function ExpenseWithdrawlPage() {
 
 
     function expenseComponents() {
+        const displayInvestments = existingInvestments.filter(item => {
+            const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
+            return !(matchedType && item.taxStatus === "PRE-TAX") &&
+                !(matchedType && matchedType.name === "CASH");
+        });
+
         return (
             <div className="profileSetting">
-                <p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: "30px" }}>
+                <p
+                    className="logoLetter"
+                    style={{ color: "black", fontSize: "5vh", marginTop: "30px" }}
+                >
                     Expense WithDrawl. Choose Order.
                 </p>
-                {existingInvestments.map((item, index) => (
+
+                {displayInvestments.map((item, index) => (
                     <form key={item.investmentTypeId || index} className="investment-form">
                         <div className="login">
                             <label htmlFor={`name-${index}`}>Status</label>
@@ -221,21 +231,29 @@ function ExpenseWithdrawlPage() {
                                 type="button"
                                 id={`name-${index}`}
                                 name="name"
-                                onClick={() => handleButtonClick(item)}>
+                                onClick={() => handleButtonClick(item)}
+                            >
                                 {(() => {
-                                    const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
-                                    return matchedType ? <span>{matchedType.name}</span> : null;
+                                    const matchedType = investmentTypes.find(
+                                        type => type.id === item.investmentTypeId
+                                    );
+                                    return matchedType ? <span>{matchedType.name}{" "}</span> : null;
                                 })()}
                                 {item.taxStatus}
                             </button>
-                            <button type="button" onClick={() => toggleClickedItem(item)}>Add or Remove</button>
+                            <button type="button" onClick={() => toggleClickedItem(item)}>
+                                Add or Remove
+                            </button>
                         </div>
                     </form>
                 ))}
+
                 {selectedInvestment && null}
+
                 <div>
                     <button onClick={postArray}>Save</button>
                 </div>
+
                 {renderClickedItems()}
             </div>
         );

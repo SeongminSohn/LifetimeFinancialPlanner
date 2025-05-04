@@ -97,6 +97,9 @@ function importExportPage(){
 
 
             <button onClick = {handleSubmit}>Submit</button>
+            {/*<a href={`/api/yaml/download/${storedFileName}`} download>*/}
+            {/*    {fileName} download*/}
+            {/*</a>*/}
         </div>)
     }
 

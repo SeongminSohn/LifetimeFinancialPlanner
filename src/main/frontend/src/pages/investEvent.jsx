@@ -451,13 +451,12 @@ function InvestEventPage() {
                         <form key={item.investmentTypeId || index} className="investment-form">
                             <div className="login">
                                 <label htmlFor={`name-${index}`}></label>
-                                {!(matchedType && matchedType.name === "CASH") && (
+                                {!(matchedType && item.taxStatus === "PRE-TAX") && !(matchedType && matchedType.name === "CASH") && !(matchedType && matchedType.name === "TAX-EXEMPT BONDS") && (
                                     <button
                                         type="button"
                                         id={`name-${index}`}
                                         name="name"
-                                        onClick={() => handleButtonClick(item)}
-                                    >
+                                        onClick={() => handleButtonClick(item)}>
                                         <span>{matchedType ? matchedType.name : ""} </span>
                                         {item.taxStatus}
                                         <input
@@ -513,7 +512,7 @@ function InvestEventPage() {
 
     async function handleSubmit(event) {
         const scenarioId = localStorage.getItem("scenario");
-        const check = localStorage.getItem("InvestEvent");
+        // const check = localStorage.getItem("InvestEvent");
         const allocationSum = Object.values(allocationValues).reduce((acc, cur) => acc + cur, 0);
         const forJavaCal = Math.round(allocationSum * 1e10) / 1e10;
         if (forJavaCal !== 1) {console.log("This is Allocation Sum: ", allocationSum); alert("Sum of the values that you put must be 1."); return;}
@@ -566,7 +565,7 @@ function InvestEventPage() {
                             value={formData.startYear.amountOrPercent}
                             onChange={handleChange} required>
                             <option value = "AMOUNT">Amount</option>
-                            <option value = "PERCENT">Percent</option>
+                            {/*<option value = "PERCENT">Percent</option>*/}
                         </select>
                     </div>
                     <div className="login"><label htmlFor="startYear.distributionType">Distribution Type </label>
@@ -581,7 +580,7 @@ function InvestEventPage() {
                         <select
                             name="duration.amountOrPercent" id="duration.amountOrPercent" value={formData.duration.amountOrPercent} onChange={handleChange} required>
                             <option value = "AMOUNT">Amount</option>
-                            <option value = "PERCENT">Percent</option>
+                            {/*<option value = "PERCENT">Percent</option>*/}
                         </select></div>
                     <div className="login"><label htmlFor="duration.distributionType">Distribution Type </label>
                         <select name="duration.distributionType" id="duration.distributionType" value={formData.duration.distributionType} onChange={handleChange} required>
