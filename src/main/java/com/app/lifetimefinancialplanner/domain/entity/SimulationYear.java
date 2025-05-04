@@ -62,7 +62,7 @@ public class SimulationYear {
 
     @ElementCollection
     @CollectionTable(
-            name = "SIM_YEAR_EXPENSE_BREAKDOWN",
+            name = "SIMULATION_YEAR_EXPENSE_BREAKDOWN",
             joinColumns = @JoinColumn(name = "SIM_YEAR_ID")
     )
     private List<ExpenseEmbeddable> expenseBreakdowns;

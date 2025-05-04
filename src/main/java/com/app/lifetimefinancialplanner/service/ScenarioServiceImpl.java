@@ -12,8 +12,12 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -210,8 +214,20 @@ public class ScenarioServiceImpl implements ScenarioService {
         yamlDto.setFinancialGoal(scenario.getFinancialGoal());
         yamlDto.setStateOfResidence(scenario.getStateOfResidence());
 
-        // 5) Serialize to YAML and wrap in Resource
-        byte[] yamlBytes = yamlMapper.writeValueAsBytes(yamlDto);
+        // Citation: GPT helped me how to configure Yaml formatting
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.FLOW);
+        options.setPrettyFlow(true);
+        options.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN);
+
+        // Create a SnakeYAML instance
+        Yaml snake = new Yaml(new Representer(), options);
+
+        // Dump the DTO to a flow-style YAML string
+        String yamlString = snake.dump(yamlDto);
+
+        // Convert to bytes and wrap in Resource
+        byte[] yamlBytes = yamlString.getBytes(StandardCharsets.UTF_8);
         return new ByteArrayResource(yamlBytes);
     }
 
