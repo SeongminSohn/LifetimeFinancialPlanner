@@ -1,6 +1,7 @@
 package com.app.lifetimefinancialplanner.domain.entity;
 
 import com.app.lifetimefinancialplanner.domain.embeddable.AllocationEmbeddable;
+import com.app.lifetimefinancialplanner.domain.embeddable.ExpenseEmbeddable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -48,10 +49,35 @@ public class SimulationYear {
 
     @ElementCollection
     @CollectionTable(
-            name = "TBL_SIMULATION_YEAR_ASSET_ALLOCATION",
+            name = "SIMULATION_YEAR_ASSET_ALLOCATION",
             joinColumns = @JoinColumn(name = "SIMULATION_ID")
     )
     private List<AllocationEmbeddable> assetAllocations;
+
+    @Column(name = "CUR_YEAR_INCOME", nullable = false)
+    private BigDecimal curYearIncome;
+
+    @Column(name = "CUR_YEAR_SOCIAL_SECURITY", nullable = false)
+    private BigDecimal curYearSS;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "SIM_YEAR_EXPENSE_BREAKDOWN",
+            joinColumns = @JoinColumn(name = "SIM_YEAR_ID")
+    )
+    private List<ExpenseEmbeddable> expenseBreakdowns;
+
+    @Column(name="FEDERAL_TAX")
+    private BigDecimal federalTax;
+
+    @Column(name="STATE_TAX")
+    private BigDecimal stateTax;
+
+    @Column(name="CAPITAL_GAINS_TAX")
+    private BigDecimal capitalGainsTax;
+
+    @Column(name="EARLY_WITHDRAWAL_TAX")
+    private BigDecimal earlyWithdrawalTax;
 
     @Column(name = "DETAILS", columnDefinition = "CLOB")
     private String details;

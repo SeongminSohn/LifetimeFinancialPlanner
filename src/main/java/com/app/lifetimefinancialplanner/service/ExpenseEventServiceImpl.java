@@ -1,7 +1,9 @@
 package com.app.lifetimefinancialplanner.service;
 
+import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
 import com.app.lifetimefinancialplanner.domain.dto.ExpenseEventDTO;
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
+import com.app.lifetimefinancialplanner.domain.embeddable.ExpenseEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.EventSeries;
 import com.app.lifetimefinancialplanner.domain.entity.ExpenseEvent;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
@@ -160,7 +162,10 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
 
     @Override
     @Transactional
-    public BigDecimal calculateNonDiscretionaryExpense(Scenario scenario, int simulationYear, double inflationFactor) {
+    public BigDecimal calculateNonDiscretionaryExpense(Scenario scenario, SimulationContext context) {
+        int simulationYear = context.getCurrentYear();
+        double inflationFactor = context.getInflationFactor();
+
         // Retrieve all ExpenseEvents for the scenario
         List<ExpenseEvent> expenseEvents = expenseEventRepository.findAllByEventSeries_Scenario_Id(scenario.getId());
         BigDecimal totalExpense = BigDecimal.ZERO;
@@ -180,6 +185,10 @@ public class ExpenseEventServiceImpl implements ExpenseEventService {
                     eventExpense = eventExpense.multiply(BigDecimal.valueOf(inflationFactor));
                 }
                 eventExpense = eventExpense.multiply(BigDecimal.valueOf(event.getUserPercentage()));
+                ExpenseEmbeddable expenseEmbeddable = new ExpenseEmbeddable();
+                expenseEmbeddable.setEventSeriesId(event.getEventSeries().getId());
+                expenseEmbeddable.setAmount(eventExpense);
+                context.getExpenseBreakdowns().add(expenseEmbeddable);
                 totalExpense = totalExpense.add(eventExpense);
             }
         }
