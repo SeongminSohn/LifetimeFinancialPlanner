@@ -1,6 +1,7 @@
 package com.app.lifetimefinancialplanner.domain.dto;
 
 import com.app.lifetimefinancialplanner.domain.embeddable.AllocationEmbeddable;
+import com.app.lifetimefinancialplanner.domain.embeddable.ExpenseEmbeddable;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,6 +19,14 @@ public class SimulationYearDTO {
     private BigDecimal totalTax;
     private BigDecimal cashBalance;
     private List<AllocationEmbeddable> assetAllocations;
+    private BigDecimal curYearIncome;
+    private BigDecimal curYearSS;
+    private List<ExpenseEmbeddable> expenseBreakdowns;
+    private BigDecimal federalTax;
+    private BigDecimal stateTax;
+    private BigDecimal capitalGainsTax;
+    private BigDecimal earlyWithdrawalTax;
+
     private String details;
     private LocalDateTime createdAt;
 }
