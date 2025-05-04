@@ -348,7 +348,7 @@ function InvestEventPage() {
                         <form key={item.investmentTypeId || index} className="investment-form">
                             <div className="login">
                                 <label htmlFor={`name-${index}`}></label>
-                                {!(matchedType && matchedType.name === "CASH") && (
+                                {!(matchedType && item.taxStatus === "PRE-TAX") && !(matchedType && matchedType.name === "CASH") && !(matchedType && matchedType.name === "TAX-EXEMPT BONDS") && (
                                     <button
                                         type="button"
                                         id={`name-${index}`}
