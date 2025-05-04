@@ -35,13 +35,12 @@ function investEventManagement(){
     function sideElements() {
         return openSide && (
             <aside className="sidebar">
-                <button onClick={() => navPage('/IncomePage')}>Income Edit</button>
-                <button onClick={() => navPage('/ExpenseEdit')}>Expense Edit</button>
-                <button onClick={() => navPage('/InvestEdit')}>Invest Edit</button>
+                <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
+                <button onClick={() => navPage('/ExpenseSetting')}>view Expense Status</button>
                 <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
-                <button onClick={() => navPage('/InvestEvent')}>Invest Event Edit</button>
+                <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
                 <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button disabled>Import & Export Data</button>
+                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
             </aside>
         );
     }

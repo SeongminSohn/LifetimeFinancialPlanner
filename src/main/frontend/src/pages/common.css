@@ -294,6 +294,23 @@ button:hover {
     margin-bottom: 0;
 }
 
+.upload-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: darkslategrey;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+}
+.upload-btn:hover {
+    background-color: #4338ca;
+}
+.error-text {
+    color: red;
+    margin-top: 8px;
+}
+
 img:hover {
     transform: scale(1.2);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);

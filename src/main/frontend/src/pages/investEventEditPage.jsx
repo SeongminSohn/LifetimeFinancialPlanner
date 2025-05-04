@@ -403,6 +403,7 @@ function InvestEventPage() {
             { withCredentials: true, headers: { "Content-Type": "application/json" } }
         );
         alert("Updated");
+        console.log(formData)
         navPage('/SimulationManagement')
     }
 
