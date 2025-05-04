@@ -19,7 +19,7 @@ function incomeEventManagement() {
         const scenarioId = localStorage.getItem("scenario");
         if (scenarioId) {
             axios
-                .get(`http://localhost:10000/api/income-events/scenarios/${scenarioId}`)
+                .get(`http://localhost:10000/api/income-events/scenario/${scenarioId}`)
                 .then(res => res.data && setEvents(res.data));
         }
     }, []);

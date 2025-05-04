@@ -107,6 +107,9 @@ public class SimulationServiceImpl implements SimulationService {
                     simulationYearDTO.setTotalTax(year.getTotalTax());
                     simulationYearDTO.setCashBalance(year.getCashBalance());
                     simulationYearDTO.setAssetAllocations(year.getAssetAllocations());
+                    simulationYearDTO.setCurYearIncome(year.getCurYearIncome());
+                    simulationYearDTO.setCurYearSS(year.getCurYearSS());
+                    simulationYearDTO.setExpenseBreakdowns(year.getExpenseBreakdowns());
                     simulationYearDTO.setDetails(year.getDetails());
                     simulationYearDTO.setCreatedAt(year.getCreatedAt());
                     return simulationYearDTO;
@@ -207,7 +210,12 @@ public class SimulationServiceImpl implements SimulationService {
                 context.setCurYearEarlyWithdrawals(BigDecimal.ZERO);
                 context.setTotalExpenses(BigDecimal.ZERO);
                 context.setTotalTax(BigDecimal.ZERO);
-                context.setCashBalance(BigDecimal.ZERO);
+                context.setAssetAllocations(new ArrayList<>());    // clear last year’s allocations
+                context.getExpenseBreakdowns().clear();
+                context.setFederalTax(BigDecimal.ZERO);
+                context.setStateTax(BigDecimal.ZERO);
+                context.setCapitalGainsTax(BigDecimal.ZERO);
+                context.setEarlyWithdrawalTax(BigDecimal.ZERO);
 
                 /* --- Begin simulation for the current year ---
                  * The results from these events should update local variables for SimulationYear
@@ -233,6 +241,13 @@ public class SimulationServiceImpl implements SimulationService {
                         .totalTax(context.getTotalTax())
                         .cashBalance(context.getCashBalance())
                         .assetAllocations(context.getAssetAllocations())
+                        .curYearIncome(context.getCurYearIncome())
+                        .curYearSS(context.getCurYearSS())
+                        .expenseBreakdowns(context.getExpenseBreakdowns())
+                        .federalTax(context.getFederalTax())
+                        .stateTax(context.getStateTax())
+                        .capitalGainsTax(context.getCapitalGainsTax())
+                        .earlyWithdrawalTax(context.getEarlyWithdrawalTax())
                         .details(context.getDetails())
                         .build();
                 simulationYear = simulationYearRepository.save(simulationYear);
@@ -249,6 +264,13 @@ public class SimulationServiceImpl implements SimulationService {
                 yearDTO.setTotalTax(simulationYear.getTotalTax());
                 yearDTO.setCashBalance(simulationYear.getCashBalance());
                 yearDTO.setAssetAllocations(simulationYear.getAssetAllocations());
+                yearDTO.setCurYearIncome(simulationYear.getCurYearIncome());
+                yearDTO.setCurYearSS(simulationYear.getCurYearSS());
+                yearDTO.setExpenseBreakdowns(simulationYear.getExpenseBreakdowns());
+                yearDTO.setFederalTax(simulationYear.getFederalTax());
+                yearDTO.setStateTax(simulationYear.getStateTax());
+                yearDTO.setCapitalGainsTax(simulationYear.getCapitalGainsTax());
+                yearDTO.setEarlyWithdrawalTax(simulationYear.getEarlyWithdrawalTax());
                 yearDTO.setDetails(simulationYear.getDetails());
                 yearDTO.setCreatedAt(simulationYear.getCreatedAt());
 
@@ -329,17 +351,17 @@ public class SimulationServiceImpl implements SimulationService {
                 earlyWithdrawalTax = taxService.calculateEarlyWithdrawalTax(context.getPrevYearEarlyWithdrawals());
             }
         }
+        context.setFederalTax(federalTax);
+        context.setStateTax(stateTax);
+        context.setCapitalGainsTax(capitalGainsTax);
+        context.setEarlyWithdrawalTax(earlyWithdrawalTax);
 
         // Sum up total tax
         BigDecimal totalTax = federalTax.add(stateTax).add(capitalGainsTax).add(earlyWithdrawalTax);
         context.setTotalTax(totalTax);
 
         // Compute total payment required: non-discretionary expenses + previous year's taxes
-        BigDecimal nonDiscretionaryExpense = expenseEventService.calculateNonDiscretionaryExpense(
-                scenario,
-                context.getCurrentYear(),
-                context.getInflationFactor()
-        );
+        BigDecimal nonDiscretionaryExpense = expenseEventService.calculateNonDiscretionaryExpense(scenario, context);
         BigDecimal totalPayment = nonDiscretionaryExpense.add(totalTax);
 
         // Compute withdrawal needed: W = totalPayment - current cash balance
