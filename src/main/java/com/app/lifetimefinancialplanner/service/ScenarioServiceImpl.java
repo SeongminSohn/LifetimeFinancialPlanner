@@ -3,6 +3,7 @@ package com.app.lifetimefinancialplanner.service;
 import com.app.lifetimefinancialplanner.domain.dto.*;
 import com.app.lifetimefinancialplanner.domain.embeddable.DistributionEmbeddable;
 import com.app.lifetimefinancialplanner.domain.entity.ExpenseWithdrawalStrategy;
+import com.app.lifetimefinancialplanner.domain.entity.InvestmentType;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.domain.entity.User;
 import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
@@ -21,7 +22,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -299,116 +302,166 @@ public class ScenarioServiceImpl implements ScenarioService {
                 .orElseThrow(() -> new IllegalArgumentException("Scenario not found: " + scenarioId));
 
         // Retrieve related DTO lists
-        List<InvestmentTypeDTO> investmentTypes = investmentTypeService.getInvestmentTypeList(scenarioId);
-        List<InvestmentDTO> investments = investmentService.getInvestmentListByScenarioId(scenarioId);
-
+        List<IncomeEventDTO> incomes   = incomeEventService.getIncomeEventListByScenarioId(scenarioId);
+        List<ExpenseEventDTO> expenses = expenseEventService.getExpenseEventsByScenarioId(scenarioId);
+        List<InvestEventDTO> invests   = investEventService.getInvestEventsByScenarioId(scenarioId);
         ExpenseWithdrawalStrategy strategy = expenseWithdrawalStrategyService.getExpenseWithdrawalStrategyByScenarioId(scenarioId);
-        ExpenseWithdrawalStrategyDTO withdrawDto = new ExpenseWithdrawalStrategyDTO();
-        withdrawDto.setScenarioId(strategy.getScenarioId());
-        withdrawDto.setSellingOrder(strategy.getSellingOrder());
 
-        // Build EventSeriesDTO list
-        List<EventSeriesDTO> events = new ArrayList<>();
+        // Build root map
+        Map<String,Object> root = new LinkedHashMap<>();
+        root.put("name", scenario.getName());
+        root.put("maritalStatus", "Y".equalsIgnoreCase(scenario.getMaritalStatus()) ? "couple" : "individual");
 
-        // income events
-        List<IncomeEventDTO> incomeEventDTOList =
-                incomeEventService.getIncomeEventListByScenarioId(scenarioId);
-        for (IncomeEventDTO dto : incomeEventDTOList) {
-            events.add(mapIncomeSeries(dto));
-        }
+        List<Integer> birthYears = new ArrayList<>();
+        birthYears.add(scenario.getBirthYearUser());
+        if (scenario.getBirthYearSpouse() != null) birthYears.add(scenario.getBirthYearSpouse());
+        root.put("birthYears", birthYears);
 
-        // expense events
-        List<ExpenseEventDTO> expenseEventDTOList =
-                expenseEventService.getExpenseEventsByScenarioId(scenarioId);
-        for (ExpenseEventDTO dto : expenseEventDTOList) {
-            events.add(mapExpenseSeries(dto));
-        }
+        List<DistributionDTO> lifeExpectancy = new ArrayList<>();
+        lifeExpectancy.add(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancyUser()));
+        if (scenario.getLifeExpectancySpouse() != null)
+            lifeExpectancy.add(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancySpouse()));
+        root.put("lifeExpectancy", lifeExpectancy);
 
-        // invest events
-        List<InvestEventDTO> investEventDTOList =
-                investEventService.getInvestEventsByScenarioId(scenarioId);
-        for (InvestEventDTO dto : investEventDTOList) {
-            events.add(mapInvestSeries(dto));
-        }
+        // --- investmentTypes ---
+        List<InvestmentTypeDTO> invTypeDtos = investmentTypeService.getInvestmentTypeList(scenarioId);
+        List<Map<String,Object>> invTypes = invTypeDtos.stream()
+                .map(this::mapInvestmentType)
+                .collect(Collectors.toList());
+        root.put("investmentTypes", invTypes);
 
-        // Create ScenarioYamlDTO
-        ScenarioYamlDTO yamlDTO = new ScenarioYamlDTO();
-        yamlDTO.setName(scenario.getName());
-        yamlDTO.setMaritalStatus("Y".equals(scenario.getMaritalStatus()) ? "couple" : "individual");
-        yamlDTO.setBirthYears(List.of(scenario.getBirthYearUser(), scenario.getBirthYearSpouse()));
-        yamlDTO.setLifeExpectancy(List.of(
-                distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancyUser()),
-                distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancySpouse())
-        ));
-        yamlDTO.setInvestmentTypes(investmentTypes);
-        yamlDTO.setInvestments(investments);
-        yamlDTO.setEventSeries(events);
-        yamlDTO.setInflationAssumption(distributionService.convertEmbeddableToDTO(scenario.getInflationAssumption()));
-        yamlDTO.setAfterTaxContributionLimit(scenario.getAfterTaxContributionLimit());
-        yamlDTO.setExpenseWithdrawalStrategy(withdrawDto.getSellingOrder());
-        yamlDTO.setFinancialGoal(scenario.getFinancialGoal());
-        yamlDTO.setStateOfResidence(scenario.getStateOfResidence());
+        // --- investments ---
+        List<InvestmentDTO> invDtos = investmentService.getInvestmentListByScenarioId(scenarioId);
+        List<Map<String,Object>> invMaps = invDtos.stream()
+                .map(this::mapInvestment)
+                .collect(Collectors.toList());
+        root.put("investments", invMaps);
 
-        // Citation: GPT helped me how to configure Yaml formatting
+        // eventSeries
+        List<Map<String,Object>> events = new ArrayList<>();
+        for (IncomeEventDTO dto : incomes)   events.add(mapIncomeSeries(dto));
+        for (ExpenseEventDTO dto : expenses) events.add(mapExpenseSeries(dto));
+        for (InvestEventDTO dto : invests)   events.add(mapInvestSeries(dto));
+        root.put("eventSeries", events);
+
+        root.put("inflationAssumption", mapDistribution(distributionService.convertEmbeddableToDTO(scenario.getInflationAssumption())));
+        root.put("afterTaxContributionLimit", scenario.getAfterTaxContributionLimit());
+        root.put("expenseWithdrawalStrategy", strategy.getSellingOrder());
+        root.put("financialGoal", scenario.getFinancialGoal());
+        root.put("residenceState", scenario.getStateOfResidence());
+
+        // Configure YAML flow style
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.FLOW);
         options.setPrettyFlow(true);
         options.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN);
 
-        // Create a SnakeYAML instance
         Yaml snake = new Yaml(new Representer(), options);
+        String yamlString = snake.dumpAsMap(root);
 
-        // Dump the DTO to a flow-style YAML string
-        String yamlString = snake.dump(yamlDTO);
-
-        // Convert to bytes and wrap in Resource
         byte[] yamlBytes = yamlString.getBytes(StandardCharsets.UTF_8);
         return new ByteArrayResource(yamlBytes);
     }
 
-    // Helper to map IncomeEventDTO → EventSeriesDTO
-    private EventSeriesDTO mapIncomeSeries(IncomeEventDTO dto) {
-        EventSeriesDTO ev = new EventSeriesDTO();
-        ev.setName(dto.getName());
-        ev.setStart(dto.getStartYear());
-        ev.setDuration(dto.getDuration());
-        ev.setType("INCOME");
-        ev.setInitialAmount(dto.getInitialAmount());
-        ev.setChangeDistribution(dto.getAnnualChange());
-        ev.setChangeAmtOrPct(dto.getAnnualChange().getAmountOrPercent());
-        ev.setInflationAdjusted("Y".equals(dto.getInflationAdjustment()));
-        ev.setUserFraction(dto.getUserPercentage());
-        ev.setSocialSecurity("Y".equals(dto.getIsSocialSecurity()));
-        return ev;
+    private Map<String,Object> mapInvestmentType(InvestmentTypeDTO dto) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("name", dto.getName());
+        m.put("description", dto.getDescription());
+        m.put("returnAmtOrPct", dto.getExpectedAnnualReturn().getAmountOrPercent().toLowerCase());
+        m.put("returnDistribution", mapDistribution(dto.getExpectedAnnualReturn()));
+        m.put("expenseRatio", dto.getExpenseRatio());
+        m.put("incomeAmtOrPct", dto.getExpectedAnnualIncome().getAmountOrPercent().toLowerCase());
+        m.put("incomeDistribution", mapDistribution(dto.getExpectedAnnualIncome()));
+        m.put("taxability", "Y".equalsIgnoreCase(dto.getTaxability()));
+        return m;
     }
 
-    // Helper to map ExpenseEventDTO → EventSeriesDTO
-    private EventSeriesDTO mapExpenseSeries(ExpenseEventDTO dto) {
-        EventSeriesDTO ev = new EventSeriesDTO();
-        ev.setName(dto.getName());
-        ev.setStart(dto.getStartYear());
-        ev.setDuration(dto.getDuration());
-        ev.setType("EXPENSE");
-        ev.setInitialAmount(dto.getInitialAmount());
-        ev.setChangeDistribution(dto.getAnnualChange());
-        ev.setChangeAmtOrPct(dto.getAnnualChange().getAmountOrPercent());
-        ev.setInflationAdjusted("Y".equals(dto.getInflationAdjustment()));
-        ev.setUserFraction(dto.getUserPercentage());
-        ev.setDiscretionary("Y".equals(dto.getIsDiscretionary()));
-        return ev;
+    private Map<String,Object> mapInvestment(InvestmentDTO dto) {
+        Map<String,Object> m = new LinkedHashMap<>();
+
+        InvestmentType investmentType = investmentTypeService
+                .getInvestmentType(dto.getInvestmentTypeId())
+                .orElseThrow(() -> new RuntimeException(
+                        "InvestmentType not found: " + dto.getInvestmentTypeId()));
+
+        String typeName = investmentType.getName();
+        m.put("investmentType", typeName);
+        m.put("value", dto.getValue().intValue());
+        m.put("taxStatus", dto.getTaxStatus().toLowerCase());
+
+        // build the “id” field exactly as in the professor’s format
+        String idKey = typeName
+                + (dto.getTaxStatus().equalsIgnoreCase("non-retirement")
+                ? ""
+                : " " + dto.getTaxStatus().toLowerCase());
+        m.put("id", idKey.trim());
+
+        return m;
+    }
+
+    private Map<String,Object> mapDistribution(DistributionDTO d) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        String type = d.getDistributionType().toLowerCase();  // "fixed","uniform","normal"
+        m.put("type", type);
+        switch(type) {
+            case "fixed":
+                m.put("value", d.getValue().intValue());
+                break;
+            case "uniform":
+                m.put("lower", d.getLower().intValue());
+                m.put("upper", d.getUpper().intValue());
+                break;
+            case "normal":
+                m.put("mean", d.getMean());
+                m.put("stDev", d.getStDev());
+                break;
+        }
+        return m;
+    }
+
+    private Map<String,Object> mapIncomeSeries(IncomeEventDTO dto) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("name", dto.getName());
+        m.put("start", mapDistribution(dto.getStartYear()));
+        m.put("duration", mapDistribution(dto.getDuration()));
+        m.put("type", "income");
+        m.put("initialAmount", dto.getInitialAmount().intValue());
+        m.put("changeAmtOrPct", dto.getAnnualChange().getAmountOrPercent().toLowerCase());
+        m.put("changeDistribution", mapDistribution(dto.getAnnualChange()));
+        m.put("inflationAdjusted", "Y".equals(dto.getInflationAdjustment()));
+        m.put("userFraction", dto.getUserPercentage());
+        m.put("socialSecurity", "Y".equals(dto.getIsSocialSecurity()));
+        return m;
+    }
+
+    private Map<String,Object> mapExpenseSeries(ExpenseEventDTO dto) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("name", dto.getName());
+        m.put("start", mapDistribution(dto.getStartYear()));
+        m.put("duration", mapDistribution(dto.getDuration()));
+        m.put("type", "expense");
+        m.put("initialAmount", dto.getInitialAmount().intValue());
+        m.put("changeAmtOrPct", dto.getAnnualChange().getAmountOrPercent().toLowerCase());
+        m.put("changeDistribution", mapDistribution(dto.getAnnualChange()));
+        m.put("inflationAdjusted", "Y".equals(dto.getInflationAdjustment()));
+        m.put("userFraction", dto.getUserPercentage());
+        m.put("discretionary", "Y".equals(dto.getIsDiscretionary()));
+        return m;
+    }
+
+    private Map<String,Object> mapInvestSeries(InvestEventDTO dto) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("name", dto.getName());
+        m.put("start", mapDistribution(dto.getStartYear()));
+        m.put("duration", mapDistribution(dto.getDuration()));
+        m.put("type", "invest");
+        m.put("assetAllocation", dto.getAssetAllocations().stream()
+                .collect(Collectors.toMap(AllocationDTO::getInvestmentKey, AllocationDTO::getRatio,
+                        (a,b)->a, LinkedHashMap::new))
+        );
+        m.put("maxCash", dto.getMaxCash().intValue());
+        return m;
     }
 
 
-    // Helper to map InvestEventDTO → EventSeriesDTO
-    private EventSeriesDTO mapInvestSeries(InvestEventDTO dto) {
-        EventSeriesDTO ev = new EventSeriesDTO();
-        ev.setName(dto.getName());
-        ev.setStart(dto.getStartYear());
-        ev.setDuration(dto.getDuration());
-        ev.setType("INVEST");
-        ev.setAssetAllocation(dto.getAssetAllocations().stream()
-                .collect(Collectors.toMap(AllocationDTO::getInvestmentKey, AllocationDTO::getRatio)));
-        ev.setMaxCash(dto.getMaxCash());
-        return ev;
-    }
 }
