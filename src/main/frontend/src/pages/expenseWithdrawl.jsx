@@ -251,7 +251,7 @@ function ExpenseWithdrawlPage() {
                 {selectedInvestment && null}
 
                 <div>
-                    <button onClick={postArray}>Save</button>
+                    <button type = "submit" onClick={postArray}>Save</button>
                 </div>
 
                 {renderClickedItems()}
