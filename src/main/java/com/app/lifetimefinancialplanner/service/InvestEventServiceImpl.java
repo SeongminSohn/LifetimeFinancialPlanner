@@ -182,9 +182,11 @@ public class InvestEventServiceImpl implements InvestEventService {
         BigDecimal inflationFactor = BigDecimal.valueOf(context.getInflationFactor());
         BigDecimal excessCash = context.getCashBalance();
 
-        // Load the scenario's current Investments
-        List<Investment> investments = investmentRepository.findAllByScenarioId(scenario.getId());
-        Map<String, Investment> investmentMap = investments.stream()
+        // Copy previous year's investment values for cumulative updates
+        List<Investment> baseInvestments = new ArrayList<>(context.getUpdatedInvestments());
+
+        // Build map to apply purchase adjustments
+        Map<String, Investment> investmentMap = baseInvestments.stream()
                 .collect(Collectors.toMap(
                         investment -> investment.getInvestmentType().getName() + " " + investment.getTaxStatus(),
                         investment -> investment
@@ -192,7 +194,6 @@ public class InvestEventServiceImpl implements InvestEventService {
 
         // Collect processedEvents and the updatedInvestment values
         List<InvestEvent> processedEvents = new ArrayList<>();
-        List<Investment> updatedInvestments = new ArrayList<>();
 
         for (InvestEvent event : investEvents) {
             // Sample event's start year
@@ -258,17 +259,24 @@ public class InvestEventServiceImpl implements InvestEventService {
                 BigDecimal amount = entry.getValue();
                 spent = spent.add(amount);
 
-                Investment investment = investmentMap.get(allocation.getInvestmentKey());
-                if (investment == null) {
-                    throw new IllegalArgumentException("No Investment for key " + allocation.getInvestmentKey());
+                String key = allocation.getInvestmentKey();
+                Investment existing = investmentMap.get(key);
+                if (existing == null) {
+                    throw new IllegalArgumentException("No Investment for key " + key);
                 }
 
-                // Update Investment with the increased value
-                Investment updatedInvestment = investment.toBuilder()
-                        .value(investment.getValue() + amount.doubleValue())
+                // Update the copied investment with purchase amount
+                Investment updated = existing.toBuilder()
+                        .value(existing.getValue() + amount.doubleValue())
                         .build();
-
-                updatedInvestments.add(updatedInvestment);
+                // Reflect changes in both map and list
+                investmentMap.put(key, updated);
+                for (int i = 0; i < baseInvestments.size(); i++) {
+                    if (baseInvestments.get(i).getId().equals(updated.getId())) {
+                        baseInvestments.set(i, updated);
+                        break;
+                    }
+                }
             }
 
             // Deduct spent cash and record that we processed this event
@@ -278,8 +286,7 @@ public class InvestEventServiceImpl implements InvestEventService {
 
         // Update the SimulationContext
         context.setCashBalance(excessCash);
-        context.setUpdatedInvestments(updatedInvestments);
         context.setUpdatedInvestEvents(processedEvents);
+        context.setUpdatedInvestments(baseInvestments);
     }
-
 }
