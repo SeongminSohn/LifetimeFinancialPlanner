@@ -62,15 +62,18 @@ function Investment() {
     };
 
     function sideElements() {
-        return openSide && (
-            <aside className="sidebar">
-                <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
-                <button onClick={() => navPage('/ExpenseSetting')}>view Expense Status</button>
-                <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
-                <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
-                <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
-            </aside>
+        return (
+            openSide && (
+                <aside className="sidebar">
+                    <button onClick={() => navPage('/Investment')}>View Invest type Status</button>
+                    <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
+                    <button onClick={() => navPage('/ExpenseSetting')}>View Expense Status</button>
+                    <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
+                    <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
+                    <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
+                    <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
+                </aside>
+            )
         );
     }
 
@@ -202,30 +205,13 @@ function Investment() {
     }
 
     async function deleteButton(investmentTypeId) {
-        const existingRecord = existingInvestments.find(
-            item => item.investmentTypeId === investmentTypeId
-        );
-        if (!existingRecord) {
-            alert("Data does not exist");
-            return;
-        }
         try {
-            await axios.delete(
-                `http://localhost:10000/api/investments/${existingRecord.id}`,
+            const response = await axios.delete(
+                `http://localhost:10000/api/investment-types/${investmentTypeId}`,
                 { withCredentials: true }
             );
-            console.log("Deleted investment:", existingRecord);
-            setExistingInvestments(prev =>
-                prev.filter(item => item.id !== existingRecord.id)
-            );
-            if (selectedInvestment && selectedInvestment.id === investmentTypeId) {
-                setFormData({
-                    id: '',
-                    investmentTypeId: investmentTypeId,
-                    value: '',
-                    taxStatus: 'NON-RETIREMENT',
-                });
-            }
+            console.log("What is deleted: ", response.data)
+            alert("Deleted!");
         } catch (error) {
             console.error("Error deleting investment:", error);
             alert("Fail to Delete");
@@ -252,6 +238,12 @@ function Investment() {
                                 style={{ backgroundColor: "black", color: "white" }}>
                                 {viewedId === item.id ? "Hide Details" : "VIEW INVESTMENT TYPE"}
                             </button>
+                            {/*<button*/}
+                            {/*    type = "button"*/}
+                            {/*    onClick={() => deleteButton(item.id)}*/}
+                            {/*    style={{ backgroundColor: "black", color: "white" }}>*/}
+                            {/*    {viewedId === item.id ? "Hide Details" : "Delete"}*/}
+                            {/*</button>*/}
 
                             {viewedId === item.id && (
                                 <div className="investment-details">

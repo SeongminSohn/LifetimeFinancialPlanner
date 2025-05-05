@@ -47,7 +47,7 @@ function InvestTypeManage() {
 
     useEffect(() => {
         axios
-            .get(`http://localhost:10000/api/investments/${id}`)
+            .get(`http://localhost:10000/api/investments/type/${id}`)
             .then((res) => {
                 const data = Array.isArray(res.data) ? res.data : [res.data];
                 setInvestments(data);
@@ -60,6 +60,7 @@ function InvestTypeManage() {
         return (
             openSide && (
                 <aside className="sidebar">
+                    <button onClick={() => navPage('/Investment')}>View Invest type Status</button>
                     <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
                     <button onClick={() => navPage('/ExpenseSetting')}>View Expense Status</button>
                     <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>

@@ -1,279 +1,130 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './common.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 function ExpenseWithdrawlPage() {
     const [investmentTypes, setInvestmentTypes] = useState([]);
-    const [existingInvestments, setExistingInvestments] = useState([]);
-    const [selectedInvestment, setSelectedInvestment] = useState(null);
-    const [loggedIn, setLoggedIn] = useState(false);
-    const [openSide, setSide] = useState(false);
-    const [formData, setFormData] = useState({
-        scenarioId: '',
-        sellingOrder: ""
-    });
+    const [investments, setInvestments] = useState([]);
     const [clickedItems, setClickedItems] = useState([]);
-    const navPage = useNavigate();
+    const [formData, setFormData] = useState({ id: undefined, scenarioId: '', sellingOrder: [] });
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [openSide, setOpenSide] = useState(false);
+    const nav = useNavigate();
+    const scenarioId = localStorage.getItem('scenario');
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            setLoggedIn(true);
-        }
-    }, []);
-
-    async function postArray() {
-        console.log("FormData length: ", clickedItems.length);
-        // if (clickedItems.length < existingInvestments.length) {
-        //     alert("Put all elements into the array!");
-        //     return;
-        // }
-        const scenarioId = localStorage.getItem("scenario");
-        const updatedFormData = {
-            ...formData,
-            scenarioId: scenarioId,
-            sellingOrder: clickedItems
-        };
-        console.log("check there is updated formdata or not",updatedFormData.id);
+    const fetchAll = useCallback(async () => {
+        if (!scenarioId) return;
         try {
-            if (updatedFormData.id) {
-                const response = await axios.put(
-                    `http://localhost:10000/api/expense-withdrawal-strategies/${updatedFormData.id}`,
-                    updatedFormData,
-                    { withCredentials: true, headers: { "Content-Type": "application/json" } }
-                );
-                console.log("Updated Investment:", response.data);
-            } else {
-                const response = await axios.post(
-                    "http://localhost:10000/api/expense-withdrawal-strategies",
-                    updatedFormData,
-                    { withCredentials: true, headers: { "Content-Type": "application/json" } }
-                );
-                console.log("Expense withdrawal strategy saved:", response.data);
+            const [invRes, typeRes, stratRes] = await Promise.all([
+                axios.get(`http://localhost:10000/api/investments/scenario/${scenarioId}`),
+                axios.get(`http://localhost:10000/api/investment-types/scenario/${scenarioId}`),
+                axios.get(`http://localhost:10000/api/expense-withdrawal-strategies/scenario/${scenarioId}`)
+            ]);
+            setInvestments(invRes.data);
+            setInvestmentTypes(typeRes.data);
+            if (stratRes.data) {
+                setFormData(stratRes.data);
+                setClickedItems(Array.isArray(stratRes.data.sellingOrder) ? stratRes.data.sellingOrder : []);
             }
-        } catch (error) {
-            console.error("Error saving expense withdrawal strategy:", error);
+        } catch (e) {
+            console.error(e);
         }
-    }
-
+    }, [scenarioId]);
 
     useEffect(() => {
-        const scenarioId = localStorage.getItem("scenario");
-        if (scenarioId) {
-            axios.get(`http://localhost:10000/api/investments/scenario/${scenarioId}`)
-                .then(response => {
-                    setExistingInvestments(response.data);
-                })
-                .catch(error => {
-                    console.error("Error fetching investments:", error);
-                });
-        }
-    }, []);
+        if (localStorage.getItem('token')) setLoggedIn(true);
+        fetchAll();
+    }, [fetchAll]);
 
-    useEffect(() => {
-        const scenarioId = localStorage.getItem("scenario");
-        if (scenarioId) {
-            axios.get(`http://localhost:10000/api/investments/scenario/${scenarioId}`)
-                .then(response => {
-                    setExistingInvestments(response.data);
-                })
-                .catch(error => {
-                    console.error("Error fetching investments:", error);
-                });
-        }
-    }, []);
-
-    useEffect(() => {
-        const scenarioId = localStorage.getItem("scenario");
-        if (scenarioId) {
-            axios.get(`http://localhost:10000/api/investment-types/scenario/${scenarioId}`)
-                .then(response => {
-                    setInvestmentTypes(response.data);
-                })
-                .catch(error => {
-                    console.error("Error fetching investment types:", error);
-                });
-        }
-    }, []);
-
-    useEffect(() => {
-        console.log("clickedItems updated:", clickedItems);
-    }, [clickedItems]);
-
-    useEffect(() => {
-        const scenarioId = localStorage.getItem("scenario");
-        if (scenarioId) {
-            axios.get(`http://localhost:10000/api/expense-withdrawal-strategies/scenario/${scenarioId}`)
-                .then(response => {
-                    setFormData(response.data);
-                    console.log("This is Expense-withDrawlData: ", response.data)
-                    console.log("TEST: ", response.data.sellingOrder)
-                    setClickedItems(response.data.sellingOrder)
-                })
-                .catch(error => {
-                    console.error("Error fetching expense-withdrawl-strategies:", error);
-                });
-        }
-    }, []);
-
-    const popupMenu = () => {
-        setSide(prev => !prev);
-    };
-
-    function sideElements() {
-        return openSide && (
-            <aside className="sidebar">
-                <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
-                <button onClick={() => navPage('/ExpenseSetting')}>view Expense Status</button>
-                <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
-                <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
-                <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
-            </aside>
+    const toggleClickedItem = inv => {
+        const type = investmentTypes.find(t => t.id === inv.investmentTypeId);
+        if (!type) return;
+        const label = `${type.name} ${inv.taxStatus}`;
+        setClickedItems(prev =>
+            prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]
         );
-    }
-
-    function toInvestment(){
-        navPage('/Investment')
-    }
-    function toWithDrawal(){
-        navPage('/ExpenseW');
-    }
-    function toIncome() {
-        navPage('/IncomePage');
-    }
-    function toExpense() {
-        navPage('/ExpenseEdit');
-    }
-    function toInvest() {
-        navPage('/InvestEdit');
-    }
-    function toSim() {
-        navPage('/simulationPage');
-    }
-    function toHome() {
-        navPage('/Homepage');
-    }
-    function toProfile() {
-        navPage('/Profset');
-    }
-    function toInvestEvent(){
-        navPage("/InvestEvent")
-    }
-
-    function handleButtonClick(item) {
-        setSelectedInvestment(item);
-        const savedRecord = existingInvestments.find(inv => inv.investmentTypeId === item.id);
-        if (savedRecord) {
-            setFormData({
-                id: savedRecord.id,
-                investmentTypeId: savedRecord.investmentTypeId,
-                value: savedRecord.value,
-                taxStatus: savedRecord.taxStatus,
-            });
-        } else {
-            setFormData({
-                id: '',
-                investmentTypeId: item.id,
-                value: '',
-                taxStatus: 'NON-RETIREMENT',
-            });
-        }
-    }
-
-    const toggleClickedItem = (item) => {
-        const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
-        if (!matchedType) return;
-        const label = `${matchedType.name} ${item.taxStatus}`;
-        setClickedItems(prev => {
-            if (prev.includes(label)) {
-                return prev.filter(currentLabel => currentLabel !== label);
-            } else {
-                return [...prev, label];
-            }
-        });
     };
 
+    const saveStrategy = async () => {
+        const payload = { ...formData, scenarioId, sellingOrder: clickedItems };
+        try {
+            if (payload.id) {
+                await axios.put(
+                    `http://localhost:10000/api/expense-withdrawal-strategies/${payload.id}`,
+                    payload,
+                    { withCredentials: true, headers: { 'Content-Type': 'application/json' } }
+                );
+                alert("updated!")
+            } else {
+                const { data } = await axios.post(
+                    'http://localhost:10000/api/expense-withdrawal-strategies',
+                    payload,
+                    { withCredentials: true, headers: { 'Content-Type': 'application/json' } }
+                );
+                alert("Saved!")
+                setFormData(data);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
+    const displayInvestments = investments.filter(inv => {
+        const type = investmentTypes.find(t => t.id === inv.investmentTypeId);
+        return type && type.name !== 'CASH' && inv.taxStatus !== 'PRE-TAX';
+    });
 
-    const renderClickedItems = () => (
-        <div className="forOrdering">
-            <p>Orders : </p>
-            {clickedItems.map((label, index) => (
-                <div key={index} className="arrays">{label}</div>
-            ))}
-        </div>
-    );
+    return (
+        <div className="total">
+            <nav className="navBarTop">
+                <img onClick={() => nav('/Homepage')} src="/public/caffeineOverloadLogo.png" alt="logo" className="logoSize" />
+                <p className="logoLetter">Life Time Financial Planner</p>
+                <div></div>
+            </nav>
+            <nav className="navBarSub">
+                <button className="commonButton" onClick={() => setOpenSide(p => !p)}>Menu</button>
+                {openSide && (
+                    <aside className="sidebar">
+                        <button onClick={() => nav('/Investment')}>View Invest type Status</button>
+                        <button onClick={() => nav('/IncomeSetting')}>View Income Status</button>
+                        <button onClick={() => nav('/ExpenseSetting')}>View Expense Status</button>
+                        <button onClick={() => nav('/ExpenseW')}>Expense Withdrawal Edit</button>
+                        <button onClick={() => nav('/SimulationManagement')}>Invest Event Edit</button>
+                        <button onClick={() => nav('/simulationPage')}>Scenario Simulation</button>
+                        <button onClick={() => nav('/ImportExp')}>Import & Export Data</button>
+                    </aside>
+                )}
+                {loggedIn && <button className="commonButton" onClick={() => nav('/Profset')}>Scenario Setting</button>}
+            </nav>
 
-
-    function expenseComponents() {
-        const displayInvestments = existingInvestments.filter(item => {
-            const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
-            return !(matchedType && item.taxStatus === "PRE-TAX") &&
-                !(matchedType && matchedType.name === "CASH");
-        });
-
-        return (
             <div className="profileSetting">
-                <p
-                    className="logoLetter"
-                    style={{ color: "black", fontSize: "5vh", marginTop: "30px" }}
-                >
+                <p className="logoLetter" style={{ color: 'black', fontSize: '5vh', marginTop: '30px' }}>
                     Expense WithDrawl. Choose Order.
                 </p>
 
-                {displayInvestments.map((item, index) => (
-                    <form key={item.investmentTypeId || index} className="investment-form">
+                {displayInvestments.map(inv => (
+                    <form key={inv.id} className="investment-form">
                         <div className="login">
-                            <label htmlFor={`name-${index}`}>Status</label>
-                            <button
-                                type="button"
-                                id={`name-${index}`}
-                                name="name"
-                                onClick={() => handleButtonClick(item)}
-                            >
-                                {(() => {
-                                    const matchedType = investmentTypes.find(
-                                        type => type.id === item.investmentTypeId
-                                    );
-                                    return matchedType ? <span>{matchedType.name}{" "}</span> : null;
-                                })()}
-                                {item.taxStatus}
-                            </button>
-                            <button type="button" onClick={() => toggleClickedItem(item)}>
-                                Add or Remove
+                            <label>Status</label>
+                            <button type="button" onClick={() => toggleClickedItem(inv)}>
+                                {investmentTypes.find(t => t.id === inv.investmentTypeId)?.name} {inv.taxStatus}
                             </button>
                         </div>
                     </form>
                 ))}
 
-                {selectedInvestment && null}
-
                 <div>
-                    <button type = "submit" onClick={postArray}>Save</button>
+                    <button type="submit" onClick={saveStrategy}>Save</button>
                 </div>
 
-                {renderClickedItems()}
+                <div className="forOrdering">
+                    <p>Orders :</p>
+                    {clickedItems.map((l, i) => (
+                        <div key={i} className="arrays">{l}</div>
+                    ))}
+                </div>
             </div>
-        );
-    }
-
-    return (
-        <div className="total">
-            <nav className="navBarTop">
-                <img onClick={toHome} src="/public/caffeineOverloadLogo.png" alt="logo" className="logoSize" />
-                <p className="logoLetter">Life Time Financial Planner</p>
-                <div></div>
-            </nav>
-            <nav className="navBarSub">
-                <button className="commonButton" onClick={popupMenu}>Menu</button>
-                {sideElements()}
-                {loggedIn && (
-                    <button className="commonButton" onClick={toProfile}>Scenario Setting</button>
-                )}
-            </nav>
-            {expenseComponents()}
         </div>
     );
 }

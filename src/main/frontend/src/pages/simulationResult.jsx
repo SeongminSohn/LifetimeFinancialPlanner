@@ -50,15 +50,18 @@ function SimulationPage() {
 
     const popupMenu = () => setSide(s => !s);
     function sideElements() {
-        return openSide && (
-            <aside className="sidebar">
-                <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
-                <button onClick={() => navPage('/ExpenseSetting')}>view Expense Status</button>
-                <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
-                <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
-                <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
-            </aside>
+        return (
+            openSide && (
+                <aside className="sidebar">
+                    <button onClick={() => navPage('/Investment')}>View Invest type Status</button>
+                    <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
+                    <button onClick={() => navPage('/ExpenseSetting')}>View Expense Status</button>
+                    <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
+                    <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
+                    <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
+                    <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
+                </aside>
+            )
         );
     }
 
