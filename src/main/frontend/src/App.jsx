@@ -21,6 +21,7 @@ import IncomeEventEdit from "./pages/incomeEventEdit.jsx";
 import ExpenseEventEdit from "./pages/expenseEventEditPage.jsx"
 import InvestTypeEdit from "./pages/investTypeEditPage.jsx"
 import InvestTypeManage from "./pages/investTypeManage.jsx"
+import useDisableNumberWheel from "./hooks/useDisableNumberWheel";
 import "./App.css";
 import {useEffect} from "react";
 
@@ -36,6 +37,7 @@ function App() {
 
         return null;
     }
+    useDisableNumberWheel();
 
     return (
         <>
