@@ -244,7 +244,7 @@ function Investment() {
                     <form key={item.id || index} className="investment-form">
                         <div className="login">
                             <label htmlFor={`name-${index}`}>Name:</label>
-                            <button type="button" id={`name-${index}`} name="name" onClick={() => handleButtonClick(item)}>{item.name}
+                            <button type="button" id={`name-${index}`} name="name" onClick={() => navPage(`/investments/edit/${item.id}`)}>{item.name}
                             </button>
                             <button
                                 type = "button"
@@ -270,9 +270,9 @@ function Investment() {
                                     <p><strong>Tax ability:</strong> {item.taxability}</p>
                                 </div>)}
 
-                            {viewedId === null && (<button type="button" style={{ backgroundColor: "Black", color: "White" }}  onClick={() => navPage(`/investment-types/edit/${item.id}`)}>
-                                Edit Investment type
-                            </button>)}
+                            {/*{viewedId === null && (<button type="button" style={{ backgroundColor: "Black", color: "White" }}  onClick={() => navPage(`/investment-types/edit/${item.id}`)}>*/}
+                            {/*    Edit Investment type*/}
+                            {/*</button>)}*/}
                         </div>
                     </form>
                 ))}

@@ -20,6 +20,7 @@ import InvestEventEditPage from "./pages/investEventEditPage.jsx";
 import IncomeEventEdit from "./pages/incomeEventEdit.jsx";
 import ExpenseEventEdit from "./pages/expenseEventEditPage.jsx"
 import InvestTypeEdit from "./pages/investTypeEditPage.jsx"
+import InvestTypeManage from "./pages/investTypeManage.jsx"
 import "./App.css";
 import {useEffect} from "react";
 
@@ -63,6 +64,7 @@ function App() {
                     <Route path="/income-events/edit/:id" element={<IncomeEventEdit />} />
                     <Route path="/expense-events/edit/:id" element={<ExpenseEventEdit />} />
                     <Route path="/investment-types/edit/:id" element = {<InvestTypeEdit/>} />
+                    <Route path="/investments/edit/:id" element = {<InvestTypeManage/>} />
                 </Routes>
             </BrowserRouter>
         </>

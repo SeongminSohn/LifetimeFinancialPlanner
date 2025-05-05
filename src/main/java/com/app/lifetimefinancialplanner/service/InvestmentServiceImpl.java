@@ -156,12 +156,14 @@ public class InvestmentServiceImpl implements InvestmentService {
 
         if (currentYear == LocalDateTime.now().getYear()) {
             investmentList = investmentRepository.findAllByScenarioId(scenario.getId());
+            log.info("DEBUGGING PART1: THIS IS CURRENT YEAR: Current Year {} and investment list: {}",currentYear, investmentList);
             if (investmentList == null || investmentList.isEmpty()) {
                 throw new IllegalArgumentException("There is no Investment Information and This is Scenario ID: " + scenario.getId());
             }
             log.info("Current Year branch: Retrieved {} Investments from DB for Scenario ID: {}", investmentList.size(), scenario.getId());
         } else {
             investmentList = context.getUpdatedInvestments();
+            log.info("DEBUGGING PART: NOT CURRENT YEAR: Current Year {} and investment list: {}",currentYear, investmentList);
             if (investmentList == null || investmentList.isEmpty()) {
                 throw new IllegalArgumentException("There is no Investment Information and This is Scenario ID: " + scenario.getId());
             }
