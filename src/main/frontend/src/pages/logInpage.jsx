@@ -86,8 +86,9 @@ function loginPage(){
                 email: formData.id,
                 password: formData.password
             });
+            console.log(response.data.id)
             localStorage.setItem("token", response.data.id);
-            localStorage.setItem("ID",formData.id)
+            localStorage.setItem("ID",response.data.id)
             navPage("/Homepage");
         } catch (error) {
             console.error("log in Error:", error);

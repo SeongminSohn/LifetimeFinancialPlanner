@@ -13,6 +13,7 @@ function ExpenseWithdrawlPage() {
         scenarioId: '',
         sellingOrder: ""
     });
+    const [filtered, setFiltered] = useState([])
     const [clickedItems, setClickedItems] = useState([]);
     const navPage = useNavigate();
 
@@ -83,6 +84,15 @@ function ExpenseWithdrawlPage() {
                 });
         }
     }, []);
+
+    useEffect(() => {
+        const displayInvestments = existingInvestments.filter(item => {
+            const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
+            return !(matchedType && item.taxStatus === "PRE-TAX") &&
+                !(matchedType && matchedType.name === "CASH");
+        });
+        setFiltered(displayInvestments)
+    }, [existingInvestments]);
 
     useEffect(() => {
         const scenarioId = localStorage.getItem("scenario");
@@ -211,11 +221,7 @@ function ExpenseWithdrawlPage() {
 
 
     function expenseComponents() {
-        const displayInvestments = existingInvestments.filter(item => {
-            const matchedType = investmentTypes.find(type => type.id === item.investmentTypeId);
-            return !(matchedType && item.taxStatus === "PRE-TAX") &&
-                !(matchedType && matchedType.name === "CASH");
-        });
+
 
         return (
             <div className="profileSetting">
@@ -226,7 +232,7 @@ function ExpenseWithdrawlPage() {
                     Expense WithDrawl. Choose Order.
                 </p>
 
-                {displayInvestments.map((item, index) => (
+                {filtered.map((item, index) => (
                     <form key={item.investmentTypeId || index} className="investment-form">
                         <div className="login">
                             <label htmlFor={`name-${index}`}>Status</label>
@@ -234,12 +240,10 @@ function ExpenseWithdrawlPage() {
                                 type="button"
                                 id={`name-${index}`}
                                 name="name"
-                                onClick={() => handleButtonClick(item)}
-                            >
+                                onClick={() => handleButtonClick(item)}>
                                 {(() => {
                                     const matchedType = investmentTypes.find(
-                                        type => type.id === item.investmentTypeId
-                                    );
+                                        type => type.id === item.investmentTypeId);
                                     return matchedType ? <span>{matchedType.name}{" "}</span> : null;
                                 })()}
                                 {item.taxStatus}
