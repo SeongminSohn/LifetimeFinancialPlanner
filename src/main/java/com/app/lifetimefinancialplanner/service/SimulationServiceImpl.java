@@ -125,6 +125,10 @@ public class SimulationServiceImpl implements SimulationService {
                     simulationYearDTO.setCurYearIncome(year.getCurYearIncome());
                     simulationYearDTO.setCurYearSS(year.getCurYearSS());
                     simulationYearDTO.setExpenseBreakdowns(year.getExpenseBreakdowns());
+                    simulationYearDTO.setFederalTax(year.getFederalTax());
+                    simulationYearDTO.setStateTax(year.getStateTax());
+                    simulationYearDTO.setCapitalGainsTax(year.getCapitalGainsTax());
+                    simulationYearDTO.setEarlyWithdrawalTax(year.getEarlyWithdrawalTax());
                     simulationYearDTO.setDetails(year.getDetails());
                     simulationYearDTO.setCreatedAt(year.getCreatedAt());
                     return simulationYearDTO;
@@ -166,7 +170,7 @@ public class SimulationServiceImpl implements SimulationService {
             spouseAlive = currentSpouseAge < spouseLifeExpectancy;
         }
 
-        // Create Id for Batch of simulations
+        // Create batchId for Set of simulations
         Long batchId = null;
 
         for (int runIndex = 1; runIndex <= simulationCount; runIndex++) {
@@ -181,15 +185,14 @@ public class SimulationServiceImpl implements SimulationService {
                 simulation = simulation.toBuilder()
                         .batchId(batchId)
                         .build();
-                simulation = simulationRepository.save(simulation);
             } else {
                 simulation = Simulation.builder()
                         .scenario(scenario)
                         .simulationCount(runIndex)
-                        .batchId(batchId)                     // ← 재사용
+                        .batchId(batchId)
                         .build();
-                simulation = simulationRepository.save(simulation);
             }
+            simulation = simulationRepository.save(simulation);
 
             // Prepare context and DTO list
             List<SimulationYearDTO> simulationYearDTOList = new ArrayList<>();
