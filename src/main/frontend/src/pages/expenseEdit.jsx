@@ -75,15 +75,18 @@ function homePage(){
     }
 
     function sideElements() {
-        return openSide && (
-            <aside className="sidebar">
-                <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
-                <button onClick={() => navPage('/ExpenseSetting')}>view Expense Status</button>
-                <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
-                <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
-                <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
-            </aside>
+        return (
+            openSide && (
+                <aside className="sidebar">
+                    <button onClick={() => navPage('/Investment')}>View Invest type Status</button>
+                    <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
+                    <button onClick={() => navPage('/ExpenseSetting')}>View Expense Status</button>
+                    <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
+                    <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
+                    <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
+                    <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
+                </aside>
+            )
         );
     }
 
@@ -121,6 +124,7 @@ function homePage(){
                 {formData.startYear.distributionType === "FIXED" && (
                     <input
                         type="number"
+                        onWheelCapture={e => e.target.blur()}
                         name="startYear.value"
                         id="startYear.FIXED"
                         placeholder="Current Year"
@@ -134,6 +138,7 @@ function homePage(){
                     <div>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="startYear.lower"
                             id="startYear.LOWER"
                             placeholder="Lower"
@@ -143,6 +148,7 @@ function homePage(){
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="startYear.upper"
                             id="startYear.UPPER"
                             placeholder="Upper"
@@ -157,6 +163,7 @@ function homePage(){
                     <div>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="startYear.mean"
                             id="startYear.MEAN"
                             placeholder="mean"
@@ -166,6 +173,7 @@ function homePage(){
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="startYear.stDev"
                             id="startYear.STDEV"
                             placeholder="standard deviation"
@@ -185,6 +193,7 @@ function homePage(){
                 {formData.duration.distributionType === "FIXED" && (
                     <input
                         type="number"
+                        onWheelCapture={e => e.target.blur()}
                         name="duration.value"
                         id="duration.FIXED"
                         placeholder="value"
@@ -197,6 +206,7 @@ function homePage(){
                     <div>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="duration.lower"
                             id="duration.LOWER"
                             placeholder="Lower"
@@ -206,6 +216,7 @@ function homePage(){
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="duration.upper"
                             id="duration.UPPER"
                             placeholder="Upper"
@@ -219,6 +230,7 @@ function homePage(){
                     <div>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="duration.mean"
                             id="duration.MEAN"
                             placeholder="mean"
@@ -228,6 +240,7 @@ function homePage(){
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="duration.stDev"
                             id="duration.STDEV"
                             placeholder="standard deviation"
@@ -247,6 +260,7 @@ function homePage(){
                 {formData.annualChange.distributionType === "FIXED" && (
                     <input
                         type="number"
+                        onWheelCapture={e => e.target.blur()}
                         name="annualChange.value"
                         id="annualChange.FIXED"
                         placeholder="value"
@@ -259,6 +273,7 @@ function homePage(){
                     <div>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="annualChange.lower"
                             id="annualChange.LOWER"
                             placeholder="Lower"
@@ -268,6 +283,7 @@ function homePage(){
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="annualChange.upper"
                             id="annualChange.UPPER"
                             placeholder="Upper"
@@ -281,6 +297,7 @@ function homePage(){
                     <div>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="annualChange.mean"
                             id="annualChange.MEAN"
                             placeholder="mean"
@@ -290,6 +307,7 @@ function homePage(){
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="annualChange.stDev"
                             id="annualChange.STDEV"
                             placeholder="standard deviation"
@@ -475,6 +493,7 @@ function homePage(){
             <div className="login"><label htmlFor="initialAmount">Initial Amount </label>
                 <input
                     type="number"
+                    onWheelCapture={e => e.target.blur()}
                     id="initialAmount"
                     name="initialAmount"
                     value={formData.initialAmount}
@@ -513,6 +532,7 @@ function homePage(){
             <div className="login"><label htmlFor="userPercentage">User Percentage </label>
                 <input
                     type="number"
+                    onWheelCapture={e => e.target.blur()}
                     id="userPercentage"
                     name="userPercentage"
                     value={formData.userPercentage}

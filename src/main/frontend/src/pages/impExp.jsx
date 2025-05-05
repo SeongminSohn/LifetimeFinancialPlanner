@@ -23,27 +23,46 @@ function importExportPage(){
     const [file, setFile] = useState(null);
     const [formData, setFormData] = useState({});
 
-    async function handleSubmit(){
-        const inputEl = document.getElementById('file-upload');
-        const file = inputEl?.files?.[0];
-        if (!file) {
-            setError("Please choose a YAML file first");
-            return;
-        }
+    const handleImport = async () => {
+        const scenarioId = localStorage.getItem("scenario")
+        axios.get(`http://localhost:10000/api/scenarios/${scenarioId}/export`)
+            .then(response => {
+                const blob = new Blob([response.data], { type: "application/x-yaml" });
+                const url  = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "scenario.yaml";
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            })
+            .catch(() => {});
+    };
+
+    const handleSubmit = async () => {
+        const picked = document.getElementById('file-upload')?.files?.[0];
+        if (!picked) { setError('Choose File'); return; }
+
         const uploadData = new FormData();
-        uploadData.append('file', file);
+        uploadData.append('file', picked);
+        uploadData.append('userId', localStorage.getItem('scenario'));
+
         try {
             setUploading(true);
-            await axios.post('/api/yaml/upload', uploadData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            console.log('YAML upload success');
-        } catch (err) {
-            console.error(err);
-            setError("YAML upload failed");
+            await axios.post(
+                'http://localhost:10000/api/scenarios/import',
+                uploadData,
+                { withCredentials: true }
+            );
+            console.log('upload OK');
+        } catch (e) {
+            console.error(e);
+            setError('fail to upload');
+        } finally {
             setUploading(false);
         }
-    }
+    };
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
@@ -64,15 +83,18 @@ function importExportPage(){
     };
 
     function sideElements() {
-        return openSide && (
-            <aside className="sidebar">
-                <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
-                <button onClick={() => navPage('/ExpenseSetting')}>view Expense Status</button>
-                <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
-                <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
-                <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
-                <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
-            </aside>
+        return (
+            openSide && (
+                <aside className="sidebar">
+                    <button onClick={() => navPage('/Investment')}>View Invest type Status</button>
+                    <button onClick={() => navPage('/IncomeSetting')}>View Income Status</button>
+                    <button onClick={() => navPage('/ExpenseSetting')}>View Expense Status</button>
+                    <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
+                    <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
+                    <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
+                    <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
+                </aside>
+            )
         );
     }
 
@@ -97,6 +119,7 @@ function importExportPage(){
 
 
             <button onClick = {handleSubmit}>Submit</button>
+            <button onClick = {handleImport}>Get the YAML file</button>
             {/*<a href={`/api/yaml/download/${storedFileName}`} download>*/}
             {/*    {fileName} download*/}
             {/*</a>*/}
