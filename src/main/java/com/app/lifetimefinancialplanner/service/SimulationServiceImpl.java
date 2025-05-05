@@ -87,11 +87,22 @@ public class SimulationServiceImpl implements SimulationService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<SimulationDTO> getSimulationsByBatch(Long batchId) {
+        return simulationRepository
+                .findAllByBatchIdOrderBySimulationCountAsc(batchId)
+                .stream()
+                .map(this::convertSimulationToDto)
+                .collect(Collectors.toList());
+    }
+
     // Create SimulationDTO and update the values
     private SimulationDTO convertSimulationToDto(Simulation sim) {
         SimulationDTO simulationDTO = new SimulationDTO();
         simulationDTO.setId(sim.getId());
         simulationDTO.setScenarioId(sim.getScenario().getId());
+        simulationDTO.setBatchId(sim.getBatchId());
         simulationDTO.setSimulationCount(sim.getSimulationCount());
         simulationDTO.setResult(sim.getResult());
         simulationDTO.setCreatedAt(sim.getCreatedAt());
@@ -155,13 +166,30 @@ public class SimulationServiceImpl implements SimulationService {
             spouseAlive = currentSpouseAge < spouseLifeExpectancy;
         }
 
+        // Create Id for Batch of simulations
+        Long batchId = null;
+
         for (int runIndex = 1; runIndex <= simulationCount; runIndex++) {
-            // Save new Simulation entity
-            Simulation simulation = Simulation.builder()
-                    .scenario(scenario)
-                    .simulationCount(runIndex)  // iteration number
-                    .build();
-            simulation = simulationRepository.save(simulation);
+            Simulation simulation;
+            if (runIndex == 1) {
+                simulation = Simulation.builder()
+                        .scenario(scenario)
+                        .simulationCount(1)
+                        .build();
+                simulation = simulationRepository.saveAndFlush(simulation);
+                batchId = simulation.getId();
+                simulation = simulation.toBuilder()
+                        .batchId(batchId)
+                        .build();
+                simulation = simulationRepository.save(simulation);
+            } else {
+                simulation = Simulation.builder()
+                        .scenario(scenario)
+                        .simulationCount(runIndex)
+                        .batchId(batchId)                     // ← 재사용
+                        .build();
+                simulation = simulationRepository.save(simulation);
+            }
 
             // Prepare context and DTO list
             List<SimulationYearDTO> simulationYearDTOList = new ArrayList<>();
@@ -215,7 +243,6 @@ public class SimulationServiceImpl implements SimulationService {
                 context.setCurYearEarlyWithdrawals(BigDecimal.ZERO);
                 context.setTotalExpenses(BigDecimal.ZERO);
                 context.setTotalTax(BigDecimal.ZERO);
-                context.setAssetAllocations(new ArrayList<>());    // clear last year’s allocations
                 context.getExpenseBreakdowns().clear();
                 context.setFederalTax(BigDecimal.ZERO);
                 context.setStateTax(BigDecimal.ZERO);
@@ -379,6 +406,6 @@ public class SimulationServiceImpl implements SimulationService {
         expenseWithdrawalStrategyService.withdrawFundsForExpenses(scenario, context, withdrawalNeeded);
 
         // Deduct the total payment from the cash balance.
-//        context.setCashBalance(availableCash.subtract(totalPayment));
+        context.setCashBalance(availableCash.subtract(totalPayment));
     }
 }

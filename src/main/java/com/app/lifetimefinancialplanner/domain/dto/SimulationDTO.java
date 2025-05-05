@@ -8,6 +8,7 @@ import java.util.List;
 public class SimulationDTO {
     private Long id;
     private Long scenarioId;
+    private Long batchId;
     private Integer simulationCount;
     private String result;
     private LocalDateTime createdAt;
