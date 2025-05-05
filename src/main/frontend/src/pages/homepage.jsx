@@ -14,6 +14,17 @@ function homePage(){
     }
   }, []);
 
+    useEffect(() => {
+        const ID = localStorage.getItem("ID");
+        axios.get(`http://localhost:10000/api/scenarios/${ID}`).then(response => {
+            console.log("User INFO",response.data.id);
+            localStorage.setItem("scenario",response.data.id)
+        }).catch(error => {
+            console.error("Error fetching invest Event:", error);
+        })
+
+    }, []);
+
   const [openSide, setSide] = useState(false);
 
   const navPage = useNavigate();
@@ -107,7 +118,7 @@ function homePage(){
         <nav className="navBarTop">
           <img src="/public/caffeineOverloadLogo.png" className="logoSize" alt="logo" />
           <p className="logoLetter">Life Time Financial Planner</p>
-          {loggedIn === true && (<button className="commonButton" onClick={handleLogout}>Log Out</button>)}
+          {loggedIn === true && (<button type = "submit" className="commonButton" onClick={handleLogout}>Log Out</button>)}
             {loggedIn === false && (<div></div>)}
         </nav>
         <nav className="navBarSub">

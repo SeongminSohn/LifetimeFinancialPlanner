@@ -221,7 +221,7 @@ function expensePage() {
                 {formData.startYear.distributionType === 'FIXED' && (
                     <input
                         type="number"
-                        onWheel={e => e.preventDefault()}
+                        onWheelCapture={e => e.target.blur()}
                         name="startYear.value"
                         min={currentYear}
                         value={formData.startYear.value || ''}
@@ -234,7 +234,7 @@ function expensePage() {
                     <>
                         <input
                             type="number"
-                            onWheel={e => e.preventDefault()}
+                            onWheelCapture={e => e.target.blur()}
                             name="startYear.lower"
                             value={formData.startYear.lower || ''}
                             onChange={handleChange}
@@ -243,7 +243,7 @@ function expensePage() {
                         />
                         <input
                             type="number"
-                            onWheel={e => e.preventDefault()}
+                            onWheelCapture={e => e.target.blur()}
                             name="startYear.upper"
                             min={formData.startYear.lower || currentYear}
                             value={formData.startYear.upper || ''}
@@ -257,6 +257,7 @@ function expensePage() {
                     <>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="startYear.mean"
                             value={formData.startYear.mean || ''}
                             onChange={handleChange}
@@ -265,6 +266,7 @@ function expensePage() {
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="startYear.stDev"
                             value={formData.startYear.stDev || ''}
                             onChange={handleChange}
@@ -283,6 +285,7 @@ function expensePage() {
                 {formData.duration.distributionType === 'FIXED' && (
                     <input
                         type="number"
+                        onWheelCapture={e => e.target.blur()}
                         name="duration.value"
                         value={formData.duration.value || ''}
                         onChange={handleChange}
@@ -294,6 +297,7 @@ function expensePage() {
                     <>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="duration.lower"
                             value={formData.duration.lower || ''}
                             onChange={handleChange}
@@ -302,6 +306,7 @@ function expensePage() {
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="duration.upper"
                             value={formData.duration.upper || ''}
                             onChange={handleChange}
@@ -314,6 +319,7 @@ function expensePage() {
                     <>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="duration.mean"
                             value={formData.duration.mean || ''}
                             onChange={handleChange}
@@ -322,6 +328,7 @@ function expensePage() {
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="duration.stDev"
                             value={formData.duration.stDev || ''}
                             onChange={handleChange}
@@ -340,6 +347,7 @@ function expensePage() {
                 {formData.annualChange.distributionType === 'FIXED' && (
                     <input
                         type="number"
+                        onWheelCapture={e => e.target.blur()}
                         name="annualChange.value"
                         value={formData.annualChange.value || ''}
                         onChange={handleChange}
@@ -351,6 +359,7 @@ function expensePage() {
                     <>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="annualChange.lower"
                             value={formData.annualChange.lower || ''}
                             onChange={handleChange}
@@ -359,6 +368,7 @@ function expensePage() {
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="annualChange.upper"
                             value={formData.annualChange.upper || ''}
                             onChange={handleChange}
@@ -371,6 +381,7 @@ function expensePage() {
                     <>
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="annualChange.mean"
                             value={formData.annualChange.mean || ''}
                             onChange={handleChange}
@@ -379,6 +390,7 @@ function expensePage() {
                         />
                         <input
                             type="number"
+                            onWheelCapture={e => e.target.blur()}
                             name="annualChange.stDev"
                             value={formData.annualChange.stDev || ''}
                             onChange={handleChange}
@@ -444,7 +456,7 @@ function expensePage() {
                 {chooseKone()}
                 <div className="login">
                     <label htmlFor="initialAmount">Initial Amount</label>
-                    <input type="number" id="initialAmount" name="initialAmount" value={formData.initialAmount} onChange={handleChange} required />
+                    <input type="number" onWheelCapture={e => e.target.blur()} id="initialAmount" name="initialAmount" value={formData.initialAmount} onChange={handleChange} required />
                 </div>
                 <div className="login">
                     <label htmlFor="annualChange.amountOrPercent">Annual Change</label>
@@ -471,7 +483,7 @@ function expensePage() {
                 </div>
                 <div className="login">
                     <label htmlFor="userPercentage">User Percentage</label>
-                    <input type="number" id="userPercentage" name="userPercentage" value={formData.userPercentage} onChange={handleChange} required style={{ width: '140px' }} />
+                    <input type="number" onWheelCapture={e => e.target.blur()} id="userPercentage" name="userPercentage" value={formData.userPercentage} onChange={handleChange} required style={{ width: '140px' }} />
                 </div>
                 <div className="login">
                     <label htmlFor="isDiscretionary">Discretionary</label>
