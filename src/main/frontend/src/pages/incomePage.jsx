@@ -334,7 +334,7 @@ function homePage(){
                     value={formData.duration.amountOrPercent}
                     onChange={handleChange} required>
                     <option value = "AMOUNT">Amount</option>
-                    <option value = "PERCENT">Percent</option>
+                    {/*<option value = "PERCENT">Percent</option>*/}
                 </select></div>
             <div className="login"><label htmlFor="duration.distributionType">Distribution Type </label>
                 <select name="duration.distributionType" id="duration.distributionType" value={formData.duration.distributionType} onChange={handleChange} required>
