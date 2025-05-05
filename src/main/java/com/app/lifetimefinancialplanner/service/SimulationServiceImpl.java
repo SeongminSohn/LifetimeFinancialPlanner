@@ -131,6 +131,30 @@ public class SimulationServiceImpl implements SimulationService {
                 .orElseThrow(() -> new IllegalArgumentException("Scenario not found with id: " + scenarioId));
 
         List<SimulationDTO> resultList = new ArrayList<>();
+
+        // Create a log file name with username and timestamp
+        String userName = scenario.getUser().getName();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        String timestamp = LocalDateTime.now().format(formatter);
+        String logFilePrefix = userName + "_" + timestamp;
+
+        // Calculate user's current age and sample user's life expectancy
+        int startYear = LocalDateTime.now().getYear();
+        int currentUserAge = startYear - scenario.getBirthYearUser();
+        int userLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancyUser()));
+        int remainingUserYears = userLifeExpectancy - currentUserAge;
+        boolean userAlive = currentUserAge < userLifeExpectancy;
+
+        // If scenario is for married couple, calculate spouse's age and life expectancy.
+        int remainingSpouseYears = 0;
+        boolean spouseAlive = false;
+        if ("Y".equalsIgnoreCase(scenario.getMaritalStatus()) && scenario.getBirthYearSpouse() != null) {
+            int currentSpouseAge = startYear - scenario.getBirthYearSpouse();
+            int spouseLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancySpouse()));
+            remainingSpouseYears = spouseLifeExpectancy - currentSpouseAge;
+            spouseAlive = currentSpouseAge < spouseLifeExpectancy;
+        }
+
         for (int runIndex = 1; runIndex <= simulationCount; runIndex++) {
             // Save new Simulation entity
             Simulation simulation = Simulation.builder()
@@ -142,29 +166,6 @@ public class SimulationServiceImpl implements SimulationService {
             // Prepare context and DTO list
             List<SimulationYearDTO> simulationYearDTOList = new ArrayList<>();
             SimulationContext context = new SimulationContext();
-
-            // Create a log file name with username and timestamp
-            String userName = scenario.getUser().getName();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-            String timestamp = LocalDateTime.now().format(formatter);
-            String logFilePrefix = userName + "_" + timestamp;
-
-            // Calculate user's current age and sample user's life expectancy
-            int startYear = LocalDateTime.now().getYear();
-            int currentUserAge = startYear - scenario.getBirthYearUser();
-            int userLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancyUser()));
-            int remainingUserYears = userLifeExpectancy - currentUserAge;
-            boolean userAlive = currentUserAge < userLifeExpectancy;
-
-            // If scenario is for married couple, calculate spouse's age and life expectancy.
-            int remainingSpouseYears = 0;
-            boolean spouseAlive = false;
-            if ("Y".equalsIgnoreCase(scenario.getMaritalStatus()) && scenario.getBirthYearSpouse() != null) {
-                int currentSpouseAge = startYear - scenario.getBirthYearSpouse();
-                int spouseLifeExpectancy = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(scenario.getLifeExpectancySpouse()));
-                remainingSpouseYears = spouseLifeExpectancy - currentSpouseAge;
-                spouseAlive = currentSpouseAge < spouseLifeExpectancy;
-            }
 
             // Update numYears by comparing user's and spouse's life expectancy
             int numYears = scenario.getBirthYearSpouse() != null
@@ -378,6 +379,6 @@ public class SimulationServiceImpl implements SimulationService {
         expenseWithdrawalStrategyService.withdrawFundsForExpenses(scenario, context, withdrawalNeeded);
 
         // Deduct the total payment from the cash balance.
-        context.setCashBalance(availableCash.subtract(totalPayment));
+//        context.setCashBalance(availableCash.subtract(totalPayment));
     }
 }
