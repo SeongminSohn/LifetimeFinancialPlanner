@@ -13,6 +13,7 @@ public interface InvestmentService {
     Optional<Investment> getInvestment(Long id);
     Investment updateInvestment(Long id, InvestmentDTO dto);
     void deleteInvestment(Long id);
+    List<InvestmentDTO> getInvestmentListByTypeId(Long investmentTypeId);
     List<InvestmentDTO> getInvestmentListByScenarioId(Long scenarioId);
     public void updateInvestmentValues(Scenario scenario, SimulationContext context);
 }

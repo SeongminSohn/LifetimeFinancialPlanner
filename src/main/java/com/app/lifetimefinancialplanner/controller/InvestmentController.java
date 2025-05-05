@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/investments")
@@ -80,6 +82,17 @@ public class InvestmentController {
     public ResponseEntity<Void> deleteInvestment(@PathVariable Long id) {
         investmentService.deleteInvestment(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/type/{investmentTypeId}")
+    @Operation(
+            summary = "Get Investments by InvestmentType",
+            description = "Retrieves all investments that use the given InvestmentType ID."
+    )
+    @ApiResponse(responseCode = "200", description = "Investments retrieved successfully")
+    public ResponseEntity<List<InvestmentDTO>> getInvestmentsByType(@PathVariable Long investmentTypeId) {
+        List<InvestmentDTO> list = investmentService.getInvestmentListByTypeId(investmentTypeId);
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/scenario/{scenarioId}")

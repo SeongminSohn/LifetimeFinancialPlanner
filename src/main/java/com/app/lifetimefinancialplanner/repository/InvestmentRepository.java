@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
     List<Investment> findAllByScenarioId(Long scenarioId);
+    List<Investment> findAllByInvestmentType_Id(Long investmentTypeId);
 }
