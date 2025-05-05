@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity @Table(name = "TBL_INVEST_EVENT")
-@Getter @ToString
+@Getter @ToString(exclude = {"scenario", "investmentType"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
