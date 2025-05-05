@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface SimulationRepository extends JpaRepository<Simulation, Long> {
     List<Simulation> findByScenarioIdOrderBySimulationCountAsc(Long scenarioId);
+    List<Simulation> findAllByBatchIdOrderBySimulationCountAsc(Long batchId);
 }

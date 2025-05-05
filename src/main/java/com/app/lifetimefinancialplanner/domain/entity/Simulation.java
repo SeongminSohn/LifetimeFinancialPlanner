@@ -17,6 +17,9 @@ public class Simulation {
     @GeneratedValue(generator = "SEQ_SIMULATION_GENERATOR")
     private Long id;
 
+    @Column(name = "BATCH_ID")
+    private Long batchId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SCENARIO_ID", nullable = false)
     private Scenario scenario;

@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 @Entity @Table(name = "TBL_SCENARIO")
 @SequenceGenerator(name = "SEQ_SCENARIO_GENERATOR", sequenceName = "SEQ_SCENARIO", allocationSize = 1)
-@Getter @ToString @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter @ToString(exclude = {"investEvents", "expenseEvents", "incomeEvents"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE) @Builder(toBuilder = true)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Scenario {

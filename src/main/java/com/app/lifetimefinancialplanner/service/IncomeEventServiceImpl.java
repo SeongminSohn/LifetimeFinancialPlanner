@@ -181,14 +181,14 @@ public class IncomeEventServiceImpl implements IncomeEventService {
                 log.error("No IncomeEvent data found in DB for Scenario ID: {}", scenario.getId());
                 throw new IllegalArgumentException("There is no IncomeEvent Information and This is Scenario ID: " + scenario.getId());
             }
-            log.info("Current Year branch: Retrieved {} IncomeEvents from DB for Scenario ID: {}", incomeEventList.size(), scenario.getId());
+//            log.info("Current Year branch: Retrieved {} IncomeEvents from DB for Scenario ID: {}", incomeEventList.size(), scenario.getId());
         } else {
             incomeEventList = context.getUpdatedIncomeEvents();
             if (incomeEventList == null) {
                 log.error("Updated IncomeEvent data is empty for Scenario ID: {}", scenario.getId());
                 throw new IllegalArgumentException("There is no updated IncomeEvent Information and This is Scenario ID: " + scenario.getId());
             }
-            log.info("Non-Current Year branch: Using {} updated IncomeEvents from context for Scenario ID: {}", incomeEventList.size(), scenario.getId());
+//            log.info("Non-Current Year branch: Using {} updated IncomeEvents from context for Scenario ID: {}", incomeEventList.size(), scenario.getId());
         }
 
         // Process each IncomeEvent
@@ -197,8 +197,7 @@ public class IncomeEventServiceImpl implements IncomeEventService {
             int eventStartYear = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getStartYear()));
             int duration = (int) samplingService.sample(distributionService.convertEmbeddableToDTO(incomeSeries.getDuration()));
             int eventEndYear = eventStartYear + duration;
-            log.info("IncomeEvent (ID: {}) - Sampled startYear: {}, duration: {}, computed endYear: {}, current simulation year: {}",
-                    incomeEvent.getEventSeriesId(), eventStartYear, duration, eventEndYear, currentYear);
+//            log.info("IncomeEvent (ID: {}) - Sampled startYear: {}, duration: {}, computed endYear: {}, current simulation year: {}", incomeEvent.getEventSeriesId(), eventStartYear, duration, eventEndYear, currentYear);
 
             // Process the IncomeEvent if it is active in the current simulation year.
             if (currentYear >= eventStartYear && currentYear < eventEndYear) {
@@ -223,14 +222,14 @@ public class IncomeEventServiceImpl implements IncomeEventService {
                         .initialAmount(currentAmount.doubleValue())
                         .build();
                 updatedIncomeEventList.add(updatedIncomeEvent);
-                log.info("Processed IncomeEvent (ID: {}): Computed currentAmount = {}", incomeEvent.getEventSeriesId(), currentAmount);
+//                log.info("Processed IncomeEvent (ID: {}): Computed currentAmount = {}", incomeEvent.getEventSeriesId(), currentAmount);
             } else {
-                log.info("Skipped IncomeEvent (ID: {}) because the event is not active in the current simulation year: {}", incomeEvent.getEventSeriesId(), currentYear);
+//                log.info("Skipped IncomeEvent (ID: {}) because the event is not active in the current simulation year: {}", incomeEvent.getEventSeriesId(), currentYear);
             }
         }
-
+        
         context.setUpdatedIncomeEvents(updatedIncomeEventList);
-        log.info("runIncomeEvents completed: updatedIncomeEvents list size = {}", context.getUpdatedIncomeEvents().size());
+//        log.info("runIncomeEvents completed: updatedIncomeEvents list size = {}", context.getUpdatedIncomeEvents().size());
     }
 
 
