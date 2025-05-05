@@ -109,6 +109,26 @@ public class InvestmentServiceImpl implements InvestmentService {
     }
 
     @Override
+    public List<InvestmentDTO> getInvestmentListByTypeId(Long investmentTypeId) {
+        List<Investment> investments = investmentRepository
+                .findAllByInvestmentType_Id(investmentTypeId);
+
+        return investments.stream()
+                .map(entity -> {
+                    InvestmentDTO dto = new InvestmentDTO();
+                    dto.setId(entity.getId());
+                    dto.setScenarioId(entity.getScenario().getId());
+                    dto.setInvestmentTypeId(
+                            entity.getInvestmentType().getId()
+                    );
+                    dto.setValue(entity.getValue());
+                    dto.setTaxStatus(entity.getTaxStatus());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<InvestmentDTO> getInvestmentListByScenarioId(Long scenarioId) {
         List<Investment> investments = investmentRepository.findAll().stream()
                 .filter(investment -> investment.getScenario().getId().equals(scenarioId))
@@ -149,9 +169,9 @@ public class InvestmentServiceImpl implements InvestmentService {
         }
 
         for (Investment investment : investmentList) {
-            // 1. This is initial value
+            // Initial value
             BigDecimal initialValue = BigDecimal.valueOf(investment.getValue());
-            // and this is initial generated Income
+            // Initial generated Income
             BigDecimal generatedIncome = BigDecimal.ZERO;
             InvestmentType investType = investment.getInvestmentType();
             if (investType == null) {
