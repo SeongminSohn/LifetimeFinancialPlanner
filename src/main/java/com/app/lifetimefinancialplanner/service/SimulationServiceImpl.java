@@ -3,14 +3,17 @@ package com.app.lifetimefinancialplanner.service;
 import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
 import com.app.lifetimefinancialplanner.domain.dto.SimulationDTO;
 import com.app.lifetimefinancialplanner.domain.dto.SimulationYearDTO;
+import com.app.lifetimefinancialplanner.domain.entity.InvestEvent;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
 import com.app.lifetimefinancialplanner.domain.entity.Simulation;
 import com.app.lifetimefinancialplanner.domain.entity.SimulationYear;
+import com.app.lifetimefinancialplanner.repository.InvestEventRepository;
 import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
 import com.app.lifetimefinancialplanner.repository.SimulationRepository;
 import com.app.lifetimefinancialplanner.repository.SimulationYearRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +21,7 @@ import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 //for simulation
@@ -32,6 +34,7 @@ public class SimulationServiceImpl implements SimulationService {
 
     private final SimulationRepository simulationRepository;
     private final SimulationYearRepository simulationYearRepository;
+    private final InvestEventRepository investEventRepository;
     private final ScenarioRepository scenarioRepository;
     private final IncomeEventService incomeEventService;
     private final ExpenseEventService expenseEventService;
@@ -45,6 +48,7 @@ public class SimulationServiceImpl implements SimulationService {
 
     public SimulationServiceImpl(SimulationRepository simulationRepository,
                                  SimulationYearRepository simulationYearRepository,
+                                 InvestEventRepository investEventRepository,
                                  ScenarioRepository scenarioRepository,
                                  ExpenseWithdrawalStrategyService expenseWithdrawalStrategyService,
                                  IncomeEventService incomeEventService,
@@ -57,6 +61,7 @@ public class SimulationServiceImpl implements SimulationService {
                                  LogService logService) {
         this.simulationRepository = simulationRepository;
         this.simulationYearRepository = simulationYearRepository;
+        this.investEventRepository = investEventRepository;
         this.scenarioRepository = scenarioRepository;
         this.incomeEventService = incomeEventService;
         this.expenseEventService = expenseEventService;
@@ -139,13 +144,63 @@ public class SimulationServiceImpl implements SimulationService {
         return simulationDTO;
     }
 
+    private boolean overlapsExisting(Pair<Integer,Integer> candidate, Collection<Pair<Integer,Integer>> scheduled) {
+        int cStart = candidate.getLeft();
+        int cEnd   = cStart + candidate.getRight();
+        for (Pair<Integer,Integer> prev : scheduled) {
+            int pStart = prev.getLeft();
+            int pEnd   = pStart + prev.getRight();
+            if (cStart < pEnd && pStart < cEnd) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     @Transactional
     public List<SimulationDTO> runSimulation(Long scenarioId, Integer simulationCount) {
         Scenario scenario = scenarioRepository.findById(scenarioId)
                 .orElseThrow(() -> new IllegalArgumentException("Scenario not found with id: " + scenarioId));
-
         List<SimulationDTO> resultList = new ArrayList<>();
+        SimulationContext context = new SimulationContext();
+
+        // Citation: GPT helped me to validate the overlap of InvestEvents by using eventSchedule Map
+        List<InvestEvent> allInvestEvents = investEventRepository.findAllByEventSeries_Scenario_Id(scenarioId);
+        Map<Long, Pair<Integer, Integer>> investEventSchedule = new HashMap<>();
+        final int MAX_TRIES = 100;
+        for (InvestEvent event : allInvestEvents) {
+            int tries = 0;
+            Pair<Integer,Integer> sampled;
+            // Sample start and duration for the event
+            do {
+                int sampledStart = (int) samplingService.sample(
+                        distributionService.convertEmbeddableToDTO(event.getEventSeries().getStartYear())
+                );
+                int sampledDur = (int) samplingService.sample(
+                        distributionService.convertEmbeddableToDTO(event.getEventSeries().getDuration())
+                );
+                if (sampledDur < 0) sampledDur = 0;
+                sampled = Pair.of(sampledStart, sampledDur);
+                tries++;
+            }
+            // Validate and exclude the events that overlap
+            while (overlapsExisting(sampled, investEventSchedule.values()) && tries < MAX_TRIES);
+
+            if (tries >= MAX_TRIES) {
+                throw new IllegalStateException(
+                        "Unable to schedule InvestEvent with no overlap after " + MAX_TRIES + " tries"
+                );
+            }
+            investEventSchedule.put(event.getEventSeries().getId(), sampled);
+        }
+        context.setInvestEventSchedule(investEventSchedule);
+
+        // Save the filtered events in the schedule
+        List<InvestEvent> scheduledEvents = allInvestEvents.stream()
+                .filter(ev -> investEventSchedule.containsKey(ev.getEventSeries().getId()))
+                .collect(Collectors.toList());
+        context.setUpdatedInvestEvents(scheduledEvents);
 
         // Create a log file name with username and timestamp
         String userName = scenario.getUser().getName();
@@ -196,7 +251,6 @@ public class SimulationServiceImpl implements SimulationService {
 
             // Prepare context and DTO list
             List<SimulationYearDTO> simulationYearDTOList = new ArrayList<>();
-            SimulationContext context = new SimulationContext();
 
             // Update numYears by comparing user's and spouse's life expectancy
             int numYears = scenario.getBirthYearSpouse() != null
@@ -246,6 +300,7 @@ public class SimulationServiceImpl implements SimulationService {
                 context.setCurYearEarlyWithdrawals(BigDecimal.ZERO);
                 context.setTotalExpenses(BigDecimal.ZERO);
                 context.setTotalTax(BigDecimal.ZERO);
+                context.setAssetAllocations(new ArrayList<>());
                 context.getExpenseBreakdowns().clear();
                 context.setFederalTax(BigDecimal.ZERO);
                 context.setStateTax(BigDecimal.ZERO);
@@ -342,6 +397,7 @@ public class SimulationServiceImpl implements SimulationService {
             simulationDTO.setId(simulation.getId());
             simulationDTO.setScenarioId(simulation.getScenario().getId());
             simulationDTO.setSimulationCount(simulation.getSimulationCount());
+            simulationDTO.setBatchId(simulation.getBatchId());
             simulationDTO.setResult(simulation.getResult());
             simulationDTO.setCreatedAt(simulation.getCreatedAt());
             simulationDTO.setSimulationYears(simulationYearDTOList);

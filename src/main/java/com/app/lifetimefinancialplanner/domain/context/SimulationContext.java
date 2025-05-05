@@ -6,11 +6,13 @@ import com.app.lifetimefinancialplanner.domain.entity.IncomeEvent;
 import com.app.lifetimefinancialplanner.domain.entity.Investment;
 import com.app.lifetimefinancialplanner.domain.entity.InvestEvent;
 import lombok.Data;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class SimulationContext {
@@ -23,6 +25,8 @@ public class SimulationContext {
     private List<Investment> updatedInvestments = new ArrayList<>();
     private List<InvestEvent> updatedInvestEvents = new ArrayList<>();
     private List<Investment> investmentsPurchasingPrices = new ArrayList<>();
+    private Map<Long, Pair<Integer,Integer>> investEventSchedule;
+
     // Current Year Variables
     private BigDecimal curYearIncome = BigDecimal.ZERO;
     private BigDecimal curYearSS = BigDecimal.ZERO;
