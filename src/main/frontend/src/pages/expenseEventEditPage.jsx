@@ -221,6 +221,7 @@ function expensePage() {
                 {formData.startYear.distributionType === 'FIXED' && (
                     <input
                         type="number"
+                        onWheel={e => e.preventDefault()}
                         name="startYear.value"
                         min={currentYear}
                         value={formData.startYear.value || ''}
@@ -233,6 +234,7 @@ function expensePage() {
                     <>
                         <input
                             type="number"
+                            onWheel={e => e.preventDefault()}
                             name="startYear.lower"
                             value={formData.startYear.lower || ''}
                             onChange={handleChange}
@@ -241,6 +243,7 @@ function expensePage() {
                         />
                         <input
                             type="number"
+                            onWheel={e => e.preventDefault()}
                             name="startYear.upper"
                             min={formData.startYear.lower || currentYear}
                             value={formData.startYear.upper || ''}

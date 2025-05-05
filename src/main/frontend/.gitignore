@@ -39,3 +39,6 @@ src/__mocks__/react-router-dom.js
 src/component/__test__/Signin.test.jsx
 src/component/__test__/Investment.test.jsx
 src/component/__test__/profileSetting.test.jsx
+
+
+logs
