@@ -26,10 +26,6 @@ function ExpenseWithdrawlPage() {
 
     async function postArray() {
         console.log("FormData length: ", clickedItems.length);
-        // if (clickedItems.length < existingInvestments.length) {
-        //     alert("Put all elements into the array!");
-        //     return;
-        // }
         const scenarioId = localStorage.getItem("scenario");
         const updatedFormData = {
             ...formData,
@@ -45,6 +41,7 @@ function ExpenseWithdrawlPage() {
                     { withCredentials: true, headers: { "Content-Type": "application/json" } }
                 );
                 console.log("Updated Investment:", response.data);
+                alert("Updated");
             } else {
                 const response = await axios.post(
                     "http://localhost:10000/api/expense-withdrawal-strategies",
@@ -52,6 +49,7 @@ function ExpenseWithdrawlPage() {
                     { withCredentials: true, headers: { "Content-Type": "application/json" } }
                 );
                 console.log("Expense withdrawal strategy saved:", response.data);
+                alert("Created");
             }
         } catch (error) {
             console.error("Error saving expense withdrawal strategy:", error);
@@ -65,19 +63,7 @@ function ExpenseWithdrawlPage() {
             axios.get(`http://localhost:10000/api/investments/scenario/${scenarioId}`)
                 .then(response => {
                     setExistingInvestments(response.data);
-                })
-                .catch(error => {
-                    console.error("Error fetching investments:", error);
-                });
-        }
-    }, []);
-
-    useEffect(() => {
-        const scenarioId = localStorage.getItem("scenario");
-        if (scenarioId) {
-            axios.get(`http://localhost:10000/api/investments/scenario/${scenarioId}`)
-                .then(response => {
-                    setExistingInvestments(response.data);
+                    console.log("Investment Data: ", response.data)
                 })
                 .catch(error => {
                     console.error("Error fetching investments:", error);
@@ -100,6 +86,7 @@ function ExpenseWithdrawlPage() {
             axios.get(`http://localhost:10000/api/investment-types/scenario/${scenarioId}`)
                 .then(response => {
                     setInvestmentTypes(response.data);
+                    console.log("Investment type Data: ", response.data)
                 })
                 .catch(error => {
                     console.error("Error fetching investment types:", error);
@@ -146,35 +133,12 @@ function ExpenseWithdrawlPage() {
             )
         );
     }
-
-    function toInvestment(){
-        navPage('/Investment')
-    }
-    function toWithDrawal(){
-        navPage('/ExpenseW');
-    }
-    function toIncome() {
-        navPage('/IncomePage');
-    }
-    function toExpense() {
-        navPage('/ExpenseEdit');
-    }
-    function toInvest() {
-        navPage('/InvestEdit');
-    }
-    function toSim() {
-        navPage('/simulationPage');
-    }
     function toHome() {
         navPage('/Homepage');
     }
     function toProfile() {
         navPage('/Profset');
     }
-    function toInvestEvent(){
-        navPage("/InvestEvent")
-    }
-
     function handleButtonClick(item) {
         setSelectedInvestment(item);
         const savedRecord = existingInvestments.find(inv => inv.investmentTypeId === item.id);
@@ -221,23 +185,14 @@ function ExpenseWithdrawlPage() {
 
 
     function expenseComponents() {
-
-
         return (
             <div className="profileSetting">
-                <p
-                    className="logoLetter"
-                    style={{ color: "black", fontSize: "5vh", marginTop: "30px" }}
-                >
-                    Expense WithDrawl. Choose Order.
-                </p>
-
+                <p className="logoLetter" style={{ color: "black", fontSize: "5vh", marginTop: "30px" }}>Expense WithDrawl. Choose Order.</p>
                 {filtered.map((item, index) => (
                     <form key={item.investmentTypeId || index} className="investment-form">
                         <div className="login">
                             <label htmlFor={`name-${index}`}>Status</label>
-                            <button
-                                type="button"
+                            <button type="button"
                                 id={`name-${index}`}
                                 name="name"
                                 onClick={() => handleButtonClick(item)}>

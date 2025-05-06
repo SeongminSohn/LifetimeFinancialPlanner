@@ -98,13 +98,6 @@ function investPage(){
             alert("Upper Value has to be greater than lower value for Expected Annual Return");
             return;
         }
-        // if (formData.maritalStatus === "Y") {
-        //     const { distributionType: distS, lower: lowS, upper: upS } = formData.lifeExpectancySpouse;
-        //     if (distS === "UNIFORM" && Number(upS) <= Number(lowS)) {
-        //         alert("Upper Value has to be greater than lower value for Spouse Year.");
-        //         return;
-        //     }
-        // }
         const { distributionType: distI, lower: lowI, upper: upI } = formData.expectedAnnualIncome;
         if (distI === "UNIFORM" && Number(upI) <= Number(lowI)) {
             alert("Upper Value has to be greater than lower value for Expected Annual Income.");

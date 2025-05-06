@@ -32,32 +32,6 @@ function UserGuidePage() {
             )
         );
     }
-
-    function toWithDrawal(){
-        navPage('/ExpenseW');
-    }
-    function toIncome() {
-        navPage('/IncomePage');
-    }
-    function toExpense() {
-        navPage('/ExpenseEdit');
-    }
-    function toInvest() {
-        navPage('/InvestEdit');
-    }
-    function toSim() {
-        navPage('/simulationPage');
-    }
-    function toHome() {
-        navPage('/Homepage');
-    }
-    function toProfile() {
-        navPage('/Profset');
-    }
-    function toInvestEvent(){
-        navPage("/InvestEvent")
-    }
-
     function toHome(){
         navigate("/Homepage")
     }
@@ -69,13 +43,15 @@ function UserGuidePage() {
     function instructionInvestment() {
         return (
             <div className = "instructions">
-                <h2>Investment Instruction</h2>
+                <h2>View Invest type Status</h2>
                 <div>
                     <ul>
-                <li>This page shows which investments the user currently holds.</li>
-                <li>Click the plus button at the top to set an investment type, which will then be displayed in the investments section.</li>
-                <li>In the Investment Type section, you can set the value of the entered investment type and configure its corresponding tax status.</li>
-                    <li>Clicking the X button will delete only the value and tax status entered for that investment.</li>
+                <li>This page shows which investment types the user currently holds.</li>
+                <li>In the Investment Type Add and Edit section, User can add and edit investment type</li>
+                            <li>Cash → YES or NO
+                            S&P 500 → YES
+                            TAX-EXEMPT BONDS → NO</li>
+                        <li>User can Click each investment types to add investment values and their tax status</li>
                     </ul>
                 </div>
             </div>
@@ -85,11 +61,12 @@ function UserGuidePage() {
     function instructionIncomeEdit() {
         return (
             <div className = "instructions">
-                <h2>Income Edit Instruction</h2>
+                <h2>View Income Status</h2>
                 <div>
                     <ul>
                         <li>On this page, the user can enter their income information.</li>
                         <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                        <li>User can see and manage their income informations</li>
                     </ul>
                 </div>
             </div>
@@ -99,28 +76,12 @@ function UserGuidePage() {
     function instructionExpenseEdit() {
         return (
             <div className = "instructions">
-                <h2>Expense Edit</h2>
+                <h2>View Expense Status</h2>
                 <div>
                     <ul>
                         <li>On this page, the user can enter their expense information.</li>
                         <li>The "Is Discretionary" option at the bottom always functions as "No."</li>
-                    </ul>
-                </div>
-            </div>
-        );
-    }
-
-    function instructionInvestEdit() {
-        return (
-            <div className = "instructions">
-                <h2>Invest Edit Instruction</h2>
-                <div>
-                    <ul>
-                        <li>On this page, the user can enter their Invest information.</li>
-                       <li>Only the following selections are allowed:
-                           Cash → YES or NO
-                           S&P 500 → YES
-                           TAX-EXEMPT BONDS → NO</li>
+                        <li>User can see and manage their expense informations</li>
                     </ul>
                 </div>
             </div>
@@ -130,7 +91,7 @@ function UserGuidePage() {
     function instructionExpenseWithdrawal() {
         return (
             <div className = "instructions">
-                <h2>Expense Withdrawal Instruction</h2>
+                <h2>Expense Withdrawal Edit</h2>
                 <div>
                     <ul>
                         <li>On this page, user can set the selling order of the investments you hold.</li>
@@ -145,12 +106,14 @@ function UserGuidePage() {
     function instructionInvestEventEdit() {
         return (
             <div className = "instructions">
-                <h2>Income Edit Instruction</h2>
+                <h2>Invest Event Edit</h2>
                 <div>
                     <ul>
-                        <li>On this page, the user can enter their income information.</li>
-                        <li>Depending on whether Social Security is marked as Y or N, a total of two different income events can be generated.</li>
+                        <li>On this page, the user can manage their invest Event information.</li>
+                        <li>They can add and edit invest Event information</li>
+                        <li style={{color: "red", fontWeight:"bolder"}}>When user is done with entering the value to the asset allocation, user has to click [Save to List] before submit</li>
                     </ul>
+
                 </div>
             </div>
         );
@@ -159,10 +122,25 @@ function UserGuidePage() {
     function instructionSimulation() {
         return (
             <div className = "instructions">
-                <h2>Run Simulation Page</h2>
+                <h2>Run Simulation & Result Page</h2>
                 <div>
                     <ul>
                         <li>Set how many times the simulation will be run.</li>
+                        <li>User can see the simulation stack bar chart on result page</li>
+                    </ul>
+                </div>
+            </div>
+        );
+    }
+
+    function instructionImport() {
+        return (
+            <div className = "instructions">
+                <h2>Import and Export Page</h2>
+                <div>
+                    <ul>
+                        <li>User can download the YAML file based on what they put on the page</li>
+                        <li>User can choose the YAML file and upload to webpage</li>
                     </ul>
                 </div>
             </div>
@@ -180,16 +158,16 @@ function UserGuidePage() {
                     Investment
                 </button>
                 <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "income" ? null : "income")}>
-                    Income Edit
+                    Income
                 </button>
                 <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "expense" ? null : "expense")}>
-                    Expense Edit
+                    Expense
                 </button>
-                <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "invest" ? null : "invest")}>
-                    Invest Edit
-                </button>
+                {/*<button className="guider" onClick={() => setSelectedInstruction(prev => prev === "invest" ? null : "invest")}>*/}
+                {/*    Investment Types*/}
+                {/*</button>*/}
                 <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "withdrawal" ? null : "withdrawal")}>
-                    Expense Withdrawal Edit
+                    Expense Withdrawal
                 </button>
                 <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "investEvent" ? null : "investEvent")}>
                     Invest Event Edit
@@ -197,7 +175,7 @@ function UserGuidePage() {
                 <button className="guider" onClick={() => setSelectedInstruction(prev => prev === "Simulation" ? null : "Simulation")}>
                     Scenario Simulation
                 </button>
-                <button className="guider" disabled style={{backgroundColor: 'grey'}}>
+                <button className="guider" onClick={()=>setSelectedInstruction(prev => prev === "Import" ? null : "Import")}>
                     Import & Export Data
                 </button>
                 </div>
@@ -213,24 +191,19 @@ function UserGuidePage() {
                 return instructionIncomeEdit();
             case "expense":
                 return instructionExpenseEdit();
-            case "invest":
-                return instructionInvestEdit();
+            // case "invest":
+            //     return instructionInvestEdit();
             case "withdrawal":
                 return instructionExpenseWithdrawal();
             case "investEvent":
                 return instructionInvestEventEdit();
             case "Simulation":
                 return instructionSimulation();
+            case "Import":
+                return instructionImport()
             default:
                 return null;
         }
-    }
-
-    function handleLogout() {
-        localStorage.removeItem("token");
-        localStorage.removeItem("scenario");
-        setLoggedIn(false);
-        navigate("/Homepage");
     }
 
     return (
