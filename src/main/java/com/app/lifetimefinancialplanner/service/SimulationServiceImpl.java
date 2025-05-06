@@ -316,6 +316,13 @@ public class SimulationServiceImpl implements SimulationService {
                 payExpenseAndTax(scenario, context, userAlive, spouseAlive);
                 investEventService.runInvestEvents(scenario, context);
 
+                // Update totalInvestments to reflect post-contribution values at end of year
+                BigDecimal sumInvestments = context.getUpdatedInvestments().stream()
+                        .map(inv -> BigDecimal.valueOf(inv.getValue()))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                context.setTotalInvestments(sumInvestments);
+
+
                 String details = "Year " + currentYear + " processed with inflation factor " + cumulativeInflation;
                 context.setDetails(details);
                 context.setTimestamp(LocalDateTime.now());
@@ -465,6 +472,8 @@ public class SimulationServiceImpl implements SimulationService {
         expenseWithdrawalStrategyService.withdrawFundsForExpenses(scenario, context, withdrawalNeeded);
 
         // Deduct the total payment from the cash balance.
-        context.setCashBalance(availableCash.subtract(totalPayment));
+        context.setCashBalance(context.getCashBalance().subtract(totalPayment));
+        // After paying expenses and tax, add current year income to cash balance.
+        context.setCashBalance(context.getCashBalance().add(context.getCurYearIncome()).add(context.getCurYearSS()));
     }
 }
