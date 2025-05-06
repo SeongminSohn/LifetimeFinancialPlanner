@@ -102,6 +102,7 @@ function homePage(){
         try {
             const response = await axios.post("http://localhost:10000/api/income-events", formData, { withCredentials: true, headers: { "Content-Type": "application/json" } });
             console.log("Scenario ID:", response.data);
+            console.log("income Data: " ,response.data);
             navPage("/IncomeSetting")
         } catch (error) {
             console.error("Scenario Error:", error);
@@ -593,6 +594,7 @@ function homePage(){
                     <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
                     <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
                     <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
+                    <button onClick={() => navPage('/simulationResult')}>Scenario Simulation</button>
                     <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
                 </aside>
             )

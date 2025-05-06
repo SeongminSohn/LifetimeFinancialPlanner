@@ -26,6 +26,7 @@ function UserGuidePage() {
                     <button onClick={() => navPage('/ExpenseW')}>Expense Withdrawal Edit</button>
                     <button onClick={() => navPage('/SimulationManagement')}>Invest Event Edit</button>
                     <button onClick={() => navPage('/simulationPage')}>Scenario Simulation</button>
+                    <button onClick={() => navPage('/simulationResult')}>Scenario Simulation</button>
                     <button onClick={() => navPage('/ImportExp')}>Import & Export Data</button>
                 </aside>
             )
