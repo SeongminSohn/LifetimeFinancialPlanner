@@ -24,21 +24,3 @@ yarn-error.log*
 
 # === Custom ignore for development-only config and test files ===
 
-# ESLint config
-.eslintrc.json
-
-# Babel config
-babel.config.cjs
-
-# Jest setup file
-setupTests.js
-
-# Mock files
-src/__mocks__/react-router-dom.js
-
-src/component/__test__/Signin.test.jsx
-src/component/__test__/Investment.test.jsx
-src/component/__test__/profileSetting.test.jsx
-
-
-logs
