@@ -74,29 +74,33 @@ public class ExpenseWithdrawalStrategyServiceImpl implements ExpenseWithdrawalSt
     @Transactional
     public void withdrawFundsForExpenses(Scenario scenario, SimulationContext context, BigDecimal withdrawalNeeded) {
         int currentYear = context.getCurrentYear();
-        List<Investment> withdrawalInvestments;
+        List<Investment> withdrawalInvestments = context.getUpdatedInvestments();
 
         // If currentYear is the actual current year, fetch IncomeEvents from DB
-        if (currentYear == LocalDateTime.now().getYear()) {
-            withdrawalInvestments = investmentRepository.findAllByScenarioId(scenario.getId());
+        if (context.getInvestmentsPurchasingPrices() == null || context.getInvestmentsPurchasingPrices().isEmpty()) {
+            // If no purchase price records yet, initialize them using current investments.
             if (withdrawalInvestments == null || withdrawalInvestments.isEmpty()) {
-                throw new IllegalArgumentException("There is no Investment Information for Scenario ID: " + scenario.getId());
+                withdrawalInvestments = investmentRepository.findAllByScenarioId(scenario.getId());
+                if (withdrawalInvestments == null || withdrawalInvestments.isEmpty()) {
+                    throw new IllegalArgumentException("There is no Investment Information for Scenario ID: " + scenario.getId());
+                }
             }
-
-            // Initialize each investment with its value as purchase price.
             List<Investment> purchasePriceRecords = new ArrayList<>();
             for (Investment investment : withdrawalInvestments) {
-                Investment record = investment.toBuilder().value(investment.getValue()).build();
+                Investment record = investment.toBuilder()
+                        .value(investment.getValue())
+                        .build();
                 purchasePriceRecords.add(record);
             }
             context.setInvestmentsPurchasingPrices(purchasePriceRecords);
-
         }
-        else {
+
+        // Determine which investments to withdraw
+        if (withdrawalInvestments == null || withdrawalInvestments.isEmpty()) {
             withdrawalInvestments = context.getUpdatedInvestments();
-            if (withdrawalInvestments == null || withdrawalInvestments.isEmpty()) {
-                throw new IllegalArgumentException("There is no updated Investment Information for Scenario ID: " + scenario.getId());
-            }
+        }
+        if (withdrawalInvestments == null || withdrawalInvestments.isEmpty()) {
+            throw new IllegalArgumentException("There is no Investment Information for Scenario ID: " + scenario.getId());
         }
 
         // Retrieve the purchase price records from context
