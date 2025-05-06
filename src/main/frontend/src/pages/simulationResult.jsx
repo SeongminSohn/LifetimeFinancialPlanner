@@ -29,6 +29,7 @@ function SimulationPage() {
             .get(`http://localhost:10000/api/charts/scenarios/${scenarioId}/simulations`)
             .then(res => {
                 if (Array.isArray(res.data)) setSimulationList(res.data);
+                console.log("simulation Data",res.data)
             })
             .catch(console.error)
             .finally(() => setIsLoading(false));
@@ -100,7 +101,7 @@ function SimulationPage() {
                         )}
 
                         {activeBatchId && (
-                            <button onClick={() => setActiveBatchId(null)} style={{ marginTop: '1vh' }}>
+                            <button onClick={() => setActiveBatchId(null)} style={{ marginTop: '15vh' }}>
                                 Hide chart
                             </button>
                         )}
