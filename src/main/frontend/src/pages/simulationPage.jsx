@@ -46,32 +46,11 @@ function simulationPage(){
         navPage("/UserGuide")
     }
 
-    function toSimulationResult(){
-        navPage("/SimulationResult")
-    }
-    function toWithDrawal(){
-        navPage('/ExpenseW');
-    }
-    function toIncome() {
-        navPage('/IncomePage');
-    }
-    function toExpense() {
-        navPage('/ExpenseEdit');
-    }
-    function toInvest() {
-        navPage('/InvestEdit');
-    }
-    function toSim() {
-        navPage('/simulationPage');
-    }
     function toHome() {
         navPage('/Homepage');
     }
     function toProfile() {
         navPage('/Profset');
-    }
-    function toInvestEvent(){
-        navPage("/InvestEvent")
     }
     function toResult(){
         navPage("/SimulationResult")
