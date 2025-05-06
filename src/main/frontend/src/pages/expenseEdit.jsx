@@ -61,6 +61,25 @@ function homePage(){
 
     async function handleSubmit(event) {
         event.preventDefault();
+
+        const { distributionType: distU, lower: lowU, upper: upU } = formData.startYear;
+        if (distU === "UNIFORM" && Number(upU) <= Number(lowU)) {
+            alert("Upper Value has to be greater than lower value for Start Year");
+            return;
+        }
+
+        const { distributionType: distI, lower: lowI, upper: upI } = formData.annualChange;
+        if (distI === "UNIFORM" && Number(upI) <= Number(lowI)) {
+            alert("Upper Value has to be greater than lower value for Annual Change.");
+            return;
+        }
+
+        const { distributionType: distD, lower: lowD, upper: upD } = formData.duration;
+        if (distD === "UNIFORM" && Number(upD) <= Number(lowD)){
+            alert("Upper Value has to be greater than lower value for Duration.");
+            return;
+        }
+
         formData.scenarioId = localStorage.getItem("scenario")
         console.log(formData)
         try {

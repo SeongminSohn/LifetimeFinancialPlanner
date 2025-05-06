@@ -512,6 +512,18 @@ function InvestEventPage() {
 
 
     async function handleSubmit(event) {
+
+        const { distributionType: distU, lower: lowU, upper: upU } = formData.startYear;
+        if (distU === "UNIFORM" && Number(upU) <= Number(lowU)) {
+            alert("Upper Value has to be greater than lower value for Start Year");
+            return;
+        }
+        const { distributionType: distD, lower: lowD, upper: upD } = formData.duration;
+        if (distD === "UNIFORM" && Number(upD) <= Number(lowD)){
+            alert("Upper Value has to be greater than lower value for Duration.");
+            return;
+        }
+
         const scenarioId = localStorage.getItem("scenario");
         // const check = localStorage.getItem("InvestEvent");
         const allocationSum = Object.values(allocationValues).reduce((acc, cur) => acc + cur, 0);
