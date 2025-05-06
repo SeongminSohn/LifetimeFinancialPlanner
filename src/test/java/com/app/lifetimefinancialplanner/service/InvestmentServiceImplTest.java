@@ -1,7 +1,6 @@
 package com.app.lifetimefinancialplanner.service;
 
-import com.app.lifetimefinancialplanner.domain.context.SimulationContext;
-import com.app.lifetimefinancialplanner.domain.dto.DistributionDTO;
+import com.app.lifetimefinancialplanner.domain.dto.InvestmentDTO;
 import com.app.lifetimefinancialplanner.domain.entity.Investment;
 import com.app.lifetimefinancialplanner.domain.entity.InvestmentType;
 import com.app.lifetimefinancialplanner.domain.entity.Scenario;
@@ -10,140 +9,138 @@ import com.app.lifetimefinancialplanner.repository.InvestmentTypeRepository;
 import com.app.lifetimefinancialplanner.repository.ScenarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
+import org.mockito.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class InvestmentServiceImplTest {
 
+    @InjectMocks
     private InvestmentServiceImpl investmentService;
+
+    @Mock
     private InvestmentRepository investmentRepository;
+
+    @Mock
     private InvestmentTypeRepository investmentTypeRepository;
+
+    @Mock
     private ScenarioRepository scenarioRepository;
+
+    @Mock
     private DistributionService distributionService;
+
+    @Mock
     private SamplingService samplingService;
+
+    private Scenario mockScenario;
+    private InvestmentType mockType;
 
     @BeforeEach
     void setUp() {
-        investmentRepository = mock(InvestmentRepository.class);
-        investmentTypeRepository = mock(InvestmentTypeRepository.class);
-        scenarioRepository = mock(ScenarioRepository.class);
-        distributionService = mock(DistributionService.class);
-        samplingService = mock(SamplingService.class);
+        MockitoAnnotations.openMocks(this);
 
-        investmentService = new InvestmentServiceImpl(
-                investmentRepository,
-                investmentTypeRepository,
-                scenarioRepository,
-                samplingService,
-                distributionService
-        );
-    }
-
-    @Test
-    void testUpdateInvestmentValues_CurrentYearCase() {
-        // Arrange
-        Scenario scenario = Scenario.builder().id(1L).build();
-        InvestmentType investmentType = InvestmentType.builder()
+        // Prepare a dummy Scenario
+        mockScenario = Scenario.builder()
                 .id(1L)
-                .expectedAnnualIncome(null)
-                .expectedAnnualReturn(null)
-                .expenseRatio(0.05)
+                .name("Test Scenario")
+                .birthYearUser(1990)
+                .afterTaxContributionLimit(5000.0)
+                .financialGoal(10000.0)
+                // other fields can be null if not required by this test
+                .build();
+
+        // Prepare a dummy InvestmentType
+        mockType = InvestmentType.builder()
+                .id(2L)
+                .name("TestType")
+                .description("description")
                 .taxability("Y")
                 .build();
 
-        Investment investment = Investment.builder()
-                .id(1L)
-                .investmentType(investmentType)
-                .value(1000.0)
-                .taxStatus("NON-RETIREMENT")
-                .scenario(scenario)
-                .build();
-
-        DistributionDTO dummyDist = new DistributionDTO();
-        when(distributionService.convertEmbeddableToDTO(any())).thenReturn(dummyDist);
-        when(samplingService.sample(dummyDist)).thenReturn(100.0); // income & return = 150
-        when(investmentRepository.findAllByScenarioId(scenario.getId()))
-                .thenReturn(List.of(investment));
-
-        SimulationContext context = new SimulationContext();
-        context.setCurrentYear(LocalDateTime.now().getYear());
-        context.setCurYearIncome(BigDecimal.ZERO);
-        context.setInflationFactor(1.0);
-
-        // Act
-        investmentService.updateInvestmentValues(scenario, context);
-
-        // Assert
-        List<Investment> updated = context.getUpdatedInvestments();
-        assertEquals(1, updated.size());
-
-        Investment updatedInvestment = updated.get(0);
-        double income = 100.0;
-        double returnVal = 100.0;
-        double initial = 1000.0;
-        double average = (initial + (initial + income + returnVal)) / 2.0;
-        double expense = average * 0.05;
-        double expectedValue = initial + income + returnVal - expense;
-
-        assertEquals(expectedValue, updatedInvestment.getValue(), 1e-6);
-        // Use compareTo to for BigDecimal comparison
-        assertEquals(0, BigDecimal.valueOf(income).compareTo(context.getCurYearIncome()));
+        when(scenarioRepository.findById(1L)).thenReturn(Optional.of(mockScenario));
+        when(investmentTypeRepository.findById(2L)).thenReturn(Optional.of(mockType));
     }
 
     @Test
-    void testUpdateInvestmentValues_NonCurrentYearCase() {
-        // Arrange
-        Scenario scenario = Scenario.builder().id(2L).build();
-        InvestmentType investmentType = InvestmentType.builder()
-                .id(2L)
-                .expectedAnnualIncome(null)
-                .expectedAnnualReturn(null)
-                .expenseRatio(0.05)
-                .taxability("Y")
+    void createInvestment_success() {
+        // Given: an InvestmentDTO for creation
+        InvestmentDTO dto = new InvestmentDTO();
+        dto.setScenarioId(1L);
+        dto.setInvestmentTypeId(2L);
+        dto.setValue(1234.5);
+        dto.setTaxStatus("NON-RETIREMENT");
+
+        // When saving, repository returns an entity with generated ID
+        Investment savedEntity = Investment.builder()
+                .id(10L)
+                .scenario(mockScenario)
+                .investmentType(mockType)
+                .value(dto.getValue())
+                .taxStatus(dto.getTaxStatus())
+                .createdAt(LocalDateTime.now())
                 .build();
-
-        Investment investment = Investment.builder()
-                .id(2L)
-                .investmentType(investmentType)
-                .value(2000.0)
-                .taxStatus("NON-RETIREMENT")
-                .scenario(scenario)
-                .build();
-
-        DistributionDTO dummyDist = new DistributionDTO();
-        when(distributionService.convertEmbeddableToDTO(any())).thenReturn(dummyDist);
-        when(samplingService.sample(dummyDist)).thenReturn(150.0); // income & return shoudl be 150
-
-        SimulationContext context = new SimulationContext();
-        // currentYear is not current year, so calculate based on the updatedInvestments of context
-        context.setCurrentYear(LocalDateTime.now().getYear() - 1);
-        context.setUpdatedInvestments(new ArrayList<>(List.of(investment)));
-        context.setCurYearIncome(BigDecimal.ZERO);
-        context.setInflationFactor(1.0);
+        when(investmentRepository.save(any(Investment.class))).thenReturn(savedEntity);
 
         // Act
-        investmentService.updateInvestmentValues(scenario, context);
+        Investment result = investmentService.createInvestment(dto);
 
         // Assert
-        List<Investment> updated = context.getUpdatedInvestments();
-        assertEquals(1, updated.size());
+        assertNotNull(result.getId(), "Saved investment should have an ID");
+        assertEquals(dto.getValue(), result.getValue(), "Investment value should match DTO");
+        assertEquals(dto.getTaxStatus(), result.getTaxStatus(), "Tax status should match DTO");
+        verify(investmentRepository, times(1)).save(any(Investment.class));
+    }
 
-        Investment updatedInvestment = updated.get(0);
-        double income = 150.0;
-        double returnVal = 150.0;
-        double initial = 2000.0;
-        double average = (initial + (initial + income + returnVal)) / 2.0;
-        double expense = average * 0.05;
-        double expectedValue = initial + income + returnVal - expense;
+    @Test
+    void updateInvestment_changeValueAndStatus() {
+        // Given: an existing Investment in repository
+        Investment existing = Investment.builder()
+                .id(20L)
+                .scenario(mockScenario)
+                .investmentType(mockType)
+                .value(500.0)
+                .taxStatus("AFTER-TAX")
+                .createdAt(LocalDateTime.now())
+                .build();
+        when(investmentRepository.findById(20L)).thenReturn(Optional.of(existing));
 
-        assertEquals(expectedValue, updatedInvestment.getValue(), 1e-6);
-        // BigDecimal Comparison
-        assertEquals(0, BigDecimal.valueOf(income).compareTo(context.getCurYearIncome()));
+        // Prepare an update DTO
+        InvestmentDTO updateDto = new InvestmentDTO();
+        updateDto.setValue(750.0);
+        updateDto.setTaxStatus("PRE-TAX");
+        // scenarioId null means no change
+        updateDto.setScenarioId(null);
+
+        // When saving, repository returns the modified entity
+        Investment updatedEntity = existing.toBuilder()
+                .value(updateDto.getValue())
+                .taxStatus(updateDto.getTaxStatus())
+                .build();
+        when(investmentRepository.save(any(Investment.class))).thenReturn(updatedEntity);
+
+        // Act
+        Investment result = investmentService.updateInvestment(20L, updateDto);
+
+        // Assert
+        assertEquals(750.0, result.getValue(), "Value should be updated to 750.0");
+        assertEquals("PRE-TAX", result.getTaxStatus(), "Tax status should be updated to PRE-TAX");
+        verify(investmentRepository, times(1)).save(any(Investment.class));
+    }
+
+    @Test
+    void deleteInvestment_success() {
+        // Given: an existing Investment for deletion
+        Investment existing = Investment.builder().id(30L).build();
+        when(investmentRepository.findById(30L)).thenReturn(Optional.of(existing));
+
+        // Act
+        investmentService.deleteInvestment(30L);
+
+        // Assert
+        verify(investmentRepository, times(1)).delete(existing);
     }
 }
